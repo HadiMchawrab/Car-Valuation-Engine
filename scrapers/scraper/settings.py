@@ -7,6 +7,18 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+from twisted.internet import kqreactor
+kqreactor.install()
+from twisted.internet import reactor
+if not hasattr(reactor, "_handleSignals"):
+    reactor._handleSignals = lambda *args, **kwargs: None
+
+SCRAPEOPS_API_KEY = os.getenv("SCRAPEOPS_API_KEY")
 BOT_NAME = "scraper"
 
 SPIDER_MODULES = ["scraper.spiders"]
@@ -53,6 +65,18 @@ ROBOTSTXT_OBEY = False
 #DOWNLOADER_MIDDLEWARES = {
 #    "scraper.middlewares.ScraperDownloaderMiddleware": 543,
 #}
+SCRAPEOPS_PROXY_ENABLED = True
+
+DOWNLOADER_MIDDLEWARES = {
+    # Disable the default UA middleware so ours takes effect:
+    "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware": None,
+
+    # Rotate realistic UAs each request:
+    "scrapy_user_agents.middlewares.RandomUserAgentMiddleware": 400,
+
+    # Route through ScrapeOps proxy pool:
+    "scrapeops_scrapy_proxy_sdk.scrapeops_scrapy_proxy_sdk.ScrapeOpsScrapyProxySdk": 725,
+}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -89,5 +113,5 @@ ROBOTSTXT_OBEY = False
 
 # Set settings whose default value is deprecated to a future-proof value
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
-TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
+#TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
