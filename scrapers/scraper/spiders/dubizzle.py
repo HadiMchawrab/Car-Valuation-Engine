@@ -8,8 +8,8 @@ class UsedCarsSpider(scrapy.Spider):
     custom_settings = {
         "ROBOTSTXT_OBEY": False,
         "CONCURRENT_REQUESTS": 16,
-        "DOWNLOAD_DELAY": 1,
-        "AUTOTHROTTLE_ENABLED": True,
+        "DOWNLOAD_DELAY": 0,
+        "AUTOTHROTTLE_ENABLED": False,
         "FEEDS": {
             "listings.csv": {
                  # TODO: NEED TO CHANGE METHOD OF STORAGE
