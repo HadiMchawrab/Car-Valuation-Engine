@@ -4,9 +4,14 @@
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
-
+from dotenv import load_dotenv
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
+import os
+import random
+import requests
+from scrapy.exceptions import NotConfigured
+
 
 
 class ScraperSpiderMiddleware:
@@ -101,3 +106,38 @@ class ScraperDownloaderMiddleware:
 
     def spider_opened(self, spider):
         spider.logger.info("Spider opened: %s" % spider.name)
+
+
+class ScrapeOpsHeaderMiddleware:
+    def __init__(self):
+        
+        
+        load_dotenv() 
+        self.api_key = os.getenv("SCRAPEOPS_API_KEY")
+        if not self.api_key:
+            raise NotConfigured("Missing SCRAPEOPS_API_KEY in environment")
+        self.endpoint = (
+            f"http://headers.scrapeops.io/v1/browser-headers"
+            f"?api_key={self.api_key}"
+        )
+        self.headers_list = []
+
+    def _fetch_headers(self):
+        resp = requests.get(self.endpoint)
+        resp.raise_for_status()
+        data = resp.json()
+        self.headers_list = data.get("result", [])
+
+    def process_request(self, request, spider):
+        
+        if not self.headers_list:
+            self._fetch_headers()
+       
+        hdrs = random.choice(self.headers_list)
+        for name, val in hdrs.items():
+            request.headers[name] = val
+       
+        return None
+
+    def spider_opened(self, spider):
+        spider.logger.info("ScrapeOpsHeaderMiddleware enabled")
