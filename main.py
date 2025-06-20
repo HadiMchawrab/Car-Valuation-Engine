@@ -5,14 +5,25 @@ from pathlib import Path
 import sys
 import os
 import subprocess
+import datetime
+import re
+
+# Try to import dateutil for better date parsing
+try:
+    import dateutil.parser
+    HAS_DATEUTIL = True
+except ImportError:
+    HAS_DATEUTIL = False
+    print("Warning: python-dateutil package not found. Date parsing will be limited.")
+    print("Consider installing with: pip install python-dateutil")
 
 
 class DubizzleLinkSpider(scrapy.Spider):
     name = 'dubizzle_link_spider'
     base_url = 'https://www.dubizzle.sa/en/vehicles/cars-for-sale/'
     
-    def __init__(self, max_pages=5, *args, **kwargs):
-        super(DubizzleLinkSpider, self).__init__(*args, **kwargs)
+    def _init_(self, max_pages=5, *args, **kwargs):
+        super(DubizzleLinkSpider, self)._init_(*args, **kwargs)
         self.ad_links = set()
         self.max_pages = int(max_pages)
         
@@ -47,8 +58,8 @@ class DubizzleLinkSpider(scrapy.Spider):
 class DubizzleDetailSpider(scrapy.Spider):
     name = 'dubizzle_detail_spider'
     
-    def __init__(self, links_file=None, *args, **kwargs):
-        super(DubizzleDetailSpider, self).__init__(*args, **kwargs)
+    def _init_(self, links_file=None, *args, **kwargs):
+        super(DubizzleDetailSpider, self)._init_(*args, **kwargs)
         links = []
         try:
             with open(links_file, 'r') as f:
@@ -71,9 +82,12 @@ class DubizzleDetailSpider(scrapy.Spider):
             "image_url": None,
             "title": None,
             "price": None,
+            "currency": None,
+            "cost": None,
             "location": None,
             "seller_name": None,
             "creation_date": None,
+            "time_created": None,  # New field for absolute timestamp
             "kilometers": None,
             "condition": None,
             "year": None,
@@ -81,7 +95,6 @@ class DubizzleDetailSpider(scrapy.Spider):
             "transmission_type": None,
             "brand": None,
             "body_type": None,
-            "seller_type": None,
             "model": None,
             "color": None,
             "description": None
@@ -100,29 +113,48 @@ class DubizzleDetailSpider(scrapy.Spider):
                 price = response.xpath("//span[contains(text(), 'USD')]/text()").get()
             
             if price:
-                ad_details["price"] = price.strip()
+                price_text = price.strip()
+                ad_details["price"] = price_text
+                
+                # Split price into currency and cost
+                import re
+                price_match = re.match(r'([^\d,]+)\s*([\d,]+)', price_text)
+                
+                if price_match:
+                    ad_details["currency"] = price_match.group(1).strip()
+                    ad_details["cost"] = price_match.group(2).strip()
+                else:
+                    # Try alternate pattern if first one fails (e.g., for "34,000 SR" format)
+                    price_match = re.match(r'([\d,]+)\s*([^\d,]+)', price_text)
+                    if price_match:
+                        ad_details["cost"] = price_match.group(1).strip()
+                        ad_details["currency"] = price_match.group(2).strip()
         except Exception as e:
             self.logger.error(f"Error extracting basic details: {e}")
+
+
+            
           # Extract location
         try:
-            location = (
-                response.xpath("//div[@aria-label='Location']//div[contains(@class, '_1ee53078') and contains(normalize-space(), ',') and string-length(normalize-space()) > 3]/text()").get() or
-
-                response.xpath("//div[@aria-label='Location']//div[not(*) and contains(normalize-space(), ',') and string-length(normalize-space()) > 3]/text()").get() or
-                
-                response.xpath("""
-                    //div[@aria-label='Description']/following-sibling::div[@aria-label='Location']
-                        [descendant::img[@alt='Map placeholder']]
-                        //div[
-                            not(*) and 
-                            contains(normalize-space(), ',') and 
-                            string-length(normalize-space()) > 3
-                        ][1]/text()
-                """).get()
-            )
+            script_with_datalayer = response.xpath('//script[contains(text(), "window[\'dataLayer\']") and contains(text(), "loc_name")]').get()
             
-            if location:
-                ad_details["location"] = location.strip()
+            if script_with_datalayer:
+                import re
+                loc_name_match = re.search(r'"loc_name"\s*:\s*"([^"]+)"', script_with_datalayer)
+                loc_1_name_match = re.search(r'"loc_1_name"\s*:\s*"([^"]+)"', script_with_datalayer)
+                
+                loc_name = loc_name_match.group(1) if loc_name_match else ""
+                loc_1_name = loc_1_name_match.group(1) if loc_1_name_match else ""
+                
+                if loc_name and loc_1_name:
+                    ad_details["location"] = f"{loc_name}, {loc_1_name}"
+                elif loc_name:
+                    ad_details["location"] = loc_name
+            
+                
+                
+                if location:
+                    ad_details["location"] = location.strip()
         except Exception as e:
             self.logger.error(f"Error extracting location: {e}")
             location = None
@@ -145,7 +177,63 @@ class DubizzleDetailSpider(scrapy.Spider):
                 response.xpath("//span[text()='Posted:']/following-sibling::span/text()").get()
             )
             if creation_date:
-                ad_details["creation_date"] = creation_date.strip()
+                creation_date = creation_date.strip()
+                ad_details["creation_date"] = creation_date
+                
+                # Calculate absolute timestamp from relative date
+                import re
+                import datetime
+                
+                # Get current time
+                now = datetime.datetime.now()
+                
+                # Parse relative time expressions
+                days_match = re.search(r'(\d+)\s*days?\s*ago', creation_date, re.IGNORECASE)
+                hours_match = re.search(r'(\d+)\s*hours?\s*ago', creation_date, re.IGNORECASE)
+                minutes_match = re.search(r'(\d+)\s*minutes?\s*ago', creation_date, re.IGNORECASE)
+                day_match = re.search(r'yesterday|1\s*day\s*ago', creation_date, re.IGNORECASE)
+                
+                if days_match:
+                    days = int(days_match.group(1))
+                    time_created = now - datetime.timedelta(days=days)
+                    ad_details["time_created"] = time_created.isoformat()
+                elif hours_match:
+                    hours = int(hours_match.group(1))
+                    time_created = now - datetime.timedelta(hours=hours)
+                    ad_details["time_created"] = time_created.isoformat()
+                elif minutes_match:
+                    minutes = int(minutes_match.group(1))
+                    time_created = now - datetime.timedelta(minutes=minutes)
+                    ad_details["time_created"] = time_created.isoformat()
+                elif day_match or "1 day ago" in creation_date.lower():
+                    time_created = now - datetime.timedelta(days=1)
+                    ad_details["time_created"] = time_created.isoformat()
+                elif "few seconds ago" in creation_date.lower() or "just now" in creation_date.lower() or "now" in creation_date.lower():
+                    ad_details["time_created"] = now.isoformat()
+                else:                    # Try to parse exact date format if available                    # Try to parse exact date format if available
+                    if HAS_DATEUTIL:
+                        try:
+                            parsed_date = dateutil.parser.parse(creation_date)
+                            ad_details["time_created"] = parsed_date.isoformat()
+                        except Exception:
+                            ad_details["time_created"] = None
+                            self.logger.warning(f"Could not parse creation date with dateutil: {creation_date}")
+                    else:
+                        # Fall back to datetime's more limited parsing capabilities
+                        date_parsed = False
+                        # Try common date formats
+                        for fmt in ["%d %b %Y", "%d %B %Y", "%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y"]:
+                            try:
+                                parsed_date = datetime.datetime.strptime(creation_date, fmt)
+                                ad_details["time_created"] = parsed_date.isoformat()
+                                date_parsed = True
+                                break
+                            except ValueError:
+                                continue
+                        
+                        if not date_parsed:
+                            ad_details["time_created"] = None
+                            self.logger.warning(f"Could not parse creation date: {creation_date}")
         except Exception as e:
             self.logger.error(f"Error extracting creation date: {e}")
         
@@ -196,7 +284,12 @@ class DubizzleDetailSpider(scrapy.Spider):
 def run_scraper(max_pages=1):
     """Run the complete scraper"""
     links_file = 'links.json'
-    details_file = 'All_Info.json'
+    details_file = 'All_Info.json'  # Updated to match the file in workspace
+    
+    # Check for optional dependencies
+    if not HAS_DATEUTIL:
+        print("      pip install python-dateutil")
+    
     settings = {
         'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         'LOG_LEVEL': 'INFO',
@@ -236,7 +329,7 @@ def run_scraper(max_pages=1):
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == 'details':
-            details_file = 'All_Info.json'
+            details_file = 'All_Info.json' 
             links_file = 'links.json'
             settings = {
                 'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
