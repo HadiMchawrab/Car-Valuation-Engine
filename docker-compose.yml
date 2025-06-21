@@ -1,10 +1,16 @@
 services:
-  # scraper:
-  #   build: .
-  #   volumes:
-  #     - .:/app
-  #   networks:
-  #     - app-network
+  scrapers:
+    build: ./scrapers
+    volumes:
+      - ./scrapers:/app
+      - ./scrapers/data:/app/data
+    env_file:
+      - ./scrapers/.env
+    networks:
+      - app-network
+    depends_on:
+      - database
+
   
   backend:
     build: ./backend
@@ -37,11 +43,6 @@ services:
       - mysql-data:/var/lib/mysql
     networks:
       - app-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
 networks:
   app-network:
@@ -51,4 +52,3 @@ networks:
 volumes:
   chroma_data_volume:
   mysql-data:
-

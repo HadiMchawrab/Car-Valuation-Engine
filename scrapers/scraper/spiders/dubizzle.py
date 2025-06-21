@@ -9,11 +9,11 @@ class DubizzleSpider(CrawlSpider):
     name = "dubizzle"
     allowed_domains = ["dubizzle.sa"]
     start_urls = ["https://www.dubizzle.sa/en/vehicles/cars-for-sale/"]
-
+    
     custom_settings = {
         # feed
         'FEEDS': {
-            'dubizzle.json': {'format': 'json', 'encoding': 'utf8', 'overwrite': True},
+            'data/dubizzle.json': {'format': 'json', 'encoding': 'utf8', 'overwrite': True},
         },
 
         # concurrency & throttling

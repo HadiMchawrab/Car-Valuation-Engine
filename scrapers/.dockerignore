@@ -1,0 +1,23 @@
+# Exclude virtual environment
+venv_scrape/
+
+# Exclude generated files
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+
+# Exclude temporary files
+.scrapy/
+
+# Exclude version control
+.git/
+.gitignore
+
+# Exclude IDE specific files
+.idea/
+.vscode/
+
+# Exclude environment files
+.env

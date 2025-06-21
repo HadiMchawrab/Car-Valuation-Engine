@@ -90,11 +90,11 @@ def search_listings(search_params: ListingSearch):
         params = []
         
         if search_params.make:
-            query += " AND make LIKE %s"
+            query += " AND make ILIKE %s"
             params.append(f"%{search_params.make}%")
         
         if search_params.model:
-            query += " AND model LIKE %s"
+            query += " AND model ILIKE %s"
             params.append(f"%{search_params.model}%")
         
         if search_params.min_year:
@@ -114,7 +114,7 @@ def search_listings(search_params: ListingSearch):
             params.append(search_params.max_price)
         
         if search_params.location:
-            query += " AND loc LIKE %s"
+            query += " AND loc ILIKE %s"
             params.append(f"%{search_params.location}%")
         
         cursor.execute(query, tuple(params))
@@ -162,7 +162,7 @@ def get_models_by_make(make: str):
         raise HTTPException(status_code=500, detail="Database connection failed")
     try:
         cursor = connection.cursor()
-        cursor.execute("SELECT DISTINCT model FROM listings WHERE make LIKE %s ORDER BY model", (f"%{make}%",))
+        cursor.execute("SELECT DISTINCT model FROM listings WHERE make ILIKE %s ORDER BY model", (f"%{make}%",))
         models = [row[0] for row in cursor.fetchall()]
         return models
     except Exception as e:
@@ -242,67 +242,6 @@ def get_count_by_make():
         results = [{"make": row[0], "count": row[1]} for row in cursor.fetchall()]
         return results
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        cursor.close()
-        connection.close()
-
-@app.post("/insert", response_model=Listing)
-def insert_listing(listing: ListingCreate):
-    """
-    Insert a new car listing after checking for duplicates based on web_url.
-    Returns the inserted listing with its generated ID.
-    """
-    connection = get_connection()
-    if connection is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-    try:
-        cursor = connection.cursor()
-        
-        # Check if a listing with the same web_url already exists
-        cursor.execute("SELECT id FROM listings WHERE web_url = %s", (listing.web_url,))
-        existing = cursor.fetchone()
-        
-        if existing:
-            raise HTTPException(status_code=409, detail="Listing with this web_url already exists")
-        
-        # Prepare the insert query
-        columns = ", ".join([
-            "website", "web_url", "title", "kilometers", "price", 
-            "currency", "year_oM", "make", "model", "loc", 
-            "created_at", "image_urls"
-        ])
-        
-        placeholders = ", ".join(["%s"] * 12)  # 12 fields to insert
-        
-        query = f"INSERT INTO listings ({columns}) VALUES ({placeholders})"
-        
-        # Prepare values for insertion
-        values = (
-            listing.website,
-            listing.web_url,
-            listing.title,
-            listing.kilometers,
-            listing.price,
-            listing.currency,
-            listing.year_oM,
-            listing.make,
-            listing.model,
-            listing.loc,
-            listing.created_at,
-            listing.image_urls
-        )
-        
-        cursor.execute(query, values)
-        connection.commit()
-        
-        # Get the ID of the newly inserted record
-        new_id = cursor.lastrowid
-        
-        # Return the complete listing with its ID
-        return {**listing.model_dump(), "id": new_id}
-    except Exception as e:
-        connection.rollback()
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         cursor.close()
