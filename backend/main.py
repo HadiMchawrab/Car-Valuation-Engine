@@ -41,12 +41,6 @@ def get_all_listings(limit: int = Query(100, ge=1, le=1000)):
         for row in cursor.fetchall():
             listing = dict(zip(columns, row))
             # Convert column names to match the model (removing underscores)
-            if "site_" in listing:
-                listing["site"] = listing.pop("site_")
-            if "url_" in listing:
-                listing["url"] = listing.pop("url_")
-            if "year_" in listing:
-                listing["year"] = listing.pop("year_")
             listings.append(listing)
         return listings
     except Exception as e:
@@ -73,12 +67,6 @@ def get_listing_by_id(listing_id: int):
         
         listing = dict(zip(columns, row))
         # Convert column names to match the model (removing underscores)
-        if "site_" in listing:
-            listing["site"] = listing.pop("site_")
-        if "url_" in listing:
-            listing["url"] = listing.pop("url_")
-        if "year_" in listing:
-            listing["year"] = listing.pop("year_")
         return listing
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -136,12 +124,6 @@ def search_listings(search_params: ListingSearch):
         for row in cursor.fetchall():
             listing = dict(zip(columns, row))
             # Convert column names to match the model (removing underscores)
-            if "site_" in listing:
-                listing["site"] = listing.pop("site_")
-            if "url_" in listing:
-                listing["url"] = listing.pop("url_")
-            if "year_" in listing:
-                listing["year"] = listing.pop("year_")
             listings.append(listing)
         
         return listings

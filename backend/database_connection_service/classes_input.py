@@ -2,13 +2,13 @@ from pydantic import BaseModel
 from typing import Optional, List
 
 class ListingBase(BaseModel):
-    site: str
-    url: str
+    website: str
+    web_url: str
     title: str
     kilometers: Optional[int] = None
     price: float
     currency: str
-    year: int
+    year_oM: int
     make: str
     model: str
     loc: Optional[str] = None
