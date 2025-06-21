@@ -2,3 +2,12 @@ venv/
 .env
 links.json
 All_Info.json
+scrapers/venv_scrape
+__pycache__/
+*/__pycache__/
+**/__pycache__/
+backend/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.Python
