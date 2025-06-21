@@ -1,8 +1,54 @@
-version: '3'
-
 services:
-  scraper:
-    build: .
+  # scraper:
+  #   build: .
+  #   volumes:
+  #     - .:/app
+  #   networks:
+  #     - app-network
+  
+  backend:
+    build: ./backend
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_HOST=database
+      - DATABASE_PORT=3306
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=123
+      - DATABASE_NAME=Markaba_trial
     volumes:
-      - .:/app
+      - ./backend:/app
+    depends_on:
+      - database
+    networks:
+      - app-network
+    restart: on-failure
+  
+  database:
+    build: ./database
+    container_name: markaba-database
+    environment:
+      MYSQL_ROOT_PASSWORD: "123"
+      MYSQL_DATABASE: "Markaba_trial"
+      MYSQL_TCP_PORT: 3306
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+networks:
+  app-network:
+    driver: bridge
+    name: markaba-network
+
+volumes:
+  chroma_data_volume:
+  mysql-data:
 
