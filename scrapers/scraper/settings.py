@@ -16,11 +16,11 @@ if not SCRAPEOPS_API_KEY:
     raise RuntimeError("Missing SCRAPEOPS_API_KEY in environment")
 
 
-from twisted.internet import kqreactor
-kqreactor.install()
-from twisted.internet import reactor
-if not hasattr(reactor, "_handleSignals"):
-    reactor._handleSignals = lambda *args, **kwargs: None
+# from twisted.internet import kqreactor
+# kqreactor.install()
+# from twisted.internet import reactor
+# if not hasattr(reactor, "_handleSignals"):
+#     reactor._handleSignals = lambda *args, **kwargs: None
 
 BOT_NAME = "scraper"
 
@@ -69,16 +69,80 @@ ROBOTSTXT_OBEY = False
 #    "scraper.middlewares.ScraperDownloaderMiddleware": 543,
 #}
 SCRAPEOPS_PROXY_ENABLED = True
+# CLOUDFLARE_WORKER_URLS = [
+#     "https://dubizzle-proxy-1.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-2.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-3.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-4.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-5.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-6.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-7.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-8.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-9.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-10.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-11.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-12.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-13.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-14.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-15.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-16.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-17.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-18.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-19.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-20.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-21.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-22.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-23.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-24.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-25.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-26.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-27.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-28.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-29.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-30.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-31.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-32.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-33.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-34.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-35.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-36.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-37.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-38.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-39.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-40.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-41.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-42.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-43.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-44.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-45.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-46.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-47.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-48.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-49.welcometouseef.workers.dev",
+#     "https://dubizzle-proxy-50.welcometouseef.workers.dev"
+# ]
+
 
 DOWNLOADER_MIDDLEWARES = {
-    # 400 is a good priority slot
-    "scraper.middlewares.ScrapeOpsHeaderMiddleware": 400,
-
-    # (leave your retry, compression, proxy, etc. middlewares here too)
-    "scrapy.downloadermiddlewares.retry.RetryMiddleware": 550,
-    "scrapy.downloadermiddlewares.redirect.RedirectMiddleware": 600,
-    # …
+    # 1) your Cloudflare or FreeProxy middleware
+    #'scraper.middlewares.HybridProxyMiddleware':           90,
+   # 'scraper.middlewares.CloudflareProxyMiddleware':    100,
+      'scraper.middlewares.FreeProxyMiddleware':               100,
+            'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110,
+            'scraper.middlewares.EmptyPageRetryMiddleware':          150,
+            'scrapy.downloadermiddlewares.retry.RetryMiddleware':    200,
+            'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 300,
+            'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
 }
+
+RETRY_ENABLED     = True
+RETRY_TIMES       = 5
+RETRY_HTTP_CODES  = [429, 500, 502, 503, 504, 408]
+
+
+DOWNLOAD_DELAY = 1.0
+RANDOMIZE_DOWNLOAD_DELAY = True
+
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -115,5 +179,5 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Set settings whose default value is deprecated to a future-proof value
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
-#TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
+TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
