@@ -155,18 +155,68 @@
 }
 
 @media (max-width: 768px) {
+  .listings-page {
+    padding: 0 15px;
+    margin: 15px auto;
+  }
+
   .listings-grid {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
+  }
+  
+  .listing-image {
+    height: 160px;
+  }
+  
+  .listing-info {
+    padding: 12px;
+  }
+  
+  .listing-info h3 {
+    font-size: 15px;
+    height: 40px;
   }
 }
 
 @media (max-width: 480px) {
+  .listings-page {
+    padding: 0 10px;
+    margin: 10px auto;
+  }
+  
   .listings-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
   
   .pagination {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .page-info {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 5px;
+  }
+}
+
+/* iPhone SE and other small devices */
+@media (max-width: 380px) {
+  .listings-page h1 {
+    font-size: 20px;
+  }
+  
+  .listing-price {
+    font-size: 16px;
+  }
+  
+  .listing-details, 
+  .listing-location {
+    font-size: 12px;
   }
 }

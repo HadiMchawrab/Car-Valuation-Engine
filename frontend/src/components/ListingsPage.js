@@ -11,8 +11,7 @@ const ListingsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const listingsPerPage = 40;
-  
-  // Filter states
+    // Filter states
   const [filters, setFilters] = useState({
     make: '',
     model: '',
@@ -20,7 +19,8 @@ const ListingsPage = () => {
     maxYear: '',
     minPrice: '',
     maxPrice: '',
-    location: ''
+    location: '',
+    currency: 'SAR'
   });
   useEffect(() => {
     fetchListings();

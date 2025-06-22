@@ -7,7 +7,11 @@ const FilterPanel = ({ filters, onFilterChange }) => {
   const [models, setModels] = useState([]);
   const [years, setYears] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [localFilters, setLocalFilters] = useState({...filters});
+  const [currencies, setCurrencies] = useState(['SAR', 'USD', 'EUR', 'AED']);
+  const [localFilters, setLocalFilters] = useState({
+    ...filters,
+    currency: filters.currency || 'SAR'
+  });
 
   useEffect(() => {
     fetchFilterOptions();
@@ -52,7 +56,6 @@ const FilterPanel = ({ filters, onFilterChange }) => {
   const applyFilters = () => {
     onFilterChange(localFilters);
   };
-
   const clearFilters = () => {
     const emptyFilters = {
       make: '',
@@ -61,7 +64,8 @@ const FilterPanel = ({ filters, onFilterChange }) => {
       maxYear: '',
       minPrice: '',
       maxPrice: '',
-      location: ''
+      location: '',
+      currency: 'SAR'
     };
     setLocalFilters(emptyFilters);
     onFilterChange(emptyFilters);
@@ -129,28 +133,47 @@ const FilterPanel = ({ filters, onFilterChange }) => {
             </select>
           </div>
         </div>
-        
+          {/* Price Filter Section */}
+        <div className="filter-group price-filter-group">
+          <label>Currency</label>
+          <select
+            name="currency"
+            value={localFilters.currency}
+            onChange={handleInputChange}
+          >
+            {currencies.map(currency => (
+              <option key={currency} value={currency}>{currency}</option>
+            ))}
+          </select>
+        </div>
+
         <div className="filter-row">
           <div className="filter-group">
             <label>Min Price</label>
-            <input 
-              type="number"
-              name="minPrice"
-              value={localFilters.minPrice}
-              onChange={handleInputChange}
-              placeholder="Min Price"
-            />
+            <div className="price-input-container">
+              <input 
+                type="number"
+                name="minPrice"
+                value={localFilters.minPrice}
+                onChange={handleInputChange}
+                placeholder="Min Price"
+              />
+              <span className="price-currency">{localFilters.currency}</span>
+            </div>
           </div>
           
           <div className="filter-group">
             <label>Max Price</label>
-            <input 
-              type="number"
-              name="maxPrice"
-              value={localFilters.maxPrice}
-              onChange={handleInputChange}
-              placeholder="Max Price"
-            />
+            <div className="price-input-container">
+              <input 
+                type="number"
+                name="maxPrice"
+                value={localFilters.maxPrice}
+                onChange={handleInputChange}
+                placeholder="Max Price"
+              />
+              <span className="price-currency">{localFilters.currency}</span>
+            </div>
           </div>
         </div>
         

@@ -98,11 +98,11 @@ def search_listings(search_params: ListingSearch):
             params.append(f"%{search_params.model}%")
         
         if search_params.min_year:
-            query += " AND year_ >= %s"
+            query += " AND year_oM >= %s"
             params.append(search_params.min_year)
         
         if search_params.max_year:
-            query += " AND year_ <= %s"
+            query += " AND year_oM <= %s"
             params.append(search_params.max_year)
         
         if search_params.min_price:
@@ -179,9 +179,10 @@ def get_all_years():
     connection = get_connection()
     if connection is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
+    
     try:
         cursor = connection.cursor()
-        cursor.execute("SELECT DISTINCT year_ FROM listings ORDER BY year_ DESC")
+        cursor.execute("SELECT DISTINCT year_oM FROM listings ORDER BY year_oM DESC")
         years = [row[0] for row in cursor.fetchall()]
         return years
     except Exception as e:
