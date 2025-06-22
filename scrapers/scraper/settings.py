@@ -11,9 +11,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-SCRAPEOPS_API_KEY = os.getenv("SCRAPEOPS_API_KEY")
-if not SCRAPEOPS_API_KEY:
-    raise RuntimeError("Missing SCRAPEOPS_API_KEY in environment")
+
 
 
 # from twisted.internet import kqreactor
@@ -68,7 +66,7 @@ ROBOTSTXT_OBEY = False
 #DOWNLOADER_MIDDLEWARES = {
 #    "scraper.middlewares.ScraperDownloaderMiddleware": 543,
 #}
-SCRAPEOPS_PROXY_ENABLED = True
+
 # CLOUDFLARE_WORKER_URLS = [
 #     "https://dubizzle-proxy-1.welcometouseef.workers.dev",
 #     "https://dubizzle-proxy-2.welcometouseef.workers.dev",
@@ -150,11 +148,21 @@ RANDOMIZE_DOWNLOAD_DELAY = True
 #    "scrapy.extensions.telnet.TelnetConsole": None,
 #}
 
+POSTGRES_HOST       = "db-car-sales-car-listings.b.aivencloud.com"   
+POSTGRES_PORT       = 16838
+POSTGRES_DB         = "defaultdb"
+POSTGRES_USER       = "avnadmin"
+POSTGRES_PASSWORD   = os.getenv('AIVEN_PG_PASSWORD') # put password
+POSTGRES_SSLMODE    = 'verify-full'
+POSTGRES_SSLROOTCERT= os.getenv('AIVEN_PG_SSLROOTCERT') # put the full path of ca.pem 
+
+
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    "scraper.pipelines.ScraperPipeline": 300,
-#}
+ITEM_PIPELINES = {
+   #"scraper.pipelines.ScraperPipeline": 300,
+    'scraper.pipelines.PostgresPipeline': 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
