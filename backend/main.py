@@ -90,11 +90,11 @@ def search_listings(search_params: ListingSearch):
         params = []
         
         if search_params.make:
-            query += " AND make ILIKE %s"
+            query += " AND make LIKE %s"
             params.append(f"%{search_params.make}%")
         
         if search_params.model:
-            query += " AND model ILIKE %s"
+            query += " AND model LIKE %s"
             params.append(f"%{search_params.model}%")
         
         if search_params.min_year:
@@ -114,7 +114,7 @@ def search_listings(search_params: ListingSearch):
             params.append(search_params.max_price)
         
         if search_params.location:
-            query += " AND loc ILIKE %s"
+            query += " AND loc LIKE %s"
             params.append(f"%{search_params.location}%")
         
         cursor.execute(query, tuple(params))
@@ -162,7 +162,7 @@ def get_models_by_make(make: str):
         raise HTTPException(status_code=500, detail="Database connection failed")
     try:
         cursor = connection.cursor()
-        cursor.execute("SELECT DISTINCT model FROM listings WHERE make ILIKE %s ORDER BY model", (f"%{make}%",))
+        cursor.execute("SELECT DISTINCT model FROM listings WHERE make LIKE %s ORDER BY model", (f"%{make}%",))
         models = [row[0] for row in cursor.fetchall()]
         return models
     except Exception as e:
@@ -243,6 +243,53 @@ def get_count_by_make():
         return results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+        connection.close()
+
+@app.post("/listings", response_model=Listing, status_code=201)
+def create_listing(listing: ListingCreate):
+    """
+    Create a new car listing in the database.
+    """
+    connection = get_connection()
+    if connection is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        cursor = connection.cursor()
+        
+        # Prepare the insert query
+        query = """
+        INSERT INTO listings (
+            website, web_url, title, kilometers, price, 
+            currency, year_oM, make, model, loc, created_at, image_urls
+        ) VALUES (
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+        )
+        """
+        
+        # Prepare parameters for the query
+        params = (
+            listing.website, listing.web_url, listing.title, 
+            listing.kilometers, listing.price, listing.currency, 
+            listing.year_oM, listing.make, listing.model, 
+            listing.loc, listing.created_at, listing.image_urls
+        )
+        
+        cursor.execute(query, params)
+        connection.commit()
+        
+        # Get the ID of the newly inserted listing
+        new_id = cursor.lastrowid
+        
+        # Return the complete listing with its new ID
+        return {
+            **listing.dict(),
+            "id": new_id
+        }
+    except Exception as e:
+        connection.rollback()
+        raise HTTPException(status_code=500, detail=f"Error creating listing: {str(e)}")
     finally:
         cursor.close()
         connection.close()
