@@ -14,46 +14,85 @@ class ScraperItem(scrapy.Item):
 
 
 class DubizzleItem(scrapy.Item):
-      # Core identifiers
-    ad_id            = scrapy.Field()
-    url              = scrapy.Field()
-    image_url        = scrapy.Field()
+    # ——— Core identifiers ———
+    ad_id                = scrapy.Field()  # Dubizzle’s ID (e.g. “110465826”)
+    url                  = scrapy.Field()
+    website              = scrapy.Field()  # “dubizzle”
 
-    # Basic info
-    title            = scrapy.Field()
-    description      = scrapy.Field()
-    price            = scrapy.Field()
-    currency         = scrapy.Field()
-    cost             = scrapy.Field()   # if you still use this from your regex
+    # ——— JSON-LD fields ———
+    name                 = scrapy.Field()  # JSON-LD “name”
+    sku                  = scrapy.Field()  # JSON-LD “sku”
+    description          = scrapy.Field()
+    image_urls           = scrapy.Field()  # list of JSON-LD “image” URLs
+    price                = scrapy.Field()
+    currency             = scrapy.Field()  # “SAR”
+    price_valid_until    = scrapy.Field()  # ISO timestamp from offers.priceValidUntil
+   
 
-    # Location & seller
-    location         = scrapy.Field()
-    seller_type      = scrapy.Field()
-    time_created     = scrapy.Field()   # if you’re still computing this
+    # ——— Basic info & specs ———
+    title                = scrapy.Field()
+    brand                = scrapy.Field()
+    model                = scrapy.Field()
+    
+    year                 = scrapy.Field()
+    mileage              = scrapy.Field()  # from mileageFromOdometer.value
+    mileage_unit         = scrapy.Field()  # from mileageFromOdometer.unitCode
+    fuel_type            = scrapy.Field()
+    transmission_type    = scrapy.Field()
+    body_type            = scrapy.Field()
+    condition            = scrapy.Field()  # e.g. “used”/“new”
+    new_used             = scrapy.Field()  # same as condition
+    color                = scrapy.Field()
 
-    # Specs
-    brand            = scrapy.Field()
-    model            = scrapy.Field()
-    year             = scrapy.Field()
-    body_type        = scrapy.Field()
-    condition        = scrapy.Field()
-    new_used         = scrapy.Field()
+    # ——— Usage & ownership ———
+    kilometers           = scrapy.Field()  # duplicate of mileage
+    doors                = scrapy.Field()
+    seats                = scrapy.Field()
+    owners               = scrapy.Field()
+    interior             = scrapy.Field()
+    air_con              = scrapy.Field()
+    ownership_type       = scrapy.Field()  # “freehold” / “non-freehold”
 
-    # Powertrain
-    fuel_type        = scrapy.Field()
-    transmission_type= scrapy.Field()
+    # ——— Price breakdown ———
+    
+    price_type           = scrapy.Field()  # “price” / “rental”
 
-    # Usage
-    kilometers       = scrapy.Field()
+    # ——— Seller & agency ———
+    seller               = scrapy.Field()  # e.g. “OLX user”
+    seller_type          = scrapy.Field()  # “private” / “business”
+    seller_verified      = scrapy.Field()  # yes/no
+    seller_id            = scrapy.Field()
+    agency_id            = scrapy.Field()
+    agency_name          = scrapy.Field()
+    is_agent             = scrapy.Field()  # from dataLayer
 
-    # More details from dataLayer
-    doors            = scrapy.Field()
-    seats            = scrapy.Field()
-    owners           = scrapy.Field()
-    color            = scrapy.Field()
-    interior         = scrapy.Field()
-    air_con          = scrapy.Field()
-    source           = scrapy.Field()
+    # ——— Location ———
+    location_city        = scrapy.Field()  # “Riyadh”
+    location_region      = scrapy.Field()  # e.g. governorate/neighborhood
+    loc_id               = scrapy.Field()  # “2-74”
+    loc_name             = scrapy.Field()  # same as city
+    loc_breadcrumb       = scrapy.Field()  # raw “;0-1;1-62;2-74;”
+    loc_1_id             = scrapy.Field()
+    loc_1_name           = scrapy.Field()
+    loc_2_id             = scrapy.Field()
+    loc_2_name           = scrapy.Field()
 
-    # Images array
-    images           = scrapy.Field()
+    # ——— Category & page meta ———
+    category_1_id        = scrapy.Field()
+    category_1_name      = scrapy.Field()
+    category_2_id        = scrapy.Field()
+    category_2_name      = scrapy.Field()
+    page_type            = scrapy.Field()  # “offerdetail”
+    website_section      = scrapy.Field()  # “main_site”
+
+    # ——— Media & extras ———
+    image_url            = scrapy.Field()  # first/thumb
+    number_of_images     = scrapy.Field()  # count of photos
+    has_video            = scrapy.Field()  # yes/no
+    has_panorama         = scrapy.Field()  # yes/no
+    deliverable          = scrapy.Field()  # yes/no
+    delivery_option      = scrapy.Field()  # raw value if any
+
+    # ——— Timing ———
+    post_date            = scrapy.Field()  # from JSON-LD or dataLayer
+
