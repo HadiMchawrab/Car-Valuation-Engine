@@ -1,43 +1,51 @@
 import os
-import mysql.connector
 import time
-from mysql.connector import Error
+import psycopg2
+from psycopg2 import OperationalError
 
 def get_connection():
-    # Maximum number of retry attempts
     max_retries = 5
     retry_delay = 2  # seconds
     
-    for attempt in range(max_retries):
+    # env-var keys
+    host_key       = "AIVEN_PG_HOST"
+    port_key       = "AIVEN_PG_PORT"
+    db_key         = "AIVEN_PG_DB"
+    user_key       = "AIVEN_PG_USER"
+    password_key   = "AIVEN_PG_PASSWORD"
+    sslcert_key    = "AIVEN_PG_SSLROOTCERT"
+    
+    for attempt in range(1, max_retries+1):
         try:
-            # Get environment variables with default values if not set
-            host = os.getenv("DATABASE_HOST", "database")
-            port = int(os.getenv("DATABASE_PORT", "3306"))
-            user = os.getenv("DATABASE_USER", "root")
-            password = os.getenv("DATABASE_PASSWORD", "123")
-            database = os.getenv("DATABASE_NAME", "Markaba_trial")
+            host       = os.getenv(host_key)
+            port       = int(os.getenv(port_key, 5432))
+            dbname     = os.getenv(db_key)
+            user       = os.getenv(user_key)
+            password   = os.getenv(password_key)
+            sslrootcert= os.getenv(sslcert_key)
             
-            print(f"Attempting to connect to database: host={host}, port={port}, database={database}")
+            print(f"Attempting to connect to Postgres: host={host}, port={port}, db={dbname}")
             
-            connection = mysql.connector.connect(
+            conn = psycopg2.connect(
                 host=host,
                 port=port,
+                dbname=dbname,
                 user=user,
                 password=password,
-                database=database
+                sslmode="verify-ca",
+                sslrootcert=sslrootcert
             )
+            conn.autocommit = True
             
-            if connection.is_connected():
-                print(f"Successfully connected to MySQL database (Attempt {attempt+1})")
-                return connection
-            
-        except Error as e:
-            print(f"Error while connecting to MySQL (Attempt {attempt+1}): {e}")
-            if attempt < max_retries - 1:
-                print(f"Retrying in {retry_delay} seconds...")
+            print(f"✓ Connected to Postgres (Attempt {attempt})")
+            return conn
+
+        except OperationalError as e:
+            print(f"✗ Connection failed (Attempt {attempt}): {e}")
+            if attempt < max_retries:
+                print(f"Retrying in {retry_delay}s…")
                 time.sleep(retry_delay)
-                # Increase the delay for the next attempt (exponential backoff)
                 retry_delay *= 2
-    
-    print("Failed to connect to MySQL after multiple attempts")
+
+    print("⚠️  Failed to connect after multiple attempts")
     return None

@@ -1,296 +1,307 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from database_connection_service.db_connection import get_connection
-from database_connection_service.classes_input import *
+from pydantic import BaseModel
 from typing import List, Optional
-import os
+from decimal import Decimal
+from datetime import datetime
+from psycopg2.extras import RealDictCursor
+from database_connection_service.db_connection import get_connection
 
-app = FastAPI(title="Markaba API", 
-              description="API for the Markaba car listings database",
-              version="1.0.0")
 
-# Add CORS middleware
+# -------------------------------
+# Pydantic models aligned to your Postgres schema
+# -------------------------------
+class ListingBase(BaseModel):
+    url: str
+    website: str
+    title: Optional[str] = None
+    price: Optional[Decimal] = None
+    currency: Optional[str] = None
+    brand: Optional[str] = None
+    model: Optional[str] = None
+    year: Optional[int] = None
+    mileage: Optional[int] = None
+    mileage_unit: Optional[str] = None
+    fuel_type: Optional[str] = None
+    transmission_type: Optional[str] = None
+    body_type: Optional[str] = None
+    condition: Optional[str] = None
+    color: Optional[str] = None
+    seller: Optional[str] = None
+    seller_type: Optional[str] = None
+    location_city: Optional[str] = None
+    location_region: Optional[str] = None
+    image_url: Optional[str] = None
+    number_of_images: Optional[int] = None
+    post_date: Optional[datetime] = None
+
+
+class ListingCreate(ListingBase):
+    ad_id: str
+
+
+class Listing(ListingBase):
+    ad_id: str
+
+
+class ListingSearch(BaseModel):
+    brand: Optional[str] = None
+    model: Optional[str] = None
+    min_year: Optional[int] = None
+    max_year: Optional[int] = None
+    min_price: Optional[Decimal] = None
+    max_price: Optional[Decimal] = None
+    location_city: Optional[str] = None
+
+
+# -------------------------------
+# FastAPI application
+# -------------------------------
+app = FastAPI(
+    title="Markaba API",
+    description="API for the Markaba car listings database",
+    version="1.0.0"
+)
+
+# CORS (open to all origins for now – tighten in prod)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust this to restrict origins in production
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods, including OPTIONS
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
-@app.get("/")
+
+@app.get("/", tags=["Health"])
 def root():
-    """
-    Root endpoint that returns a welcome message.
-    """
     return {"message": "Welcome to the Markaba API!"}
 
-@app.get("/listings", response_model=List[Listing])
+
+@app.get("/listings", response_model=List[Listing], tags=["Listings"])
 def get_all_listings(limit: int = Query(100, ge=1, le=1000)):
-    """
-    Get all car listings with pagination.
-    """
-    connection = get_connection()
-    if connection is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(500, "Database connection failed")
     try:
-        cursor = connection.cursor()
-        cursor.execute(f"SELECT * FROM listings LIMIT {limit}")
-        columns = [desc[0] for desc in cursor.description]
-        listings = []
-        for row in cursor.fetchall():
-            listing = dict(zip(columns, row))
-            # Convert column names to match the model (removing underscores)
-            listings.append(listing)
-        return listings
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute("SELECT * FROM listings LIMIT %s", (limit,))
+        return cur.fetchall()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(500, str(e))
     finally:
-        cursor.close()
-        connection.close()
+        cur.close()
+        conn.close()
 
-@app.get("/listings/{listing_id}", response_model=Listing)
-def get_listing_by_id(listing_id: int):
-    """
-    Get a specific car listing by its ID.
-    """
-    connection = get_connection()
-    if connection is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
+
+@app.get("/listings/{ad_id}", response_model=Listing, tags=["Listings"])
+def get_listing_by_id(ad_id: str):
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(500, "Database connection failed")
     try:
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM listings WHERE id = %s", (listing_id,))
-        columns = [desc[0] for desc in cursor.description]
-        row = cursor.fetchone()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute("SELECT * FROM listings WHERE ad_id = %s", (ad_id,))
+        row = cur.fetchone()
         if not row:
-            raise HTTPException(status_code=404, detail="Listing not found")
-        
-        listing = dict(zip(columns, row))
-        # Convert column names to match the model (removing underscores)
-        return listing
+            raise HTTPException(404, "Listing not found")
+        return row
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(500, str(e))
     finally:
-        cursor.close()
-        connection.close()
+        cur.close()
+        conn.close()
 
-@app.post("/search", response_model=List[Listing])
+
+@app.post("/search", response_model=List[Listing], tags=["Search"])
 def search_listings(search_params: ListingSearch):
-    """
-    Search for car listings based on various criteria.
-    """
-    connection = get_connection()
-    if connection is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(500, "Database connection failed")
     try:
-        cursor = connection.cursor()
-        
-        # Build the dynamic query
-        query = "SELECT * FROM listings WHERE 1=1"
-        params = []
-        
-        if search_params.make:
-            query += " AND make LIKE %s"
-            params.append(f"%{search_params.make}%")
-        
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        clauses: List[str] = []
+        params: List = []
+
+        if search_params.brand:
+            clauses.append("brand ILIKE %s")
+            params.append(f"%{search_params.brand}%")
         if search_params.model:
-            query += " AND model LIKE %s"
+            clauses.append("model ILIKE %s")
             params.append(f"%{search_params.model}%")
-        
-        if search_params.min_year:
-            query += " AND year_oM >= %s"
+        if search_params.min_year is not None:
+            clauses.append("year >= %s")
             params.append(search_params.min_year)
-        
-        if search_params.max_year:
-            query += " AND year_oM <= %s"
+        if search_params.max_year is not None:
+            clauses.append("year <= %s")
             params.append(search_params.max_year)
-        
-        if search_params.min_price:
-            query += " AND price >= %s"
+        if search_params.min_price is not None:
+            clauses.append("price >= %s")
             params.append(search_params.min_price)
-        
-        if search_params.max_price:
-            query += " AND price <= %s"
+        if search_params.max_price is not None:
+            clauses.append("price <= %s")
             params.append(search_params.max_price)
-        
-        if search_params.location:
-            query += " AND loc LIKE %s"
-            params.append(f"%{search_params.location}%")
-        
-        cursor.execute(query, tuple(params))
-        columns = [desc[0] for desc in cursor.description]
-        listings = []
-        
-        for row in cursor.fetchall():
-            listing = dict(zip(columns, row))
-            # Convert column names to match the model (removing underscores)
-            listings.append(listing)
-        
-        return listings
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        cursor.close()
-        connection.close()
+        if search_params.location_city:
+            clauses.append("location_city ILIKE %s")
+            params.append(f"%{search_params.location_city}%")
 
-@app.get("/makes", response_model=List[str])
-def get_all_makes():
-    """
-    Get a list of all car makes in the database.
-    """
-    connection = get_connection()
-    if connection is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
+        where_clause = " AND ".join(clauses) if clauses else "TRUE"
+        query = f"SELECT * FROM listings WHERE {where_clause}"
+        cur.execute(query, tuple(params))
+        return cur.fetchall()
+    except Exception as e:
+        raise HTTPException(500, str(e))
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.get("/brands", response_model=List[str], tags=["Listings"])
+def get_all_brands():
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(500, "Database connection failed")
     try:
-        cursor = connection.cursor()
-        cursor.execute("SELECT DISTINCT make FROM listings ORDER BY make")
-        makes = [row[0] for row in cursor.fetchall()]
-        return makes
+        cur = conn.cursor()
+        cur.execute("SELECT DISTINCT brand FROM listings ORDER BY brand")
+        return [r[0] for r in cur.fetchall()]
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(500, str(e))
     finally:
-        cursor.close()
-        connection.close()
+        cur.close()
+        conn.close()
 
-@app.get("/models/{make}", response_model=List[str])
-def get_models_by_make(make: str):
-    """
-    Get a list of all car models for a specific make.
-    """
-    connection = get_connection()
-    if connection is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
+
+@app.get("/models/{brand}", response_model=List[str], tags=["Listings"])
+def get_models_by_brand(brand: str):
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(500, "Database connection failed")
     try:
-        cursor = connection.cursor()
-        cursor.execute("SELECT DISTINCT model FROM listings WHERE make LIKE %s ORDER BY model", (f"%{make}%",))
-        models = [row[0] for row in cursor.fetchall()]
-        return models
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT DISTINCT model FROM listings WHERE brand ILIKE %s ORDER BY model",
+            (f"%{brand}%",)
+        )
+        return [r[0] for r in cur.fetchall()]
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(500, str(e))
     finally:
-        cursor.close()
-        connection.close()
+        cur.close()
+        conn.close()
 
-@app.get("/years", response_model=List[int])
+
+@app.get("/years", response_model=List[int], tags=["Listings"])
 def get_all_years():
-    """
-    Get a list of all car years in the database, ordered newest to oldest.
-    """
-    connection = get_connection()
-    if connection is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-    
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(500, "Database connection failed")
     try:
-        cursor = connection.cursor()
-        cursor.execute("SELECT DISTINCT year_oM FROM listings ORDER BY year_oM DESC")
-        years = [row[0] for row in cursor.fetchall()]
-        return years
+        cur = conn.cursor()
+        cur.execute("SELECT DISTINCT year FROM listings ORDER BY year DESC")
+        return [r[0] for r in cur.fetchall()]
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(500, str(e))
     finally:
-        cursor.close()
-        connection.close()
+        cur.close()
+        conn.close()
 
-@app.get("/locations", response_model=List[str])
+
+@app.get("/locations", response_model=List[str], tags=["Listings"])
 def get_all_locations():
-    """
-    Get a list of all locations in the database.
-    """
-    connection = get_connection()
-    if connection is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(500, "Database connection failed")
     try:
-        cursor = connection.cursor()
-        cursor.execute("SELECT DISTINCT loc FROM listings WHERE loc IS NOT NULL ORDER BY loc")
-        locations = [row[0] for row in cursor.fetchall()]
-        return locations
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT DISTINCT location_city FROM listings WHERE location_city IS NOT NULL ORDER BY location_city"
+        )
+        return [r[0] for r in cur.fetchall()]
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(500, str(e))
     finally:
-        cursor.close()
-        connection.close()
+        cur.close()
+        conn.close()
 
-@app.get("/stats/price_range")
+
+@app.get("/stats/price_range", tags=["Stats"])
 def get_price_range():
-    """
-    Get the minimum and maximum prices in the database.
-    """
-    connection = get_connection()
-    if connection is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(500, "Database connection failed")
     try:
-        cursor = connection.cursor()
-        cursor.execute("SELECT MIN(price), MAX(price) FROM listings")
-        min_price, max_price = cursor.fetchone()
+        cur = conn.cursor()
+        cur.execute("SELECT MIN(price), MAX(price) FROM listings")
+        min_price, max_price = cur.fetchone()
         return {"min_price": min_price, "max_price": max_price}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(500, str(e))
     finally:
-        cursor.close()
-        connection.close()
+        cur.close()
+        conn.close()
 
-@app.get("/stats/count_by_make")
-def get_count_by_make():
-    """
-    Get the count of listings for each make.
-    """
-    connection = get_connection()
-    if connection is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
+
+@app.get("/stats/count_by_brand", tags=["Stats"])
+def get_count_by_brand():
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(500, "Database connection failed")
     try:
-        cursor = connection.cursor()
-        cursor.execute("SELECT make, COUNT(*) as count FROM listings GROUP BY make ORDER BY count DESC")
-        results = [{"make": row[0], "count": row[1]} for row in cursor.fetchall()]
-        return results
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT brand, COUNT(*) FROM listings GROUP BY brand ORDER BY COUNT(*) DESC"
+        )
+        return [{"brand": row[0], "count": row[1]} for row in cur.fetchall()]
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(500, str(e))
     finally:
-        cursor.close()
-        connection.close()
+        cur.close()
+        conn.close()
 
-@app.post("/listings", response_model=Listing, status_code=201)
+
+@app.post("/listings", response_model=Listing, status_code=201, tags=["Listings"])
 def create_listing(listing: ListingCreate):
-    """
-    Create a new car listing in the database.
-    """
-    connection = get_connection()
-    if connection is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(500, "Database connection failed")
     try:
-        cursor = connection.cursor()
-        
-        # Prepare the insert query
-        query = """
-        INSERT INTO listings (
-            website, web_url, title, kilometers, price, 
-            currency, year_oM, make, model, loc, created_at, image_urls
-        ) VALUES (
-            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
-        )
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        query = f"""
+            INSERT INTO listings (
+                ad_id, url, website, title, price,
+                currency, brand, model, year, mileage,
+                mileage_unit, fuel_type, transmission_type,
+                body_type, condition, color, seller,
+                seller_type, location_city, location_region,
+                image_url, number_of_images, post_date
+            ) VALUES (
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s,
+                %s, %s, %s,
+                %s, %s, %s, %s,
+                %s, %s, %s,
+                %s, %s, %s
+            ) RETURNING *
         """
-        
-        # Prepare parameters for the query
         params = (
-            listing.website, listing.web_url, listing.title, 
-            listing.kilometers, listing.price, listing.currency, 
-            listing.year_oM, listing.make, listing.model, 
-            listing.loc, listing.created_at, listing.image_urls
+            listing.ad_id, listing.url, listing.website, listing.title,
+            listing.price, listing.currency, listing.brand, listing.model,
+            listing.year, listing.mileage, listing.mileage_unit,
+            listing.fuel_type, listing.transmission_type,
+            listing.body_type, listing.condition, listing.color,
+            listing.seller, listing.seller_type,
+            listing.location_city, listing.location_region,
+            listing.image_url, listing.number_of_images,
+            listing.post_date
         )
-        
-        cursor.execute(query, params)
-        connection.commit()
-        
-        # Get the ID of the newly inserted listing
-        new_id = cursor.lastrowid
-        
-        # Return the complete listing with its new ID
-        return {
-            **listing.dict(),
-            "id": new_id
-        }
+        cur.execute(query, params)
+        new = cur.fetchone()
+        conn.commit()
+        return new
     except Exception as e:
-        connection.rollback()
-        raise HTTPException(status_code=500, detail=f"Error creating listing: {str(e)}")
+        conn.rollback()
+        raise HTTPException(500, f"Error creating listing: {e}")
     finally:
-        cursor.close()
-        connection.close()
+        cur.close()
+        conn.close()
