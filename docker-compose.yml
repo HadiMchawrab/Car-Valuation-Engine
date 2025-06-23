@@ -11,7 +11,6 @@ services:
     depends_on:
       - database
 
-  
   backend:
     build: ./backend
     ports:
@@ -43,6 +42,22 @@ services:
       - mysql-data:/var/lib/mysql
     networks:
       - app-network
+  
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3001:3000" 
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WDS_SOCKET_PORT=3001
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/usr/src/app:cached
+      - frontend_node_modules:/usr/src/app/node_modules
+    networks:
+      - app-network
 
 networks:
   app-network:
@@ -52,3 +67,4 @@ networks:
 volumes:
   chroma_data_volume:
   mysql-data:
+  frontend_node_modules:
