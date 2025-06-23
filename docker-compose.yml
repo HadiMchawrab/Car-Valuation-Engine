@@ -1,15 +1,15 @@
 services:
-  # scrapers:
-  #   build: ./scrapers
-  #   volumes:
-  #     - ./scrapers:/app
-  #     - ./scrapers/data:/app/data
-  #   env_file:
-  #     - ./scrapers/.env
-  #   networks:
-  #     - app-network
-  #   depends_on:
-  #     - database
+  scrapers:
+    build: ./scrapers
+    volumes:
+      - ./scrapers:/app
+      - ./scrapers/data:/app/data
+    env_file:
+      - ./scrapers/.env
+    networks:
+      - app-network
+    depends_on:
+      - database
 
   backend:
     build: ./backend
