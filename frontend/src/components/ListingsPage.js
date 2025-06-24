@@ -11,7 +11,6 @@ const ListingsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const listingsPerPage = 40;    
-
   // Filter states
   const [filters, setFilters] = useState({
     brand: '',
@@ -22,7 +21,6 @@ const ListingsPage = () => {
     maxPrice: '',
     locationCity: '',
     locationRegion: '',
-    currency: 'SAR',
     minMileage: '',
     maxMileage: '',
     bodyType: '',
