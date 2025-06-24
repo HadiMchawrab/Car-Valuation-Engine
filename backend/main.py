@@ -129,10 +129,17 @@ def search_listings(
             logger.info(f"Adding location_region filter: {search.location_region}")
         if search.min_mileage is not None:
             filters.append("mileage >= %s"); params.append(search.min_mileage)
-            logger.info(f"Adding min_mileage filter: {search.min_mileage}")
+            logger.info(f"Adding min_mileage filter: {search.min_mileage}")        
         if search.max_mileage is not None:
             filters.append("mileage <= %s"); params.append(search.max_mileage)
             logger.info(f"Adding max_mileage filter: {search.max_mileage}")
+        if search.is_new is not None:
+            if search.is_new:
+                filters.append("(mileage = 0 OR mileage IS NULL)")
+                logger.info("Adding filter for new vehicles (mileage = 0 or NULL)")
+            else:
+                filters.append("mileage > 0")
+                logger.info("Adding filter for used vehicles (mileage > 0)")
         if search.fuel_type:
             filters.append("fuel_type ILIKE %s"); params.append(f"%{search.fuel_type}%")
             logger.info(f"Adding fuel_type filter: {search.fuel_type}")
@@ -194,9 +201,14 @@ def count_search_listings(search: ListingSearch):
         if search.location_region:
             filters.append("location_region ILIKE %s"); params.append(f"%{search.location_region}%")
         if search.min_mileage is not None:
-            filters.append("mileage >= %s"); params.append(search.min_mileage)
+            filters.append("mileage >= %s"); params.append(search.min_mileage)        
         if search.max_mileage is not None:
             filters.append("mileage <= %s"); params.append(search.max_mileage)
+        if search.is_new is not None:
+            if search.is_new:
+                filters.append("(mileage = 0 OR mileage IS NULL)")
+            else:
+                filters.append("mileage > 0")
         if search.fuel_type:
             filters.append("fuel_type ILIKE %s"); params.append(f"%{search.fuel_type}%")
         if search.transmission_type:

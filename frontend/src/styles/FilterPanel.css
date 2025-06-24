@@ -119,6 +119,34 @@
   background-color: #dde2e6;
 }
 
+.condition-buttons {
+  display: flex;
+  gap: 5px;
+  width: 100%;
+}
+
+.condition-btn {
+  flex: 1;
+  padding: 8px 5px;
+  background-color: #f1f1f1;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.condition-btn:hover {
+  background-color: #e9e9e9;
+}
+
+.condition-btn.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #0062cc;
+}
+
 @media (max-width: 768px) {
   .filter-panel {
     padding: 15px;

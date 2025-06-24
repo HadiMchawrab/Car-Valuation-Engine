@@ -10,8 +10,7 @@ const ListingsPage = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const listingsPerPage = 40;    
-  // Filter states
+  const listingsPerPage = 40;      // Filter states
   const [filters, setFilters] = useState({
     brand: '',
     model: '',
@@ -23,6 +22,7 @@ const ListingsPage = () => {
     locationRegion: '',
     minMileage: '',
     maxMileage: '',
+    isNew: null, // null = all, true = new cars, false = used cars
     bodyType: '',
     fuelType: '',
     transmissionType: '',
@@ -48,6 +48,7 @@ const ListingsPage = () => {
         location_region: filters.locationRegion || null,
         min_mileage: filters.minMileage ? parseInt(filters.minMileage) : null,
         max_mileage: filters.maxMileage ? parseInt(filters.maxMileage) : null,
+        is_new: filters.isNew, // null = any condition, true = new, false = used
         body_type: filters.bodyType || null,
         fuel_type: filters.fuelType || null,
         transmission_type: filters.transmissionType || null,
@@ -89,6 +90,7 @@ const ListingsPage = () => {
         location_region: filters.locationRegion || null,
         min_mileage: filters.minMileage ? parseInt(filters.minMileage) : null,
         max_mileage: filters.maxMileage ? parseInt(filters.maxMileage) : null,
+        is_new: filters.isNew,
         body_type: filters.bodyType || null,
         fuel_type: filters.fuelType || null,
         transmission_type: filters.transmissionType || null,

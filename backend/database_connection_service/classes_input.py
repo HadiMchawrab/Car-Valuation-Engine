@@ -71,6 +71,7 @@ class ListingSearch(BaseModel):
     location_region: Optional[str] = None
     min_mileage: Optional[int] = None
     max_mileage: Optional[int] = None
+    is_new: Optional[bool] = None  # True for new vehicles (mileage = 0), False for used vehicles (mileage > 0)
     fuel_type: Optional[str] = None
     transmission_type: Optional[str] = None
     body_type: Optional[str] = None

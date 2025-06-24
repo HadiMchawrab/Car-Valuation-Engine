@@ -43,12 +43,17 @@ const FilterPanel = ({ filters, onFilterChange }) => {  const [makes, setMakes] 
     } catch (error) {
       console.error('Error fetching models:', error);
     }
-  };
-  const handleInputChange = (e) => {
+  };  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setLocalFilters(prev => ({ ...prev, [name]: value }));
   };
-  const applyFilters = () => {
+  
+  const handleConditionChange = (condition) => {
+    // condition can be 'any', 'new', or 'used'
+    const isNew = condition === 'new' ? true : 
+                  condition === 'used' ? false : null;
+    setLocalFilters(prev => ({ ...prev, condition: condition, isNew }));
+  };  const applyFilters = () => {
     // Map frontend filter names to backend expected names
     const mappedFilters = {
       brand: localFilters.make,
@@ -58,21 +63,24 @@ const FilterPanel = ({ filters, onFilterChange }) => {  const [makes, setMakes] 
       minPrice: localFilters.minPrice,
       maxPrice: localFilters.maxPrice,
       locationCity: localFilters.location, // Note: This is a simplification, locationCity and locationRegion might need separate handling
-      locationRegion: localFilters.location
+      locationRegion: localFilters.location,
+      isNew: localFilters.isNew, // null = any, true = new, false = used
+      maxMileage: localFilters.maxMileage
     };
     
     console.log("Applying filters:", mappedFilters);
     onFilterChange(mappedFilters);
   };
-    const clearFilters = () => {
-    const emptyFilters = {
+    const clearFilters = () => {    const emptyFilters = {
       make: '',
       model: '',
       minYear: '',
       maxYear: '',
       minPrice: '',
       maxPrice: '',
-      location: ''
+      location: '',
+      isNew: null,
+      maxMileage: ''
     };
     setLocalFilters(emptyFilters);
     
@@ -85,7 +93,9 @@ const FilterPanel = ({ filters, onFilterChange }) => {  const [makes, setMakes] 
       minPrice: '',
       maxPrice: '',
       locationCity: '',
-      locationRegion: ''
+      locationRegion: '',
+      isNew: null,
+      maxMileage: ''
     };
     
     onFilterChange(mappedEmptyFilters);
@@ -196,6 +206,43 @@ const FilterPanel = ({ filters, onFilterChange }) => {  const [makes, setMakes] 
               <option key={location} value={location}>{location}</option>
             ))}
           </select>
+        </div>
+
+        {/* Car Condition Filter */}
+        <div className="filter-group">
+          <label>Car Condition</label>
+          <div className="condition-buttons">
+            <button 
+              className={`condition-btn ${localFilters.isNew === null ? 'active' : ''}`} 
+              onClick={() => handleConditionChange('any')}
+            >
+              Any
+            </button>
+            <button 
+              className={`condition-btn ${localFilters.isNew === true ? 'active' : ''}`} 
+              onClick={() => handleConditionChange('new')}
+            >
+              New
+            </button>
+            <button 
+              className={`condition-btn ${localFilters.isNew === false ? 'active' : ''}`} 
+              onClick={() => handleConditionChange('used')}
+            >
+              Used
+            </button>
+          </div>
+        </div>
+
+        {/* Max Mileage Filter */}
+        <div className="filter-group">
+          <label>Max Mileage</label>
+          <input 
+            type="number"
+            name="maxMileage"
+            value={localFilters.maxMileage}
+            onChange={handleInputChange}
+            placeholder="Max Mileage"
+          />
         </div>
         
         <div className="filter-buttons">
