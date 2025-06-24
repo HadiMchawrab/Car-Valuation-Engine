@@ -1,47 +1,28 @@
 services:
-  scrapers:
-    build: ./scrapers
-    volumes:
-      - ./scrapers:/app
-      - ./scrapers/data:/app/data
-    env_file:
-      - ./scrapers/.env
-    networks:
-      - app-network
-    depends_on:
-      - database
+  # scrapers:
+  #   build: ./scrapers
+  #   volumes:
+  #     - ./scrapers:/app
+  #     - ./scrapers/data:/app/data
+  #   env_file:
+  #     - ./scrapers/.env
+  #   networks:
+  #     - app-network
+  #   depends_on:
+  #     - database
 
   backend:
     build: ./backend
     ports:
       - "8001:8000"
-    environment:
-      - DATABASE_HOST=database
-      - DATABASE_PORT=3306
-      - DATABASE_USER=root
-      - DATABASE_PASSWORD=123
-      - DATABASE_NAME=Markaba_trial
+    env_file:
+      - ./backend/.env
     volumes:
       - ./backend:/app
-    depends_on:
-      - database
+      - C:/Users/Hadi/Downloads/ca.pem:/app/ca.pem
     networks:
       - app-network
     restart: on-failure
-  
-  database:
-    build: ./database
-    container_name: markaba-database
-    environment:
-      MYSQL_ROOT_PASSWORD: "123"
-      MYSQL_DATABASE: "Markaba_trial"
-      MYSQL_TCP_PORT: 3306
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql-data:/var/lib/mysql
-    networks:
-      - app-network
   
   frontend:
     build:
@@ -65,6 +46,4 @@ networks:
     name: markaba-network
 
 volumes:
-  chroma_data_volume:
-  mysql-data:
   frontend_node_modules:

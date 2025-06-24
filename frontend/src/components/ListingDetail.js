@@ -8,7 +8,6 @@ const ListingDetail = () => {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const fetchListingDetail = async () => {
@@ -24,27 +23,7 @@ const ListingDetail = () => {
       }
     };
 
-    fetchListingDetail();
-  }, [id]);
-
-  // Handle image navigation
-  const handlePrevImage = () => {
-    if (listing && listing.image_urls) {
-      const imageUrls = listing.image_urls.split(',');
-      setCurrentImageIndex((prevIndex) => 
-        prevIndex === 0 ? imageUrls.length - 1 : prevIndex - 1
-      );
-    }
-  };
-
-  const handleNextImage = () => {
-    if (listing && listing.image_urls) {
-      const imageUrls = listing.image_urls.split(',');
-      setCurrentImageIndex((prevIndex) => 
-        prevIndex === imageUrls.length - 1 ? 0 : prevIndex + 1
-      );
-    }
-  };
+    fetchListingDetail();  }, [id]);
 
   if (loading) {
     return <div className="loading">Loading...</div>;
@@ -56,9 +35,8 @@ const ListingDetail = () => {
 
   if (!listing) {
     return <div className="not-found">Listing not found</div>;
-  }
-  // Process image URLs
-  const imageUrls = listing.image_urls && listing.image_urls.trim() ? listing.image_urls.split(',').filter(url => url.trim()) : [];
+  }  // In new schema, we have a single image URL
+  const hasImage = listing.image_url && listing.image_url.trim() !== '';
 
   return (
     <div className="listing-detail-container">
@@ -68,48 +46,19 @@ const ListingDetail = () => {
       
       <div className="listing-content">
         <div className="listing-images-section">
-          {imageUrls.length > 0 ? (
-            <div className="image-gallery">
-              <div className="main-image-container">                <img 
-                  src={imageUrls[currentImageIndex]} 
-                  alt={`${listing.make} ${listing.model}`}
+          {hasImage ? (
+            <div className="image-gallery">              
+              <div className="main-image-container">
+                <img 
+                  src={listing.image_url}
+                  alt={`${listing.brand} ${listing.model}`}
                   className="main-image"
                   onError={(e) => {
                     e.target.onerror = null;
                     e.target.src = `${process.env.PUBLIC_URL}/placeholder-car.svg`;
                   }}
                 />
-                
-                {imageUrls.length > 1 && (
-                  <>
-                    <button className="nav-button prev-button" onClick={handlePrevImage}>❮</button>
-                    <button className="nav-button next-button" onClick={handleNextImage}>❯</button>
-                  </>
-                )}
-                
-                {imageUrls.length > 1 && (
-                  <div className="image-counter">
-                    {currentImageIndex + 1} / {imageUrls.length}
-                  </div>
-                )}
               </div>
-              
-              {imageUrls.length > 1 && (
-                <div className="thumbnail-container">
-                  {imageUrls.map((url, index) => (
-                    <img 
-                      key={index}
-                      src={url}
-                      alt={`Thumbnail ${index + 1}`}
-                      className={`thumbnail ${index === currentImageIndex ? 'active' : ''}`}
-                      onClick={() => setCurrentImageIndex(index)}                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = `${process.env.PUBLIC_URL}/placeholder-car.svg`;
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
             </div>
           ) : (
             <div className="no-image-container">
@@ -122,41 +71,79 @@ const ListingDetail = () => {
           <div className="price-section">
             <h2>{listing.price} {listing.currency}</h2>
           </div>
-          
-          <div className="details-table">
+            <div className="details-table">
             <div className="detail-row">
-              <div className="detail-label">Make</div>
-              <div className="detail-value">{listing.make}</div>
+              <div className="detail-label">Brand</div>
+              <div className="detail-value">{listing.brand}</div>
             </div>
             <div className="detail-row">
               <div className="detail-label">Model</div>
               <div className="detail-value">{listing.model}</div>
-            </div>
-            <div className="detail-row">
+            </div>            <div className="detail-row">
               <div className="detail-label">Year</div>
-              <div className="detail-value">{listing.year_oM}</div>
+              <div className="detail-value">{listing.year}</div>
             </div>
             <div className="detail-row">
-              <div className="detail-label">Kilometers</div>
-              <div className="detail-value">{listing.kilometers ? `${listing.kilometers} km` : 'N/A'}</div>
+              <div className="detail-label">Mileage</div>
+              <div className="detail-value">{listing.mileage ? `${listing.mileage} ${listing.mileage_unit || 'km'}` : 'N/A'}</div>
             </div>
             <div className="detail-row">
               <div className="detail-label">Location</div>
-              <div className="detail-value">{listing.loc || 'N/A'}</div>
+              <div className="detail-value">
+                {listing.location_city || listing.location_region ? 
+                  `${listing.location_city || ''} ${listing.location_region || ''}`.trim() : 
+                  'N/A'
+                }
+              </div>
             </div>
             <div className="detail-row">
               <div className="detail-label">Website</div>
               <div className="detail-value">{listing.website}</div>
             </div>
             <div className="detail-row">
-              <div className="detail-label">Created At</div>
-              <div className="detail-value">{new Date(listing.created_at).toLocaleString()}</div>
+              <div className="detail-label">Post Date</div>
+              <div className="detail-value">{new Date(listing.post_date).toLocaleString()}</div>
             </div>
+            {listing.fuel_type && (
+              <div className="detail-row">
+                <div className="detail-label">Fuel Type</div>
+                <div className="detail-value">{listing.fuel_type}</div>
+              </div>
+            )}
+            {listing.transmission_type && (
+              <div className="detail-row">
+                <div className="detail-label">Transmission</div>
+                <div className="detail-value">{listing.transmission_type}</div>
+              </div>
+            )}
+            {listing.body_type && (
+              <div className="detail-row">
+                <div className="detail-label">Body Type</div>
+                <div className="detail-value">{listing.body_type}</div>
+              </div>
+            )}
+            {listing.condition && (
+              <div className="detail-row">
+                <div className="detail-label">Condition</div>
+                <div className="detail-value">{listing.condition}</div>
+              </div>
+            )}
+            {listing.color && (
+              <div className="detail-row">
+                <div className="detail-label">Color</div>
+                <div className="detail-value">{listing.color}</div>
+              </div>
+            )}
+            {listing.seller_type && (
+              <div className="detail-row">
+                <div className="detail-label">Seller Type</div>
+                <div className="detail-value">{listing.seller_type}</div>
+              </div>
+            )}
           </div>
           
-          <div className="listing-actions">
-            <a 
-              href={listing.web_url} 
+          <div className="listing-actions">            <a 
+              href={listing.url} 
               target="_blank" 
               rel="noopener noreferrer"
               className="view-original-btn"
