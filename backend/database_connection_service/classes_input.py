@@ -43,7 +43,7 @@ class Listing(BaseModel):
 
 class DubizzleDetails(BaseModel):
     # The output was cut off but included fields like 'breadcrumb', 'loc_1_id', etc.
-    breadcrumb: Optional[str] = None
+    loc_breadcrumb: Optional[str] = None
     loc_1_id: Optional[str] = None
     loc_1_name: Optional[str] = None
     loc_2_id: Optional[str] = None
@@ -78,6 +78,26 @@ class ListingSearch(BaseModel):
     condition: Optional[str] = None
     color: Optional[str] = None
     seller_type: Optional[str] = None
+    min_post_date: Optional[Union[str, datetime]] = None  # Filter listings posted on or after this date
+    max_post_date: Optional[Union[str, datetime]] = None  # Filter listings posted on or before this date
+    
+    @validator('min_post_date', 'max_post_date', pre=True)
+    def parse_date_filters(cls, v):
+        if v is None:
+            return v
+        if isinstance(v, datetime):
+            return v
+        if isinstance(v, str):
+            try:
+                # Try to parse ISO format datetime string
+                return datetime.fromisoformat(v.replace('Z', '+00:00'))
+            except ValueError:
+                try:
+                    # Try to parse date only format (YYYY-MM-DD)
+                    return datetime.strptime(v, '%Y-%m-%d')
+                except ValueError:
+                    raise ValueError(f"Invalid date format: {v}. Use ISO format or YYYY-MM-DD")
+        return v
 
 class ListingSearchResponse(BaseModel):
     listings: List[Listing]

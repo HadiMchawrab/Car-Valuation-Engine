@@ -97,6 +97,12 @@ def build_search_filters(search: ListingSearch):
     if search.seller_type:
         filters.append("seller_type ILIKE %s"); params.append(f"%{search.seller_type}%")
         logger.info(f"Adding seller_type filter: {search.seller_type}")
+    if search.min_post_date is not None:
+        filters.append("post_date >= %s"); params.append(search.min_post_date)
+        logger.info(f"Adding min_post_date filter: {search.min_post_date}")
+    if search.max_post_date is not None:
+        filters.append("post_date <= %s"); params.append(search.max_post_date)
+        logger.info(f"Adding max_post_date filter: {search.max_post_date}")
     
     return filters, params
 

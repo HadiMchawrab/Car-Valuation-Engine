@@ -31,7 +31,9 @@ const ListingsPage = () => {
     transmissionType: '',
     condition: '',
     sellerType: '',
-    color: ''
+    color: '',
+    minPostDate: '',
+    maxPostDate: ''
   });
   // Helper function to build search parameters from filters
   const buildSearchParams = () => {
@@ -52,7 +54,9 @@ const ListingsPage = () => {
       transmission_type: filters.transmissionType || null,
       condition: filters.condition || null,
       seller_type: filters.sellerType || null,
-      color: filters.color || null
+      color: filters.color || null,
+      min_post_date: filters.minPostDate || null,
+      max_post_date: filters.maxPostDate || null
     };
   };
 

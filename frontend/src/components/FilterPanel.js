@@ -14,7 +14,9 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
   const [transmissionTypes, setTransmissionTypes] = useState([]);
   const [sellerTypes, setSellerTypes] = useState([]);
   const [localFilters, setLocalFilters] = useState({
-    ...filters
+    ...filters,
+    minPostDate: '',
+    maxPostDate: ''
   });
 
   useEffect(() => {
@@ -77,6 +79,26 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
     const isNew = condition === 'new' ? true : 
                   condition === 'used' ? false : null;
     setLocalFilters(prev => ({ ...prev, condition: condition, isNew }));
+  };
+
+  const handleDateChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Update the filters first
+    const updatedFilters = { ...localFilters, [name]: value };
+    
+    // Validate date range
+    if (updatedFilters.minPostDate && updatedFilters.maxPostDate) {
+      const minDate = new Date(updatedFilters.minPostDate);
+      const maxDate = new Date(updatedFilters.maxPostDate);
+      
+      if (minDate > maxDate) {
+        alert('The "Ad Posted After" date cannot be later than the "Ad Posted Before" date. Please select valid dates.');
+        return; // Don't update the state if validation fails
+      }
+    }
+    
+    setLocalFilters(updatedFilters);
   };  const applyFilters = () => {
     // Map frontend filter names to backend expected names
     const mappedFilters = {
@@ -93,7 +115,9 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       bodyType: localFilters.bodyType,
       fuelType: localFilters.fuelType,
       transmissionType: localFilters.transmissionType,
-      sellerType: localFilters.sellerType
+      sellerType: localFilters.sellerType,
+      minPostDate: localFilters.minPostDate,
+      maxPostDate: localFilters.maxPostDate
     };
     
     console.log("Applying filters:", mappedFilters);
@@ -113,7 +137,9 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       bodyType: '',
       fuelType: '',
       transmissionType: '',
-      sellerType: ''
+      sellerType: '',
+      minPostDate: '',
+      maxPostDate: ''
     };
     setLocalFilters(emptyFilters);
     
@@ -132,7 +158,9 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       bodyType: '',
       fuelType: '',
       transmissionType: '',
-      sellerType: ''
+      sellerType: '',
+      minPostDate: '',
+      maxPostDate: ''
     };
     
     onFilterChange(mappedEmptyFilters);
@@ -140,7 +168,19 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
 
   return (
     <div className="filter-panel">
+      {totalCount !== undefined && (
+          <div className="results-count">
+            <span className="count-text">
+              {totalCount.toLocaleString()} {totalCount === 1 ? 'result' : 'results'} found
+            </span>
+          </div>
+        )}
+      
       <h3>Filter Listings</h3>
+      <div className="filter-buttons">
+          <button onClick={applyFilters} className="apply-filters-btn">Apply Filters</button>
+          <button onClick={clearFilters} className="clear-filters-btn">Clear All</button>
+        </div>
       <div className="filter-controls">        <div className="filter-group">
           <label>Make</label>
           <select 
@@ -282,6 +322,31 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
           />
         </div>
 
+        {/* Date Filter Section */}
+        <div className="filter-row">
+          <div className="filter-group">
+            <label>Ad Posted After</label>
+            <input 
+              type="date"
+              name="minPostDate"
+              value={localFilters.minPostDate}
+              onChange={handleDateChange}
+              placeholder="Posted After"
+            />
+          </div>
+          
+          <div className="filter-group">
+            <label>Ad Posted Before</label>
+            <input 
+              type="date"
+              name="maxPostDate"
+              value={localFilters.maxPostDate}
+              onChange={handleDateChange}
+              placeholder="Posted Before"
+            />
+          </div>
+        </div>
+
         <div className="filter-group">
           <label>Body Type</label>
           <select 
@@ -340,18 +405,9 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
           </select>
         </div>
         
-        <div className="filter-buttons">
-          <button onClick={applyFilters} className="apply-filters-btn">Apply Filters</button>
-          <button onClick={clearFilters} className="clear-filters-btn">Clear All</button>
-        </div>
         
-        {totalCount !== undefined && (
-          <div className="results-count">
-            <span className="count-text">
-              {totalCount.toLocaleString()} {totalCount === 1 ? 'result' : 'results'} found
-            </span>
-          </div>
-        )}
+        
+        
       </div>
     </div>
   );
