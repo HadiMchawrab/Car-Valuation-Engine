@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/FilterPanel.css';
+import { getTransmissionType, getBodyType } from '../utils/mappings';
 
 const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
+
   const [makes, setMakes] = useState([]);
   const [models, setModels] = useState([]);
   const [years, setYears] = useState([]);
@@ -289,7 +291,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
           >
             <option value="">All Body Types</option>
             {bodyTypes.map(type => (
-              <option key={type} value={type}>{type}</option>
+              <option key={type} value={type}>{getBodyType(type)}</option>
             ))}
           </select>
         </div>
@@ -317,7 +319,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
           >
             <option value="">All Transmissions</option>
             {transmissionTypes.map(type => (
-              <option key={type} value={type}>{type}</option>
+              <option key={type} value={type}>{getTransmissionType(type)}</option>
             ))}
           </select>
         </div>

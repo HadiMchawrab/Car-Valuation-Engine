@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/ListingDetail.css';
+import { getTransmissionType, getBodyType } from '../utils/mappings';
 
 const ListingDetail = () => {
+
   const { id } = useParams();
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -85,7 +87,7 @@ const ListingDetail = () => {
             </div>
             <div className="detail-row">
               <div className="detail-label">Mileage</div>
-              <div className="detail-value">{listing.mileage ? `${listing.mileage} ${listing.mileage_unit || 'km'}` : 'N/A'}</div>
+              <div className="detail-value">{listing.mileage ? `${listing.mileage} km` : 'N/A'}</div>
             </div>
             <div className="detail-row">
               <div className="detail-label">Location</div>
@@ -113,13 +115,13 @@ const ListingDetail = () => {
             {listing.transmission_type && (
               <div className="detail-row">
                 <div className="detail-label">Transmission</div>
-                <div className="detail-value">{listing.transmission_type}</div>
+                <div className="detail-value">{getTransmissionType(listing.transmission_type)}</div>
               </div>
             )}
             {listing.body_type && (
               <div className="detail-row">
                 <div className="detail-label">Body Type</div>
-                <div className="detail-value">{listing.body_type}</div>
+                <div className="detail-value">{getBodyType(listing.body_type)}</div>
               </div>
             )}
             {listing.condition && (

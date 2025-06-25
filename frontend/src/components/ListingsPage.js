@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/ListingsPage.css';
 import FilterPanel from './FilterPanel';
+import { getTransmissionType, getBodyType, getFuelType, getCondition, getColor, getSellerType } from '../utils/mappings';
 
 const ListingsPage = () => {
+
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -114,21 +116,25 @@ const ListingsPage = () => {
     <div className="listings-page">
       <h1>Car Listings</h1>
       
-      <FilterPanel 
-        filters={filters} 
-        onFilterChange={handleFilterChange}
-        totalCount={totalCount}
-      />
-      
-      {loading ? (
-        <div className="loading">Loading...</div>
-      ) : error ? (
-        <div className="error">{error}</div>
-      ) : (
-        <>
-          <div className="listings-grid">
-            {listings.length > 0 ? (
-              listings.map(listing => (                <div className="listing-card" key={listing.ad_id}>
+      <div className="listings-container">
+        <div className="sidebar">
+          <FilterPanel 
+            filters={filters} 
+            onFilterChange={handleFilterChange}
+            totalCount={totalCount}
+          />
+        </div>
+        
+        <div className="main-content">
+          {loading ? (
+            <div className="loading">Loading...</div>
+          ) : error ? (
+            <div className="error">{error}</div>
+          ) : (
+            <>
+              <div className="listings-grid">
+                {listings.length > 0 ? (
+                  listings.map(listing => (                <div className="listing-card" key={listing.ad_id}>
                   <Link to={`/listing/${listing.ad_id}`} className="listing-link">
                     <div className="listing-image">
                       {listing.image_url ? (
@@ -145,13 +151,49 @@ const ListingsPage = () => {
                       )}
                     </div>
                     <div className="listing-info">
-                      <h3>{listing.title}</h3>
-                      <p className="listing-price">{listing.price} {listing.currency}</p>
-                      <div className="listing-details">                        <span>{listing.year}</span>
-                        <span>•</span>
-                        <span>{listing.mileage ? `${listing.mileage} ${listing.mileage_unit || 'km'}` : 'N/A'}</span>
+                      <div className="listing-header">
+                        <h3 className="listing-title">{listing.title}</h3>
+                        <div className="listing-price">
+                          {listing.price ? `${listing.price.toLocaleString()} ${listing.currency}` : 'Price N/A'}
+                        </div>
                       </div>
-                      <p className="listing-location">{(listing.location_city || listing.location_region) ? `${listing.location_city || ''} ${listing.location_region || ''}`.trim() : 'Location N/A'}</p>
+                      
+                      <div className="listing-details">
+                        <div className="detail-item">
+                          <span className="detail-label">Year</span>
+                          <span className="detail-value">{listing.year || 'N/A'}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Mileage</span>
+                          <span className="detail-value">
+                            {listing.mileage ? `${listing.mileage.toLocaleString()} km` : 'New'}
+                          </span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Body Type</span>
+                          <span className="detail-value">{getBodyType(listing.body_type)}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Fuel</span>
+                          <span className="detail-value">{listing.fuel_type || 'N/A'}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Transmission</span>
+                          <span className="detail-value">{getTransmissionType(listing.transmission_type)}</span>
+                        </div>
+                      
+                      </div>
+                      
+                      <div className="listing-meta">
+                        <div className="listing-location">
+                          📍 {(listing.location_city || listing.location_region) ? 
+                            `${listing.location_city || ''} ${listing.location_region || ''}`.trim() : 
+                            'Location N/A'}
+                        </div>
+                        <div className="listing-date">
+                          {listing.post_date ? new Date(listing.post_date).toLocaleDateString() : ''}
+                        </div>
+                      </div>
                     </div>
                   </Link>
                 </div>
@@ -185,6 +227,8 @@ const ListingsPage = () => {
           )}
         </>
       )}
+        </div>
+      </div>
     </div>
   );
 };
