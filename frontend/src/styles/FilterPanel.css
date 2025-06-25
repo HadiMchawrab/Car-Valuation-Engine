@@ -111,12 +111,12 @@
 }
 
 .clear-filters-btn {
-  background-color: #e9ecef;
-  color: #495057;
+  background-color: #6c757d;
+  color: white;
 }
 
 .clear-filters-btn:hover {
-  background-color: #dde2e6;
+  background-color: #5a6268;
 }
 
 .condition-buttons {
@@ -145,6 +145,21 @@
   background-color: #007bff;
   color: white;
   border-color: #0062cc;
+}
+
+.results-count {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #e3f2fd;
+  border-radius: 4px;
+  border-left: 4px solid #2c7be5;
+  grid-column: 1 / -1;
+}
+
+.count-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1565c0;
 }
 
 @media (max-width: 768px) {

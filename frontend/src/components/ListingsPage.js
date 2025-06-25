@@ -10,6 +10,7 @@ const ListingsPage = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const listingsPerPage = 40;      // Filter states
   const [filters, setFilters] = useState({
     brand: '',
@@ -30,36 +31,43 @@ const ListingsPage = () => {
     sellerType: '',
     color: ''
   });
+  // Helper function to build search parameters from filters
+  const buildSearchParams = () => {
+    return {
+      brand: filters.brand || null,
+      model: filters.model || null,
+      min_year: filters.minYear ? parseInt(filters.minYear) : null,
+      max_year: filters.maxYear ? parseInt(filters.maxYear) : null,
+      min_price: filters.minPrice ? parseFloat(filters.minPrice) : null,
+      max_price: filters.maxPrice ? parseFloat(filters.maxPrice) : null,
+      location_city: filters.locationCity || null,
+      location_region: filters.locationRegion || null,
+      min_mileage: filters.minMileage ? parseInt(filters.minMileage) : null,
+      max_mileage: filters.maxMileage ? parseInt(filters.maxMileage) : null,
+      is_new: filters.isNew, // null = any condition, true = new, false = used
+      body_type: filters.bodyType || null,
+      fuel_type: filters.fuelType || null,
+      transmission_type: filters.transmissionType || null,
+      condition: filters.condition || null,
+      seller_type: filters.sellerType || null,
+      color: filters.color || null
+    };
+  };
+
   useEffect(() => {
     fetchListings();
     fetchTotalCount();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, filters]);  const fetchListings = async () => {
+  }, [currentPage, filters]);
+
+  const fetchListings = async () => {
     setLoading(true);
     try {
-      const searchParams = {
-        brand: filters.brand || null,
-        model: filters.model || null,
-        min_year: filters.minYear ? parseInt(filters.minYear) : null,
-        max_year: filters.maxYear ? parseInt(filters.maxYear) : null,
-        min_price: filters.minPrice ? parseFloat(filters.minPrice) : null,
-        max_price: filters.maxPrice ? parseFloat(filters.maxPrice) : null,
-        location_city: filters.locationCity || null,
-        location_region: filters.locationRegion || null,
-        min_mileage: filters.minMileage ? parseInt(filters.minMileage) : null,
-        max_mileage: filters.maxMileage ? parseInt(filters.maxMileage) : null,
-        is_new: filters.isNew, // null = any condition, true = new, false = used
-        body_type: filters.bodyType || null,
-        fuel_type: filters.fuelType || null,
-        transmission_type: filters.transmissionType || null,
-        condition: filters.condition || null,
-        seller_type: filters.sellerType || null,
-        color: filters.color || null
-      };
+      const searchParams = buildSearchParams();
       
       // Calculate offset based on current page
       const offset = (currentPage - 1) * listingsPerPage;
-        const response = await axios.post(
+      const response = await axios.post(
         `http://localhost:8001/search?limit=${listingsPerPage}&offset=${offset}`, 
         searchParams
       );
@@ -77,31 +85,16 @@ const ListingsPage = () => {
       setLoading(false);
       console.error('Error fetching listings:', err);
     }
-  };    const fetchTotalCount = async () => {
+  };
+
+  const fetchTotalCount = async () => {
     try {
-      const searchParams = {
-        brand: filters.brand || null,
-        model: filters.model || null,
-        min_year: filters.minYear ? parseInt(filters.minYear) : null,
-        max_year: filters.maxYear ? parseInt(filters.maxYear) : null,
-        min_price: filters.minPrice ? parseFloat(filters.minPrice) : null,
-        max_price: filters.maxPrice ? parseFloat(filters.maxPrice) : null,
-        location_city: filters.locationCity || null,
-        location_region: filters.locationRegion || null,
-        min_mileage: filters.minMileage ? parseInt(filters.minMileage) : null,
-        max_mileage: filters.maxMileage ? parseInt(filters.maxMileage) : null,
-        is_new: filters.isNew,
-        body_type: filters.bodyType || null,
-        fuel_type: filters.fuelType || null,
-        transmission_type: filters.transmissionType || null,
-        condition: filters.condition || null,
-        seller_type: filters.sellerType || null,
-        color: filters.color || null
-      };
+      const searchParams = buildSearchParams();
       
       const countResponse = await axios.post('http://localhost:8001/search/count', searchParams);
       const totalListings = countResponse.data.total;
       setTotalPages(Math.ceil(totalListings / listingsPerPage));
+      setTotalCount(totalListings);
     } catch (err) {
       console.error('Error fetching total count:', err);
     }
@@ -124,6 +117,7 @@ const ListingsPage = () => {
       <FilterPanel 
         filters={filters} 
         onFilterChange={handleFilterChange}
+        totalCount={totalCount}
       />
       
       {loading ? (

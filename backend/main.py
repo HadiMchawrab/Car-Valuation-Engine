@@ -37,6 +37,69 @@ def format_db_row(row_dict):
             row_dict[key] = value.isoformat()
     return row_dict
 
+def build_search_filters(search: ListingSearch):
+    """Shared function to build filters and params for search queries"""
+    filters = []
+    params = []
+    
+    if search.brand:
+        filters.append("brand ILIKE %s"); params.append(f"%{search.brand}%")
+        logger.info(f"Adding brand filter: {search.brand}")
+    if search.model:
+        filters.append("model ILIKE %s"); params.append(f"%{search.model}%")
+        logger.info(f"Adding model filter: {search.model}")
+    if search.min_year is not None:
+        filters.append("year >= %s"); params.append(search.min_year)
+        logger.info(f"Adding min_year filter: {search.min_year}")
+    if search.max_year is not None:
+        filters.append("year <= %s"); params.append(search.max_year)
+        logger.info(f"Adding max_year filter: {search.max_year}")
+    if search.min_price is not None:
+        filters.append("price >= %s"); params.append(search.min_price)
+        logger.info(f"Adding min_price filter: {search.min_price}")
+    if search.max_price is not None:
+        filters.append("price <= %s"); params.append(search.max_price)
+        logger.info(f"Adding max_price filter: {search.max_price}")
+    if search.location_city:
+        filters.append("location_city ILIKE %s"); params.append(f"%{search.location_city}%")
+        logger.info(f"Adding location_city filter: {search.location_city}")
+    if search.location_region:
+        filters.append("location_region ILIKE %s"); params.append(f"%{search.location_region}%")
+        logger.info(f"Adding location_region filter: {search.location_region}")
+    if search.min_mileage is not None:
+        filters.append("mileage >= %s"); params.append(search.min_mileage)
+        logger.info(f"Adding min_mileage filter: {search.min_mileage}")        
+    if search.max_mileage is not None:
+        filters.append("mileage <= %s"); params.append(search.max_mileage)
+        logger.info(f"Adding max_mileage filter: {search.max_mileage}")
+    if search.is_new is not None:
+        if search.is_new:
+            filters.append("(mileage = 0 OR mileage IS NULL)")
+            logger.info("Adding filter for new vehicles (mileage = 0 or NULL)")
+        else:
+            filters.append("mileage > 0")
+            logger.info("Adding filter for used vehicles (mileage > 0)")
+    if search.fuel_type:
+        filters.append("fuel_type ILIKE %s"); params.append(f"%{search.fuel_type}%")
+        logger.info(f"Adding fuel_type filter: {search.fuel_type}")
+    if search.transmission_type:
+        filters.append("transmission_type ILIKE %s"); params.append(f"%{search.transmission_type}%")
+        logger.info(f"Adding transmission_type filter: {search.transmission_type}")
+    if search.body_type:
+        filters.append("body_type ILIKE %s"); params.append(f"%{search.body_type}%")
+        logger.info(f"Adding body_type filter: {search.body_type}")
+    if search.condition:
+        filters.append("condition ILIKE %s"); params.append(f"%{search.condition}%")
+        logger.info(f"Adding condition filter: {search.condition}")
+    if search.color:
+        filters.append("color ILIKE %s"); params.append(f"%{search.color}%")
+        logger.info(f"Adding color filter: {search.color}")
+    if search.seller_type:
+        filters.append("seller_type ILIKE %s"); params.append(f"%{search.seller_type}%")
+        logger.info(f"Adding seller_type filter: {search.seller_type}")
+    
+    return filters, params
+
 @app.get("/", response_model=Dict[str, str])
 def root():
     return {"message": "Welcome to the Markaba API!"}
@@ -101,63 +164,7 @@ def search_listings(
         logger.info(f"Search parameters: {search.dict()}")
         
         cur = conn.cursor()
-        filters = []
-        params = []
-        if search.brand:
-            filters.append("brand ILIKE %s"); params.append(f"%{search.brand}%")
-            logger.info(f"Adding brand filter: {search.brand}")
-        if search.model:
-            filters.append("model ILIKE %s"); params.append(f"%{search.model}%")
-            logger.info(f"Adding model filter: {search.model}")
-        if search.min_year is not None:
-            filters.append("year >= %s"); params.append(search.min_year)
-            logger.info(f"Adding min_year filter: {search.min_year}")
-        if search.max_year is not None:
-            filters.append("year <= %s"); params.append(search.max_year)
-            logger.info(f"Adding max_year filter: {search.max_year}")
-        if search.min_price is not None:
-            filters.append("price >= %s"); params.append(search.min_price)
-            logger.info(f"Adding min_price filter: {search.min_price}")
-        if search.max_price is not None:
-            filters.append("price <= %s"); params.append(search.max_price)
-            logger.info(f"Adding max_price filter: {search.max_price}")
-        if search.location_city:
-            filters.append("location_city ILIKE %s"); params.append(f"%{search.location_city}%")
-            logger.info(f"Adding location_city filter: {search.location_city}")
-        if search.location_region:
-            filters.append("location_region ILIKE %s"); params.append(f"%{search.location_region}%")
-            logger.info(f"Adding location_region filter: {search.location_region}")
-        if search.min_mileage is not None:
-            filters.append("mileage >= %s"); params.append(search.min_mileage)
-            logger.info(f"Adding min_mileage filter: {search.min_mileage}")        
-        if search.max_mileage is not None:
-            filters.append("mileage <= %s"); params.append(search.max_mileage)
-            logger.info(f"Adding max_mileage filter: {search.max_mileage}")
-        if search.is_new is not None:
-            if search.is_new:
-                filters.append("(mileage = 0 OR mileage IS NULL)")
-                logger.info("Adding filter for new vehicles (mileage = 0 or NULL)")
-            else:
-                filters.append("mileage > 0")
-                logger.info("Adding filter for used vehicles (mileage > 0)")
-        if search.fuel_type:
-            filters.append("fuel_type ILIKE %s"); params.append(f"%{search.fuel_type}%")
-            logger.info(f"Adding fuel_type filter: {search.fuel_type}")
-        if search.transmission_type:
-            filters.append("transmission_type ILIKE %s"); params.append(f"%{search.transmission_type}%")
-            logger.info(f"Adding transmission_type filter: {search.transmission_type}")
-        if search.body_type:
-            filters.append("body_type ILIKE %s"); params.append(f"%{search.body_type}%")
-            logger.info(f"Adding body_type filter: {search.body_type}")
-        if search.condition:
-            filters.append("condition ILIKE %s"); params.append(f"%{search.condition}%")
-            logger.info(f"Adding condition filter: {search.condition}")
-        if search.color:
-            filters.append("color ILIKE %s"); params.append(f"%{search.color}%")
-            logger.info(f"Adding color filter: {search.color}")
-        if search.seller_type:
-            filters.append("seller_type ILIKE %s"); params.append(f"%{search.seller_type}%")
-            logger.info(f"Adding seller_type filter: {search.seller_type}")
+        filters, params = build_search_filters(search)
             
         where_clause = " AND ".join(filters) if filters else "1=1"
         query = (
@@ -182,45 +189,7 @@ def count_search_listings(search: ListingSearch):
         raise HTTPException(status_code=500, detail="Database connection failed")
     try:
         cur = conn.cursor()
-        filters = []
-        params = []
-        if search.brand:
-            filters.append("brand ILIKE %s"); params.append(f"%{search.brand}%")
-        if search.model:
-            filters.append("model ILIKE %s"); params.append(f"%{search.model}%")
-        if search.min_year is not None:
-            filters.append("year >= %s"); params.append(search.min_year)
-        if search.max_year is not None:
-            filters.append("year <= %s"); params.append(search.max_year)
-        if search.min_price is not None:
-            filters.append("price >= %s"); params.append(search.min_price)
-        if search.max_price is not None:
-            filters.append("price <= %s"); params.append(search.max_price)
-        if search.location_city:
-            filters.append("location_city ILIKE %s"); params.append(f"%{search.location_city}%")
-        if search.location_region:
-            filters.append("location_region ILIKE %s"); params.append(f"%{search.location_region}%")
-        if search.min_mileage is not None:
-            filters.append("mileage >= %s"); params.append(search.min_mileage)        
-        if search.max_mileage is not None:
-            filters.append("mileage <= %s"); params.append(search.max_mileage)
-        if search.is_new is not None:
-            if search.is_new:
-                filters.append("(mileage = 0 OR mileage IS NULL)")
-            else:
-                filters.append("mileage > 0")
-        if search.fuel_type:
-            filters.append("fuel_type ILIKE %s"); params.append(f"%{search.fuel_type}%")
-        if search.transmission_type:
-            filters.append("transmission_type ILIKE %s"); params.append(f"%{search.transmission_type}%")
-        if search.body_type:
-            filters.append("body_type ILIKE %s"); params.append(f"%{search.body_type}%")
-        if search.condition:
-            filters.append("condition ILIKE %s"); params.append(f"%{search.condition}%")
-        if search.color:
-            filters.append("color ILIKE %s"); params.append(f"%{search.color}%")
-        if search.seller_type:
-            filters.append("seller_type ILIKE %s"); params.append(f"%{search.seller_type}%")
+        filters, params = build_search_filters(search)
             
         where_clause = " AND ".join(filters) if filters else "1=1"
         cur.execute(f"SELECT COUNT(*) FROM listings WHERE {where_clause}", tuple(params))
@@ -230,8 +199,10 @@ def count_search_listings(search: ListingSearch):
         cur.close()
         conn.close()
 
-@app.get("/brands", response_model=List[str])
-def get_all_brands():
+
+
+@app.get("/makes", response_model=List[str])
+def get_all_makes():
     conn = get_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -242,11 +213,6 @@ def get_all_brands():
     finally:
         cur.close()
         conn.close()
-
-@app.get("/makes", response_model=List[str])
-def get_all_makes():
-    """Alias for /brands endpoint to match frontend naming"""
-    return get_all_brands()
 
 @app.get("/models", response_model=List[str])
 def get_all_models():
@@ -433,23 +399,6 @@ def get_listing_with_details(ad_id: str):
             return ListingWithDetails(**{**base.dict(), 'details': None})
         raise he
 
-@app.post("/debug/search", response_model=Dict[str, Any])
-def debug_search_listings(
-    search: ListingSearch,
-    limit: int = Query(40, ge=1, le=100),
-    offset: int = Query(0, ge=0)
-):
-    logger.info(f"Received search with params: {search.dict()}, limit: {limit}, offset: {offset}")
-    return {"search": search.dict(), "limit": limit, "offset": offset}
-
-@app.post("/debug/search-params")
-def debug_search_params(search: ListingSearch):
-    """Return the search parameters for debugging"""
-    logger.info(f"Received search parameters: {search.dict()}")
-    return {
-        "search_params": search.dict(),
-        "non_empty_params": {k: v for k, v in search.dict().items() if v is not None and v != ""}
-    }
 
 @app.get("/filter-options", response_model=Dict[str, Any])
 def get_all_filter_options():
