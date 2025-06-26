@@ -121,17 +121,17 @@ ROBOTSTXT_OBEY = False
 # ]
 
 
-DOWNLOADER_MIDDLEWARES = {
-    # 1) your Cloudflare or FreeProxy middleware
-    #'scraper.middlewares.HybridProxyMiddleware':           90,
-   # 'scraper.middlewares.CloudflareProxyMiddleware':    100,
-      'scraper.middlewares.FreeProxyMiddleware':               100,
-            'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110,
-            'scraper.middlewares.EmptyPageRetryMiddleware':          150,
-            'scrapy.downloadermiddlewares.retry.RetryMiddleware':    200,
-            'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 300,
-            'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-}
+# DOWNLOADER_MIDDLEWARES = {
+#     # 1) your Cloudflare or FreeProxy middleware
+#     #'scraper.middlewares.HybridProxyMiddleware':           90,
+#    # 'scraper.middlewares.CloudflareProxyMiddleware':    100,
+#       'scraper.middlewares.FreeProxyMiddleware':               100,
+#             'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110,
+#             'scraper.middlewares.EmptyPageRetryMiddleware':          150,
+#             'scrapy.downloadermiddlewares.retry.RetryMiddleware':    200,
+#             'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 300,
+#             'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+# }
 
 RETRY_ENABLED     = True
 RETRY_TIMES       = 5
@@ -159,10 +159,10 @@ POSTGRES_SSLROOTCERT= os.getenv('AIVEN_PG_SSLROOTCERT') # put the full path of c
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = {
-   #"scraper.pipelines.ScraperPipeline": 300,
-    'scraper.pipelines.PostgresPipeline': 300,
-}
+# ITEM_PIPELINES = {
+#    #"scraper.pipelines.ScraperPipeline": 300,
+#     'scraper.pipelines.DubizzlePostgresPipeline': 300,
+# }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

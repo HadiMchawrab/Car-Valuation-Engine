@@ -1,18 +1,14 @@
+
 import re
 import json
-import scrapy
-
 from datetime import datetime, timezone
-from scrapy import Spider
-from urllib.parse import urlparse, parse_qs
+from urllib.parse       import urlparse, parse_qs
+from scrapy             import Spider, Request
+from scrapy.exceptions  import CloseSpider
+from scraper.items      import DubizzleItem
 
-from scraper.items import DubizzleItem
-
-
-class DubizzleSpider(Spider):
-    name = "dubizzle"
-    allowed_domains = ["dubizzle.sa"]
-
+class DubizzleDailySpider(Spider):
+    name = "dubizzle_daily"
     custom_settings = {
         "FEEDS": {
             "dubizzle.json": {"format": "json", "encoding": "utf8", "overwrite": True}
@@ -43,6 +39,7 @@ class DubizzleSpider(Spider):
             "scrapy_user_agents.middlewares.RandomUserAgentMiddleware":     500,
         },
         "ITEM_PIPELINES": {
+            "scraper.pipelines.LoadSeenIDsPipeline":      100,
             "scraper.pipelines.DubizzlePostgresPipeline": 300,
         },
         "USER_AGENT": None,
@@ -58,56 +55,64 @@ class DubizzleSpider(Spider):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.page_count = 0
-        self.total_ads = 0
+        self.seen_ids     = set()  # populated by LoadSeenIDsPipeline
+        self.no_new_pages = 0
+        self.page         = 1
+        self.logger.info("🕷️ DubizzleDailySpider initialized")
 
     def start_requests(self):
-        total_pages = 200  # change this number to cover as many pages as you need
-        for p in range(1, total_pages + 1):
-            url = f"https://www.dubizzle.sa/en/vehicles/cars-for-sale/?page={p}"
-            self.logger.info(f"[Loading🚀] Page {p} → {url}")
-            yield scrapy.Request(
-                url=url,
-                callback=self.parse_page,
-                errback=self.errback_page
-            )
+        start_url = f"https://www.dubizzle.sa/en/vehicles/cars-for-sale/?page={self.page}"
+        self.logger.info(f"🚀 Starting crawl at page {self.page}")
+        yield Request(start_url, callback=self.parse_page, errback=self.errback_page)
 
     def parse_page(self, response):
-        self.page_count += 1
-        qs = parse_qs(urlparse(response.url).query)
-        current_page = int(qs.get("page", ["1"])[0])
-        self.logger.info(f"[Loaded📄] Page #{current_page} → {response.url}")
-
-        # Extract ad links under the aria-label="Listing" items
+        self.logger.info(f"📄 Parsing page {self.page}: {response.url}")
         links = response.css(
             'li[aria-label="Listing"] a[href*="/en/ad/"]::attr(href)'
         ).getall()
-        links = list(dict.fromkeys(links))  # dedupe
-        self.logger.info(f"[Progress] Found {len(links)} ad links on page {current_page}")
+        total_links = len(links)
+        unique = list(dict.fromkeys(links))
+        self.logger.info(f"🔍 Found {total_links} links, {len(unique)} unique")
 
-        for href in links:
-            yield response.follow(href, callback=self.parse_ad, errback=self.errback_ad)
+        new = []
+        for href in unique:
+            rid = href.split('-ID')[-1].split('.')[0]
+            if rid not in self.seen_ids:
+                self.seen_ids.add(rid)
+                new.append(href)
 
-        # No pagination here—start_requests handles page iteration
+        self.logger.info(f"✨ {len(new)} new ads on this page")
+        if not new:
+            self.no_new_pages += 1
+            self.logger.info(f"⏭️ No new ads—counter: {self.no_new_pages}/2")
+            if self.no_new_pages >= 2:
+                self.logger.info("🔚 Reached 2 consecutive pages with no new ads. Stopping crawl.")
+                raise CloseSpider("no_more_new_ads")
+        else:
+            self.no_new_pages = 0
+            for href in new:
+                yield response.follow(href, callback=self.parse_ad, errback=self.errback_ad)
+
+        # queue next page
+        self.page += 1
+        next_url = f"https://www.dubizzle.sa/en/vehicles/cars-for-sale/?page={self.page}"
+        self.logger.info(f"➡ Scheduling next page: {self.page}")
+        yield Request(next_url, callback=self.parse_page, errback=self.errback_page)
 
     def parse_ad(self, response):
-        self.total_ads += 1
-        self.logger.info(f"[Progress] Scraping AD #{self.total_ads}: {response.url}")
-
-        item = DubizzleItem()
-        # — Core identifiers —
         raw_id = response.url.split("-ID")[-1].split(".")[0]
+        self.logger.info(f"✏️ Scraping ad {raw_id}")
+        item = DubizzleItem()
         item["ad_id"]   = raw_id
         item["url"]     = response.url
         item["website"] = "Dubizzle"
 
-        # — JSON-LD & preload/og image fallback —
+        # — JSON-LD & image fallback —
         ld_txt = response.xpath("//script[@type='application/ld+json']/text()").get()
         try:
             schema = json.loads(ld_txt) if ld_txt else {}
         except json.JSONDecodeError:
             schema = {}
-
         preload = response.css("link[rel=preload][as=image]::attr(href)").get()
         og      = response.xpath("//meta[@property='og:image']/@content").get()
         ld_img  = schema.get("image") if isinstance(schema.get("image"), str) else None
@@ -118,7 +123,6 @@ class DubizzleSpider(Spider):
             else schema.get("image", [])
         )
 
-        # — Basic schema fields —
         def to_int(v):
             try:
                 return int(float(v))
@@ -196,17 +200,17 @@ class DubizzleSpider(Spider):
         if m_s:
             raw = re.sub(r',\s*([}\]])', r'\1', m_s.group(1))
             try:
-                state = json.loads(raw)
+                state   = json.loads(raw)
                 unix_ts = state.get("ad", {}).get("data", {}).get("timestamp")
                 if unix_ts is not None:
                     created_dt = datetime.fromtimestamp(unix_ts, tz=timezone.utc)
+                    self.logger.info(f"🕒 Found post_date {created_dt.isoformat()}")
             except:
                 pass
 
         item["post_date"] = created_dt
         item["seller"]    = state.get("ad", {}).get("data", {}).get("name")
 
-        # — Clean up doors field —
         def clean_doors(v):
             if not v:
                 return None
@@ -219,16 +223,13 @@ class DubizzleSpider(Spider):
                 return None
 
         item["doors"] = clean_doors(pick("doors"))
-
         yield item
-
-    def closed(self, reason):
-        self.logger.info(
-            f"[Summary] Crawl finished: {self.page_count} pages, {self.total_ads} ads. Reason: {reason}"
-        )
 
     def errback_page(self, failure):
         self.logger.error(f"[Error❌] Failed to load page: {failure.request.url}")
 
     def errback_ad(self, failure):
         self.logger.error(f"[Error❌] Failed to load ad: {failure.request.url}")
+
+    def closed(self, reason):
+        self.logger.info(f"🔚 Crawl finished: reason={reason}")
