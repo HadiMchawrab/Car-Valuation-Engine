@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/FilterPanel.css';
 import { getTransmissionType, getBodyType } from '../utils/mappings';
+import API_BASE_URL from '../config/api';
 
 const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
 
@@ -41,13 +42,13 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
 
         sellerTypesRes
       ] = await Promise.all([
-        axios.get('http://localhost:8001/makes'),
-        axios.get('http://localhost:8001/years'),
-        axios.get('http://localhost:8001/locations'),
-        axios.get('http://localhost:8001/fuel-types'),
-        axios.get('http://localhost:8001/body-types'),
-        axios.get('http://localhost:8001/transmission-types'),
-        axios.get('http://localhost:8001/seller-types')
+        axios.get(`${API_BASE_URL}/makes`),
+        axios.get(`${API_BASE_URL}/years`),
+        axios.get(`${API_BASE_URL}/locations`),
+        axios.get(`${API_BASE_URL}/fuel-types`),
+        axios.get(`${API_BASE_URL}/body-types`),
+        axios.get(`${API_BASE_URL}/transmission-types`),
+        axios.get(`${API_BASE_URL}/seller-types`)
       ]);
       
       setMakes(makesRes.data);
@@ -64,7 +65,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
 
   const fetchModelsByMake = async (make) => {
     try {
-      const response = await axios.get(`http://localhost:8001/models/${make}`);
+      const response = await axios.get(`${API_BASE_URL}/models/${make}`);
       setModels(response.data);
     } catch (error) {
       console.error('Error fetching models:', error);

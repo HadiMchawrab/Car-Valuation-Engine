@@ -8,12 +8,12 @@ def get_connection():
     retry_delay = 2  # seconds
     
     # env-var keys
-    host_key       = "AIVEN_PG_HOST"
-    port_key       = "AIVEN_PG_PORT"
-    db_key         = "AIVEN_PG_DB"
-    user_key       = "AIVEN_PG_USER"
-    password_key   = "AIVEN_PG_PASSWORD"
-    sslcert_key    = "AIVEN_PG_SSLROOTCERT"
+    host_key       = "aiven-pg-host"
+    port_key       = "aiven-pg-port"
+    db_key         = "aiven-pg-db"
+    user_key       = "aiven-pg-user"
+    password_key   = "aiven-pg-password"
+    sslcert_key    = "aiven-pg-sslrootcert"
     
     for attempt in range(1, max_retries+1):
         try:
