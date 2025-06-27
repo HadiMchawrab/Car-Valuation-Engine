@@ -1,4 +1,5 @@
-FROM node:18-alpine
+# Build stage
+FROM node:18-alpine as build
 
 WORKDIR /usr/src/app
 
@@ -11,7 +12,18 @@ RUN npm config set fetch-timeout 300000 && \
 # Copy the rest of the application
 COPY ./ .
 
-EXPOSE 3000
+# Build the app for production
+RUN npm run build
 
-# Set the host for development
-CMD ["npm", "run", "start", "--", "--host"]
+# Production stage
+FROM nginx:alpine
+
+# Copy built app to nginx html directory
+COPY --from=build /usr/src/app/build /usr/share/nginx/html
+
+# Copy nginx configuration if needed (optional)
+# COPY nginx.conf /etc/nginx/nginx.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

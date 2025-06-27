@@ -4,6 +4,7 @@ import axios from 'axios';
 import '../styles/ListingsPage.css';
 import FilterPanel from './FilterPanel';
 import { getTransmissionType, getBodyType, getFuelType, getCondition, getColor, getSellerType } from '../utils/mappings';
+import API_BASE_URL from '../config/api';
 
 const ListingsPage = () => {
 
@@ -74,7 +75,7 @@ const ListingsPage = () => {
       // Calculate offset based on current page
       const offset = (currentPage - 1) * listingsPerPage;
       const response = await axios.post(
-        `http://localhost:8001/search?limit=${listingsPerPage}&offset=${offset}`, 
+        `${API_BASE_URL}/search?limit=${listingsPerPage}&offset=${offset}`, 
         searchParams
       );
       
@@ -97,7 +98,7 @@ const ListingsPage = () => {
     try {
       const searchParams = buildSearchParams();
       
-      const countResponse = await axios.post('http://localhost:8001/search/count', searchParams);
+      const countResponse = await axios.post(`${API_BASE_URL}/search/count`, searchParams);
       const totalListings = countResponse.data.total;
       setTotalPages(Math.ceil(totalListings / listingsPerPage));
       setTotalCount(totalListings);

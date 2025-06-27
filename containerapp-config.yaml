@@ -1,0 +1,48 @@
+location: uaenorth
+resourceGroup: markaba-app-rg
+properties:
+  configuration:
+    secrets:
+    - name: "aiven-pg-host"
+      keyVaultUrl: "https://markaba-secrets-uae.vault.azure.net/secrets/aiven-pg-host"
+      identity: "system"
+    - name: "aiven-pg-port"
+      keyVaultUrl: "https://markaba-secrets-uae.vault.azure.net/secrets/aiven-pg-port"
+      identity: "system"
+    - name: "aiven-pg-db"
+      keyVaultUrl: "https://markaba-secrets-uae.vault.azure.net/secrets/aiven-pg-db"
+      identity: "system"
+    - name: "aiven-pg-user"
+      keyVaultUrl: "https://markaba-secrets-uae.vault.azure.net/secrets/aiven-pg-user"
+      identity: "system"
+    - name: "aiven-pg-password"
+      keyVaultUrl: "https://markaba-secrets-uae.vault.azure.net/secrets/aiven-pg-password"
+      identity: "system"
+    - name: "aiven-pg-sslrootcert"
+      keyVaultUrl: "https://markaba-secrets-uae.vault.azure.net/secrets/aiven-pg-sslrootcert"
+      identity: "system"
+    - name: "aiven-pg-sslrootcert-content"
+      keyVaultUrl: "https://markaba-secrets-uae.vault.azure.net/secrets/aiven-pg-sslrootcert-content"
+      identity: "system"
+  template:
+    containers:
+    - image: markabaregistry2025.azurecr.io/markaba-backend:v5
+      name: markaba-backend-app
+      env:
+      - name: "aiven-pg-host"
+        secretRef: "aiven-pg-host"
+      - name: "aiven-pg-port"
+        secretRef: "aiven-pg-port"
+      - name: "aiven-pg-db"
+        secretRef: "aiven-pg-db"
+      - name: "aiven-pg-user"
+        secretRef: "aiven-pg-user"
+      - name: "aiven-pg-password"
+        secretRef: "aiven-pg-password"
+      - name: "aiven-pg-sslrootcert"
+        secretRef: "aiven-pg-sslrootcert"
+      - name: "aiven-pg-sslrootcert-content"
+        secretRef: "aiven-pg-sslrootcert-content"
+      resources:
+        cpu: 0.5
+        memory: 1Gi

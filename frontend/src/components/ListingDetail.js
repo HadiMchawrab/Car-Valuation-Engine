@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/ListingDetail.css';
 import { getTransmissionType, getBodyType } from '../utils/mappings';
+import API_BASE_URL from '../config/api';
 
 const ListingDetail = () => {
 
@@ -15,7 +16,7 @@ const ListingDetail = () => {
     const fetchListingDetail = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://localhost:8001/listings/${id}`);
+        const response = await axios.get(`${API_BASE_URL}/listings/${id}`);
         setListing(response.data);
         setLoading(false);
       } catch (err) {
