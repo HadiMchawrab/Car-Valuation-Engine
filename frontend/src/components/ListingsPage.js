@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/ListingsPage.css';
 import FilterPanel from './FilterPanel';
-import { getTransmissionType, getBodyType, getFuelType, getCondition, getColor, getSellerType } from '../utils/mappings';
+import { getTransmissionType, getBodyType, getColor } from '../utils/mappings';
 import API_BASE_URL from '../config/api';
 
 const ListingsPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +16,25 @@ const ListingsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const listingsPerPage = 40;      // Filter states
+  const listingsPerPage = 40;
+  
+  // Sort state
+  const [sortBy, setSortBy] = useState('newest_listed'); // Default sort
+  
+  // Sort options
+  const sortOptions = [
+    { value: 'newest_listed', label: 'Newly Listed' },
+    { value: 'oldest_listed', label: 'Oldest Listings' },
+    { value: 'lowest_price', label: 'Lowest Price' },
+    { value: 'highest_price', label: 'Highest Price' },
+    { value: 'newest_model', label: 'Newest Model Year' },
+    { value: 'oldest_model', label: 'Oldest Model Year' },
+    { value: 'verified_seller', label: 'Verified Account' },
+    { value: 'price_asc', label: 'Price A to Z' },
+    { value: 'price_desc', label: 'Price Z to A' }
+  ];
+  
+  // Filter states
   const [filters, setFilters] = useState({
     brand: '',
     model: '',
@@ -33,12 +53,39 @@ const ListingsPage = () => {
     condition: '',
     sellerType: '',
     color: '',
+    website: '',
     minPostDate: '',
-    maxPostDate: ''
+    maxPostDate: '',
+    seller: '', // Add seller filter
+    sellerDisplayType: '' // Track if it's seller or agency
   });
+  // Helper function to convert sort option to backend parameter
+  const getSortParam = (sortBy) => {
+    switch (sortBy) {
+      case 'newest_listed':
+        return 'post_date_desc';
+      case 'oldest_listed':
+        return 'post_date_asc';
+      case 'lowest_price':
+      case 'price_asc':
+        return 'price_asc';
+      case 'highest_price':
+      case 'price_desc':
+        return 'price_desc';
+      case 'newest_model':
+        return 'year_desc';
+      case 'oldest_model':
+        return 'year_asc';
+      case 'verified_seller':
+        return 'verified_seller';
+      default:
+        return 'post_date_desc';
+    }
+  };
+
   // Helper function to build search parameters from filters
   const buildSearchParams = () => {
-    return {
+    const params = {
       brand: filters.brand || null,
       model: filters.model || null,
       min_year: filters.minYear ? parseInt(filters.minYear) : null,
@@ -56,16 +103,69 @@ const ListingsPage = () => {
       condition: filters.condition || null,
       seller_type: filters.sellerType || null,
       color: filters.color || null,
+      website: filters.website || null,
       min_post_date: filters.minPostDate || null,
-      max_post_date: filters.maxPostDate || null
+      max_post_date: filters.maxPostDate || null,
+      seller: filters.seller || null, // Add seller filter
+      sort_by: getSortParam(sortBy) // Use backend sort parameter
     };
+    
+    console.log('Search params being sent:', params);
+    return params;
+  };
+
+  // Frontend sorting fallback function
+  const sortListingsFrontend = (listings, sortBy) => {
+    const sorted = [...listings];
+    
+    switch (sortBy) {
+      case 'newest_listed':
+        return sorted.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
+      case 'oldest_listed':
+        return sorted.sort((a, b) => new Date(a.post_date) - new Date(b.post_date));
+      case 'lowest_price':
+      case 'price_asc':
+        return sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
+      case 'highest_price':
+      case 'price_desc':
+        return sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
+      case 'newest_model':
+        return sorted.sort((a, b) => (b.year || 0) - (a.year || 0));
+      case 'oldest_model':
+        return sorted.sort((a, b) => (a.year || 0) - (b.year || 0));
+      case 'verified_seller':
+        return sorted.sort((a, b) => {
+          if (a.seller_verified && !b.seller_verified) return -1;
+          if (!a.seller_verified && b.seller_verified) return 1;
+          return new Date(b.post_date) - new Date(a.post_date); // Secondary sort by date
+        });
+      default:
+        return sorted;
+    }
   };
 
   useEffect(() => {
     fetchListings();
     fetchTotalCount();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, filters]);
+  }, [currentPage, filters, sortBy]);
+
+  // Handle URL parameters on component mount
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const seller = searchParams.get('seller');
+    const sellerType = searchParams.get('sellerType');
+    
+    console.log('URL Parameters:', { seller, sellerType });
+    
+    if (seller) {
+      setFilters(prev => ({
+        ...prev,
+        seller: seller,
+        sellerDisplayType: sellerType || 'seller'
+      }));
+    }
+  }, [location.search]);
 
   const fetchListings = async () => {
     setLoading(true);
@@ -74,16 +174,23 @@ const ListingsPage = () => {
       
       // Calculate offset based on current page
       const offset = (currentPage - 1) * listingsPerPage;
+      
+      console.log('Fetching listings with sort:', searchParams.sort_by);
+      
+      // Make the API call with sorting in the POST body
       const response = await axios.post(
         `${API_BASE_URL}/search?limit=${listingsPerPage}&offset=${offset}`, 
         searchParams
       );
       
-      // Log image URLs for debugging
-      console.log('Listings data:', response.data);
-      if (response.data && response.data.length > 0) {
-        console.log('First listing image_urls:', response.data[0].image_urls);
-      }
+      // Log the response for debugging
+      console.log('API Response:', response.data);
+      console.log('First few listings post_dates:', response.data.slice(0, 3).map(l => ({ 
+        title: l.title, 
+        post_date: l.post_date,
+        price: l.price,
+        year: l.year 
+      })));
       
       setListings(response.data);
       setLoading(false);
@@ -110,6 +217,17 @@ const ListingsPage = () => {
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
     setCurrentPage(1); // Reset to first page when filters change
+    
+    // Update URL parameters when seller filter changes
+    if (!newFilters.seller && location.search.includes('seller=')) {
+      // Clear URL parameters when seller filter is cleared
+      navigate('/', { replace: true });
+    }
+  };
+
+  const handleSortChange = (newSortBy) => {
+    setSortBy(newSortBy);
+    setCurrentPage(1); // Reset to first page when sort changes
   };
 
   const handlePageChange = (newPage) => {
@@ -121,6 +239,29 @@ const ListingsPage = () => {
     <div className="listings-page">
       <h1>Car Listings</h1>
       
+      {/* Seller Filter Banner */}
+      {filters.seller && (
+        <div className="seller-filter-banner">
+          <div className="seller-info">
+            <h2>
+              {filters.sellerDisplayType === 'agency' ? '🏢' : '👤'} 
+              {filters.sellerDisplayType === 'agency' ? 'Agency' : 'Seller'}: {filters.seller}
+            </h2>
+            <p>Showing all listings from this {filters.sellerDisplayType}</p>
+          </div>
+          <button 
+            className="clear-seller-filter"
+            onClick={() => {
+              const newFilters = { ...filters, seller: '', sellerDisplayType: '' };
+              setFilters(newFilters);
+              navigate('/', { replace: true });
+            }}
+          >
+            ✕ Clear Filter
+          </button>
+        </div>
+      )}
+      
       <div className="listings-container">
         <div className="sidebar">
           <FilterPanel 
@@ -131,6 +272,23 @@ const ListingsPage = () => {
         </div>
         
         <div className="main-content">
+          {/* Sort Dropdown */}
+          <div className="sort-section">
+            <label htmlFor="sort-select" className="sort-label">Sort by:</label>
+            <select 
+              id="sort-select"
+              value={sortBy} 
+              onChange={(e) => handleSortChange(e.target.value)}
+              className="sort-dropdown"
+            >
+              {sortOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          
           {loading ? (
             <div className="loading">Loading...</div>
           ) : error ? (
@@ -157,13 +315,26 @@ const ListingsPage = () => {
                     </div>
                     <div className="listing-info">
                       <div className="listing-header">
-                        <h3 className="listing-title">{listing.title}</h3>
+                        <h3 className="listing-title">
+                          {listing.title}
+                          {listing.seller_verified && (
+                            <span className="verified-badge">✓ Verified</span>
+                          )}
+                        </h3>
                         <div className="listing-price">
                           {listing.price ? `${listing.price.toLocaleString()} ${listing.currency}` : 'Price N/A'}
                         </div>
                       </div>
                       
                       <div className="listing-details">
+                        <div className="detail-item">
+                          <span className="detail-label">Make</span>
+                          <span className="detail-value">{listing.brand || 'N/A'}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Model</span>
+                          <span className="detail-value">{listing.model || 'N/A'}</span>
+                        </div>
                         <div className="detail-item">
                           <span className="detail-label">Year</span>
                           <span className="detail-value">{listing.year || 'N/A'}</span>
@@ -186,7 +357,25 @@ const ListingsPage = () => {
                           <span className="detail-label">Transmission</span>
                           <span className="detail-value">{getTransmissionType(listing.transmission_type)}</span>
                         </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Color</span>
+                          <span className="detail-value">{getColor(listing.color)}</span>
+                        </div>
+                      </div>
                       
+                      <div className="seller-info">
+                        <div className="seller-name">
+                          <span className="seller-label">Seller:</span>
+                          <span className="seller-value">
+                            {listing.seller || listing.agency_name || 'N/A'}
+                          </span>
+                        </div>
+                        <div className="post-date">
+                          <span className="post-label">Posted:</span>
+                          <span className="post-value">
+                            {listing.post_date ? new Date(listing.post_date).toLocaleDateString() : 'N/A'}
+                          </span>
+                        </div>
                       </div>
                       
                       <div className="listing-meta">

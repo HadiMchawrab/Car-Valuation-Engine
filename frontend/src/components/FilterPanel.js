@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/FilterPanel.css';
-import { getTransmissionType, getBodyType } from '../utils/mappings';
+import { getTransmissionType, getBodyType, getColor } from '../utils/mappings';
 import API_BASE_URL from '../config/api';
 
 const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
@@ -14,10 +14,14 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
   const [bodyTypes, setBodyTypes] = useState([]);
   const [transmissionTypes, setTransmissionTypes] = useState([]);
   const [sellerTypes, setSellerTypes] = useState([]);
+  const [colors, setColors] = useState([]);
+  const [websites, setWebsites] = useState([]);
   const [localFilters, setLocalFilters] = useState({
     ...filters,
     minPostDate: '',
-    maxPostDate: ''
+    maxPostDate: '',
+    color: '',
+    website: ''
   });
 
   useEffect(() => {
@@ -39,8 +43,9 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
         fuelTypesRes, 
         bodyTypesRes, 
         transmissionTypesRes, 
-
-        sellerTypesRes
+        sellerTypesRes,
+        colorsRes,
+        websitesRes
       ] = await Promise.all([
         axios.get(`${API_BASE_URL}/makes`),
         axios.get(`${API_BASE_URL}/years`),
@@ -48,7 +53,9 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
         axios.get(`${API_BASE_URL}/fuel-types`),
         axios.get(`${API_BASE_URL}/body-types`),
         axios.get(`${API_BASE_URL}/transmission-types`),
-        axios.get(`${API_BASE_URL}/seller-types`)
+        axios.get(`${API_BASE_URL}/seller-types`),
+        axios.get(`${API_BASE_URL}/colors`),
+        axios.get(`${API_BASE_URL}/websites`)
       ]);
       
       setMakes(makesRes.data);
@@ -58,6 +65,8 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       setBodyTypes(bodyTypesRes.data);
       setTransmissionTypes(transmissionTypesRes.data);
       setSellerTypes(sellerTypesRes.data);
+      setColors(colorsRes.data);
+      setWebsites(websitesRes.data);
     } catch (error) {
       console.error('Error fetching filter options:', error);
     }
@@ -117,6 +126,8 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       fuelType: localFilters.fuelType,
       transmissionType: localFilters.transmissionType,
       sellerType: localFilters.sellerType,
+      color: localFilters.color,
+      website: localFilters.website,
       minPostDate: localFilters.minPostDate,
       maxPostDate: localFilters.maxPostDate
     };
@@ -139,6 +150,8 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       fuelType: '',
       transmissionType: '',
       sellerType: '',
+      color: '',
+      website: '',
       minPostDate: '',
       maxPostDate: ''
     };
@@ -160,6 +173,10 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       fuelType: '',
       transmissionType: '',
       sellerType: '',
+      seller: '', // Clear seller filter
+      sellerDisplayType: '', // Clear seller display type
+      color: '',
+      website: '',
       minPostDate: '',
       maxPostDate: ''
     };
@@ -390,7 +407,33 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
           </select>
         </div>
 
-        
+        <div className="filter-group">
+          <label>Color</label>
+          <select 
+            name="color"
+            value={localFilters.color}
+            onChange={handleInputChange}
+          >
+            <option value="">All Colors</option>
+            {colors.map(color => (
+              <option key={color} value={color}>{getColor(color)}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="filter-group">
+          <label>Website</label>
+          <select 
+            name="website"
+            value={localFilters.website}
+            onChange={handleInputChange}
+          >
+            <option value="">All Websites</option>
+            {websites.map(website => (
+              <option key={website} value={website}>{website}</option>
+            ))}
+          </select>
+        </div>
 
         <div className="filter-group">
           <label>Seller Type</label>
