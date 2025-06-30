@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/FilterPanel.css';
 import { getTransmissionType, getBodyType, getColor } from '../utils/mappings';
@@ -16,26 +17,59 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
   const [sellerTypes, setSellerTypes] = useState([]);
   const [colors, setColors] = useState([]);
   const [websites, setWebsites] = useState([]);
+  const [isLoadingOptions, setIsLoadingOptions] = useState(false);
   const [localFilters, setLocalFilters] = useState({
     ...filters,
+    // Fix the brand/make mismatch in initial state
+    make: filters.brand || filters.make || '',
     minPostDate: '',
     maxPostDate: '',
     color: '',
-    website: ''
+    website: '',
+    contributorName: '', // Track contributor (agency/seller) name for profile link
+    contributorType: '' // Track if contributor is agency or individual_seller
   });
 
   useEffect(() => {
-    fetchFilterOptions();
-  }, []);
+    // Fetch initial filter options when component mounts or seller changes
+    fetchInitialFilterOptions();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.seller]); // Re-fetch when seller changes
 
   useEffect(() => {
-    // Fetch models when make changes
-    if (localFilters.make) {
-      fetchModelsByMake(localFilters.make);
+    // Fetch dynamic filter options when any filter changes (except on initial load)
+    if (Object.keys(localFilters).some(key => localFilters[key] !== '' && localFilters[key] !== null)) {
+      fetchDynamicFilterOptions();
     }
-  }, [localFilters.make]);
-  const fetchFilterOptions = async () => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localFilters]); // Re-fetch when any local filter changes
+
+  // Update local filters when props change (important for URL-based filters)
+  useEffect(() => {
+    console.log('FilterPanel: Received new filters from parent:', filters);
+    setLocalFilters(prev => {
+      const updated = {
+        ...prev,
+        ...filters,
+        // Fix the brand/make mismatch - use brand from filters as make in local state
+        make: filters.brand || filters.make || '',
+        contributorName: filters.sellerDisplayName || filters.seller || '', // Use display name for UI
+        contributorType: filters.sellerDisplayType || ''
+      };
+      console.log('FilterPanel: Updated local filters:', updated);
+      return updated;
+    });
+  }, [filters]);
+
+  useEffect(() => {
+    // No longer need to fetch models separately since dynamic filtering handles this
+  }, [localFilters.make, filters.seller]);
+  const fetchInitialFilterOptions = async () => {
     try {
+      // Build base URL with seller filter if present
+      const baseUrl = API_BASE_URL;
+      const sellerParam = filters.seller ? `?seller=${encodeURIComponent(filters.seller)}` : '';
+      
       const [
         makesRes, 
         yearsRes, 
@@ -47,15 +81,15 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
         colorsRes,
         websitesRes
       ] = await Promise.all([
-        axios.get(`${API_BASE_URL}/makes`),
-        axios.get(`${API_BASE_URL}/years`),
-        axios.get(`${API_BASE_URL}/locations`),
-        axios.get(`${API_BASE_URL}/fuel-types`),
-        axios.get(`${API_BASE_URL}/body-types`),
-        axios.get(`${API_BASE_URL}/transmission-types`),
-        axios.get(`${API_BASE_URL}/seller-types`),
-        axios.get(`${API_BASE_URL}/colors`),
-        axios.get(`${API_BASE_URL}/websites`)
+        axios.get(`${baseUrl}/makes${sellerParam}`),
+        axios.get(`${baseUrl}/years${sellerParam}`),
+        axios.get(`${baseUrl}/locations${sellerParam}`),
+        axios.get(`${baseUrl}/fuel-types${sellerParam}`),
+        axios.get(`${baseUrl}/body-types${sellerParam}`),
+        axios.get(`${baseUrl}/transmission-types${sellerParam}`),
+        axios.get(`${baseUrl}/seller-types${sellerParam}`),
+        axios.get(`${baseUrl}/colors${sellerParam}`),
+        axios.get(`${baseUrl}/websites${sellerParam}`)
       ]);
       
       setMakes(makesRes.data);
@@ -67,28 +101,94 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       setSellerTypes(sellerTypesRes.data);
       setColors(colorsRes.data);
       setWebsites(websitesRes.data);
+      
+      // Clear model selection if current make is no longer available
+      if (localFilters.make && !makesRes.data.includes(localFilters.make)) {
+        setLocalFilters(prev => ({ ...prev, make: '', model: '' }));
+      }
     } catch (error) {
-      console.error('Error fetching filter options:', error);
+      console.error('Error fetching initial filter options:', error);
     }
   };
 
-  const fetchModelsByMake = async (make) => {
+  const fetchDynamicFilterOptions = async () => {
+    setIsLoadingOptions(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/models/${make}`);
-      setModels(response.data);
+      // Convert frontend filter names to backend expected names
+      const backendFilters = {
+        brand: localFilters.make,
+        model: localFilters.model,
+        min_year: localFilters.minYear,
+        max_year: localFilters.maxYear,
+        min_price: localFilters.minPrice,
+        max_price: localFilters.maxPrice,
+        location_city: localFilters.location,
+        location_region: localFilters.location,
+        is_new: localFilters.isNew,
+        max_mileage: localFilters.maxMileage,
+        body_type: localFilters.bodyType,
+        fuel_type: localFilters.fuelType,
+        transmission_type: localFilters.transmissionType,
+        seller_type: localFilters.sellerType,
+        color: localFilters.color,
+        website: localFilters.website,
+        min_post_date: localFilters.minPostDate,
+        max_post_date: localFilters.maxPostDate,
+        seller: filters.seller // Include seller filter
+      };
+
+      // Remove empty/null values
+      const cleanFilters = Object.fromEntries(
+        Object.entries(backendFilters).filter(([_, value]) => 
+          value !== '' && value !== null && value !== undefined
+        )
+      );
+
+      const response = await axios.post(`${API_BASE_URL}/dynamic-filter-options`, cleanFilters);
+      const data = response.data;
+      
+      setMakes(data.makes || []);
+      setModels(data.models || []);
+      setYears(data.years || []);
+      setLocations(data.locations || []);
+      setFuelTypes(data.fuelTypes || []);
+      setBodyTypes(data.bodyTypes || []);
+      setTransmissionTypes(data.transmissionTypes || []);
+      setSellerTypes(data.sellerTypes || []);
+      setColors(data.colors || []);
+      setWebsites(data.websites || []);
+      
     } catch (error) {
-      console.error('Error fetching models:', error);
+      console.error('Error fetching dynamic filter options:', error);
+    } finally {
+      setIsLoadingOptions(false);
     }
-  };  const handleInputChange = (e) => {
+  };
+
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setLocalFilters(prev => ({ ...prev, [name]: value }));
+    let updatedFilters = { ...localFilters, [name]: value };
+    
+    // If make is being changed to "All Makes" (empty value), reset model to "All Models"
+    if (name === 'make' && value === '') {
+      updatedFilters = { ...updatedFilters, model: '' };
+    }
+    
+    setLocalFilters(updatedFilters);
+    
+    // Apply filters immediately
+    applyFiltersImmediately(updatedFilters);
   };
   
   const handleConditionChange = (condition) => {
     // condition can be 'any', 'new', or 'used'
     const isNew = condition === 'new' ? true : 
                   condition === 'used' ? false : null;
-    setLocalFilters(prev => ({ ...prev, condition: condition, isNew }));
+    const updatedFilters = { ...localFilters, condition: condition, isNew };
+    setLocalFilters(updatedFilters);
+    
+    // Apply filters immediately
+    applyFiltersImmediately(updatedFilters);
   };
 
   const handleDateChange = (e) => {
@@ -109,33 +209,42 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
     }
     
     setLocalFilters(updatedFilters);
-  };  const applyFilters = () => {
+    
+    // Apply filters immediately
+    applyFiltersImmediately(updatedFilters);
+  };  const applyFiltersImmediately = (updatedFilters) => {
     // Map frontend filter names to backend expected names
     const mappedFilters = {
-      brand: localFilters.make,
-      model: localFilters.model,
-      minYear: localFilters.minYear,
-      maxYear: localFilters.maxYear,
-      minPrice: localFilters.minPrice,
-      maxPrice: localFilters.maxPrice,
-      locationCity: localFilters.location, // Note: This is a simplification, locationCity and locationRegion might need separate handling
-      locationRegion: localFilters.location,
-      isNew: localFilters.isNew, // null = any, true = new, false = used
-      maxMileage: localFilters.maxMileage,
-      bodyType: localFilters.bodyType,
-      fuelType: localFilters.fuelType,
-      transmissionType: localFilters.transmissionType,
-      sellerType: localFilters.sellerType,
-      color: localFilters.color,
-      website: localFilters.website,
-      minPostDate: localFilters.minPostDate,
-      maxPostDate: localFilters.maxPostDate
+      brand: updatedFilters.make,
+      model: updatedFilters.model,
+      minYear: updatedFilters.minYear,
+      maxYear: updatedFilters.maxYear,
+      minPrice: updatedFilters.minPrice,
+      maxPrice: updatedFilters.maxPrice,
+      locationCity: updatedFilters.location,
+      locationRegion: updatedFilters.location,
+      isNew: updatedFilters.isNew,
+      maxMileage: updatedFilters.maxMileage,
+      bodyType: updatedFilters.bodyType,
+      fuelType: updatedFilters.fuelType,
+      transmissionType: updatedFilters.transmissionType,
+      sellerType: updatedFilters.sellerType,
+      color: updatedFilters.color,
+      website: updatedFilters.website,
+      minPostDate: updatedFilters.minPostDate,
+      maxPostDate: updatedFilters.maxPostDate,
+      // Preserve seller/agency filters
+      seller: filters.seller,
+      sellerDisplayType: filters.sellerDisplayType,
+      sellerDisplayName: filters.sellerDisplayName
     };
     
-    console.log("Applying filters:", mappedFilters);
+    console.log("Applying filters immediately:", mappedFilters);
     onFilterChange(mappedFilters);
   };
-  const clearFilters = () => {
+
+  const clearFilters = async () => {
+    // Reset to completely empty state as if page just loaded
     const emptyFilters = {
       make: '',
       model: '',
@@ -145,7 +254,9 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       maxPrice: '',
       location: '',
       isNew: null,
+      condition: '',
       maxMileage: '',
+      minMileage: '',
       bodyType: '',
       fuelType: '',
       transmissionType: '',
@@ -153,11 +264,15 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       color: '',
       website: '',
       minPostDate: '',
-      maxPostDate: ''
+      maxPostDate: '',
+      contributorName: '', // Clear contributor info
+      contributorType: ''
     };
+    
+    // Update local filters first
     setLocalFilters(emptyFilters);
     
-    // Map to backend expected filter names
+    // Map to backend expected filter names - reset everything to initial state
     const mappedEmptyFilters = {
       brand: '',
       model: '',
@@ -168,20 +283,32 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       locationCity: '',
       locationRegion: '',
       isNew: null,
+      condition: '',
       maxMileage: '',
+      minMileage: '',
       bodyType: '',
       fuelType: '',
       transmissionType: '',
       sellerType: '',
       seller: '', // Clear seller filter
       sellerDisplayType: '', // Clear seller display type
+      sellerDisplayName: '', // Clear seller display name
       color: '',
       website: '',
       minPostDate: '',
       maxPostDate: ''
     };
     
+    // Apply the cleared filters
     onFilterChange(mappedEmptyFilters);
+    
+    // Re-fetch initial filter options to restore full available options
+    // This ensures that all dropdown options are restored as if page was refreshed
+    try {
+      await fetchInitialFilterOptions();
+    } catch (error) {
+      console.error('Error refreshing filter options after clear:', error);
+    }
   };
 
   return (
@@ -196,15 +323,65 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       
       <h3>Filter Listings</h3>
       <div className="filter-buttons">
-          <button onClick={applyFilters} className="apply-filters-btn">Apply Filters</button>
-          <button onClick={clearFilters} className="clear-filters-btn">Clear All</button>
+          <button onClick={clearFilters} className="clear-filters-btn" disabled={isLoadingOptions}>Clear All</button>
         </div>
+      
+      {isLoadingOptions && (
+        <div className="loading-indicator">
+          <span>Updating filter options...</span>
+        </div>
+      )}
+
+      {/* Contributor Filter - Show when filtering by seller/agency */}
+      {localFilters.contributorName && (
+        <div className="contributor-filter-section">
+          <div className="contributor-info">
+            <div className="contributor-details">
+              <span className="contributor-icon">
+                {localFilters.contributorType === 'agency' ? '🏢' : '👤'}
+              </span>
+              <div className="contributor-text">
+                <strong>{localFilters.contributorName}</strong>
+                <span className="contributor-type">
+                  {localFilters.contributorType === 'agency' ? 'Agency' : 'Individual Seller'}
+                </span>
+              </div>
+            </div>
+            <div className="contributor-actions">
+              <Link 
+                to={`/analytics/contributor/${encodeURIComponent(localFilters.contributorName)}`}
+                className="profile-btn"
+                title="View Profile & Analytics"
+              >
+                📊 Profile
+              </Link>
+              <button 
+                onClick={() => {
+                  setLocalFilters(prev => ({ ...prev, contributorName: '', contributorType: '' }));
+                  onFilterChange({
+                    ...filters,
+                    seller: '',
+                    sellerDisplayType: '',
+                    sellerDisplayName: ''
+                  });
+                }}
+                className="remove-contributor-btn"
+                title="Remove contributor filter"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+  <div style={{ height: '20px' }} />
       <div className="filter-controls">        <div className="filter-group">
           <label>Make</label>
           <select 
             name="make"
             value={localFilters.make}
             onChange={handleInputChange}
+            disabled={isLoadingOptions}
           >
             <option value="">All Makes</option>
             {makes.map(make => (
@@ -221,7 +398,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
             name="model"
             value={localFilters.model}
             onChange={handleInputChange}
-            disabled={!localFilters.make}
+            disabled={!localFilters.make || isLoadingOptions}
           >
             <option value="">All Models</option>
             {models.map(model => (
@@ -237,6 +414,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
               name="minYear"
               value={localFilters.minYear}
               onChange={handleInputChange}
+              disabled={isLoadingOptions}
             >
               <option value="">Any</option>
               {years.map(year => (
@@ -251,6 +429,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
               name="maxYear"
               value={localFilters.maxYear}
               onChange={handleInputChange}
+              disabled={isLoadingOptions}
             >
               <option value="">Any</option>
               {years.map(year => (
@@ -269,6 +448,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
                 value={localFilters.minPrice}
                 onChange={handleInputChange}
                 placeholder="Min Price"
+                disabled={isLoadingOptions}
               />
               <span className="price-currency">SAR</span>
             </div>
@@ -283,6 +463,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
                 value={localFilters.maxPrice}
                 onChange={handleInputChange}
                 placeholder="Max Price"
+                disabled={isLoadingOptions}
               />
               <span className="price-currency">SAR</span>
             </div>
@@ -295,6 +476,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
             name="location"
             value={localFilters.location}
             onChange={handleInputChange}
+            disabled={isLoadingOptions}
           >
             <option value="">All Locations</option>
             {locations.map(location => (
@@ -310,18 +492,21 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
             <button 
               className={`condition-btn ${localFilters.isNew === null ? 'active' : ''}`} 
               onClick={() => handleConditionChange('any')}
+              disabled={isLoadingOptions}
             >
               Any
             </button>
             <button 
               className={`condition-btn ${localFilters.isNew === true ? 'active' : ''}`} 
               onClick={() => handleConditionChange('new')}
+              disabled={isLoadingOptions}
             >
               New
             </button>
             <button 
               className={`condition-btn ${localFilters.isNew === false ? 'active' : ''}`} 
               onClick={() => handleConditionChange('used')}
+              disabled={isLoadingOptions}
             >
               Used
             </button>
@@ -337,6 +522,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
             value={localFilters.maxMileage}
             onChange={handleInputChange}
             placeholder="Max Mileage"
+            disabled={isLoadingOptions}
           />
         </div>
 
@@ -350,6 +536,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
               value={localFilters.minPostDate}
               onChange={handleDateChange}
               placeholder="Posted After"
+              disabled={isLoadingOptions}
             />
           </div>
           
@@ -361,6 +548,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
               value={localFilters.maxPostDate}
               onChange={handleDateChange}
               placeholder="Posted Before"
+              disabled={isLoadingOptions}
             />
           </div>
         </div>
@@ -371,6 +559,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
             name="bodyType"
             value={localFilters.bodyType}
             onChange={handleInputChange}
+            disabled={isLoadingOptions}
           >
             <option value="">All Body Types</option>
             {bodyTypes.map(type => (
@@ -385,6 +574,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
             name="fuelType"
             value={localFilters.fuelType}
             onChange={handleInputChange}
+            disabled={isLoadingOptions}
           >
             <option value="">All Fuel Types</option>
             {fuelTypes.map(type => (
@@ -399,6 +589,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
             name="transmissionType"
             value={localFilters.transmissionType}
             onChange={handleInputChange}
+            disabled={isLoadingOptions}
           >
             <option value="">All Transmissions</option>
             {transmissionTypes.map(type => (
@@ -413,6 +604,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
             name="color"
             value={localFilters.color}
             onChange={handleInputChange}
+            disabled={isLoadingOptions}
           >
             <option value="">All Colors</option>
             {colors.map(color => (
@@ -427,6 +619,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
             name="website"
             value={localFilters.website}
             onChange={handleInputChange}
+            disabled={isLoadingOptions}
           >
             <option value="">All Websites</option>
             {websites.map(website => (
@@ -441,6 +634,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
             name="sellerType"
             value={localFilters.sellerType}
             onChange={handleInputChange}
+            disabled={isLoadingOptions}
           >
             <option value="">All Seller Types</option>
             {sellerTypes.map(type => (

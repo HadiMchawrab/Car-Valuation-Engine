@@ -32,6 +32,52 @@
   font-weight: 500;
 }
 
+/* Analytics Navigation Styles */
+.analytics-navigation {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 40px;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  padding: 12px 24px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border-color: var(--accent-green);
+}
+
+.nav-btn.active {
+  background: var(--accent-green);
+  color: white;
+  border-color: var(--accent-green);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(74, 222, 128, 0.3);
+}
+
+.nav-btn.active:hover {
+  background: var(--accent-green-hover);
+  border-color: var(--accent-green-hover);
+}
+
 .analytics-container {
   display: flex;
   gap: 40px;
@@ -222,5 +268,15 @@
   
   .analytics-subtitle {
     font-size: 1rem;
+  }
+  
+  .analytics-navigation {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .nav-btn {
+    width: 100%;
+    text-align: center;
   }
 }

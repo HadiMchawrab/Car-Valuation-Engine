@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import FilterPanel from './FilterPanel';
 import TopContributors from './Analytics/TopContributors';
+import DepreciationAnalysis from './Analytics/DepreciationAnalysis';
+import PriceSpreadAnalysis from './Analytics/PriceSpreadAnalysis';
 import '../styles/Analytics.css';
 
 const Analytics = () => {
   const [analyticsStats, setAnalyticsStats] = useState(null);
+  const [activeSection, setActiveSection] = useState('overview'); // 'overview', 'contributors', 'depreciation', 'price-spread'
   const [filters, setFilters] = useState({
     brand: '',
     model: '',
@@ -83,31 +85,39 @@ const Analytics = () => {
     fetchAnalyticsStats();
   }, [fetchAnalyticsStats]);
 
-  const handleFilterChange = (newFilters) => {
-    setFilters(newFilters);
-    // fetchAnalyticsStats will be called automatically due to useEffect dependency
-  };
+  const renderActiveSection = () => {
+    switch (activeSection) {
+      case 'contributors':
+        return <TopContributors filters={filters} />;
+      case 'depreciation':
+        return <DepreciationAnalysis />;
+      case 'price-spread':
+        return <PriceSpreadAnalysis />;
+      default:
+        return (
+          <div className="analytics-stats">
+            <div className="stat-card">
+              <div className="stat-icon">🚗</div>
+              <div className="stat-content">
+                <h3>Total Listings</h3>
+                <p className="stat-number">
+                  {analyticsStats ? analyticsStats.total_listings.toLocaleString() : '0'}
+                </p>
+              </div>
+            </div>
 
-  const clearFilters = () => {
-    const emptyFilters = {
-      brand: '',
-      model: '',
-      min_year: null,
-      max_year: null,
-      min_price: null,
-      max_price: null,
-      condition: '',
-      fuel_type: '',
-      transmission_type: '',
-      body_type: '',
-      color: '',
-      seller_type: '',
-      website: '',
-      websites: [],
-      location_city: '',
-      location_region: ''
-    };
-    setFilters(emptyFilters);
+            <div className="stat-card">
+              <div className="stat-icon">📅</div>
+              <div className="stat-content">
+                <h3>This Month</h3>
+                <p className="stat-number">
+                  {analyticsStats ? analyticsStats.listings_this_month.toLocaleString() : '0'}
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+    }
   };
 
   if (loading) {
@@ -139,70 +149,40 @@ const Analytics = () => {
       <div className="analytics-header">
         <h1>📊 Analytics Dashboard</h1>
         <p className="analytics-subtitle">
-          Explore car listing trends and top contributors
+          Explore car listing trends and market insights
         </p>
       </div>
 
+      <div className="analytics-navigation">
+        <button 
+          className={`nav-btn ${activeSection === 'overview' ? 'active' : ''}`}
+          onClick={() => setActiveSection('overview')}
+        >
+          📈 Overview
+        </button>
+        <button 
+          className={`nav-btn ${activeSection === 'contributors' ? 'active' : ''}`}
+          onClick={() => setActiveSection('contributors')}
+        >
+          🏆 Top Contributors
+        </button>
+        <button 
+          className={`nav-btn ${activeSection === 'depreciation' ? 'active' : ''}`}
+          onClick={() => setActiveSection('depreciation')}
+        >
+          📉 Depreciation Analysis
+        </button>
+        <button 
+          className={`nav-btn ${activeSection === 'price-spread' ? 'active' : ''}`}
+          onClick={() => setActiveSection('price-spread')}
+        >
+          💰 Price Spread Analysis
+        </button>
+      </div>
+
       <div className="analytics-container">
-        <div className="sidebar">
-          <FilterPanel
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            onClearFilters={clearFilters}
-            resultCount={analyticsStats ? analyticsStats.total_listings : 0}
-          />
-        </div>
-
         <div className="main-content">
-          <div className="analytics-stats">
-            <div className="stat-card">
-              <div className="stat-icon">🚗</div>
-              <div className="stat-content">
-                <h3>Total Listings</h3>
-                <p className="stat-number">
-                  {analyticsStats ? analyticsStats.total_listings.toLocaleString() : '0'}
-                </p>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon">💰</div>
-              <div className="stat-content">
-                <h3>Average Price</h3>
-                <p className="stat-number">
-                  ${analyticsStats ? 
-                    Math.round(analyticsStats.average_price || 0).toLocaleString() :
-                    '0'
-                  }
-                </p>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon">📈</div>
-              <div className="stat-content">
-                <h3>Active Sellers</h3>
-                <p className="stat-number">
-                  {analyticsStats ? 
-                    analyticsStats.total_sellers :
-                    '0'
-                  }
-                </p>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon">📅</div>
-              <div className="stat-content">
-                <h3>This Month</h3>
-                <p className="stat-number">
-                  {analyticsStats ? analyticsStats.listings_this_month.toLocaleString() : '0'}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <TopContributors filters={filters} />
+          {renderActiveSection()}
         </div>
       </div>
     </div>

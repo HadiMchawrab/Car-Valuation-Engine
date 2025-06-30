@@ -78,7 +78,7 @@ const TopContributors = ({ filters }) => {
       <div className="contributors-header">
         <h2>🏆 Top Contributors</h2>
         <p className="contributors-subtitle">
-          Sellers with the most active listings
+          Sellers with the most listings
         </p>
       </div>
 
@@ -91,7 +91,7 @@ const TopContributors = ({ filters }) => {
           {contributors.map((contributor, index) => (
             <Link
               key={contributor.seller_id || contributor.seller_name}
-              to={`/?seller=${encodeURIComponent(contributor.seller_name)}&sellerType=${contributor.contributor_type || (contributor.agency_name ? 'agency' : 'seller')}`}
+              to={`/analytics/contributor/${encodeURIComponent(contributor.seller_name)}?type=${contributor.contributor_type || (contributor.agency_name ? 'agency' : 'seller')}`}
               className="contributor-card"
             >
               <div className="contributor-rank">
@@ -100,41 +100,16 @@ const TopContributors = ({ filters }) => {
               
               <div className="contributor-info">
                 <h3 className="contributor-name">
-                  {contributor.contributor_type === 'agency' ? '🏢' : '👤'} {contributor.seller_name}
+                  {contributor.seller_name}
                 </h3>
-                {contributor.agency_name && contributor.contributor_type === 'agency' && (
-                  <p className="agency-name">Agency</p>
-                )}
-                {contributor.contributor_type === 'individual_seller' && (
-                  <p className="agency-name">Individual Seller</p>
-                )}
                 
-                <div className="contributor-stats">
-                  <div className="stat">
-                    <span className="stat-label">Total Listings</span>
-                    <span className="stat-value">{contributor.total_listings}</span>
-                  </div>
-                  
-                  <div className="stat">
-                    <span className="stat-label">Per Day</span>
-                    <span className="stat-value">{contributor.listings_per_day}</span>
-                  </div>
-                  
-                  <div className="stat">
-                    <span className="stat-label">Per Week</span>
-                    <span className="stat-value">{contributor.listings_per_week}</span>
-                  </div>
-                  
-                  <div className="stat">
-                    <span className="stat-label">Per Month</span>
-                    <span className="stat-value">{contributor.listings_per_month}</span>
-                  </div>
+                <div className="contributor-type">
+                  {contributor.contributor_type === 'agency' ? 'Agency' : 'Individual Seller'}
                 </div>
                 
-                <div className="contributor-meta">
-                  <div className="average-price">
-                    Avg. Price: ${Math.round(contributor.average_price || 0).toLocaleString()}
-                  </div>
+                <div className="contributor-listings">
+                  <span className="listings-label">Total Listings:</span>
+                  <span className="listings-value">{contributor.total_listings}</span>
                 </div>
               </div>
               

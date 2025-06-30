@@ -26,11 +26,18 @@ class Listing(BaseModel):
     image_url: Optional[str] = None  # was 'image' in old schema
     number_of_images: Optional[int] = None
     post_date: Union[str, datetime]  # was 'scraped_at' in old schema
+    date_scraped: Optional[Union[str, datetime]] = None  # when the listing was scraped
     agency_name: Optional[str] = None  # from dubizzle_details table
     seller_verified: Optional[bool] = None  # from dubizzle_details table
 
     @validator('post_date', pre=True)
     def parse_post_date(cls, v):
+        if isinstance(v, datetime):
+            return v.isoformat()
+        return v
+
+    @validator('date_scraped', pre=True)
+    def parse_date_scraped(cls, v):
         if isinstance(v, datetime):
             return v.isoformat()
         return v

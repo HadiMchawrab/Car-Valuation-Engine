@@ -359,7 +359,8 @@
 }
 
 .seller-name,
-.post-date {
+.post-date,
+.scraped-date {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -367,7 +368,8 @@
 }
 
 .seller-label,
-.post-label {
+.post-label,
+.scraped-label {
   font-weight: 600;
   color: var(--text-secondary);
   min-width: 50px;
@@ -375,7 +377,8 @@
 }
 
 .seller-value,
-.post-value {
+.post-value,
+.scraped-value {
   color: var(--text-primary);
   font-weight: 500;
   transition: color 0.3s ease;

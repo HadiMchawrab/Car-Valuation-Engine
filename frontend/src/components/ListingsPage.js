@@ -56,8 +56,9 @@ const ListingsPage = () => {
     website: '',
     minPostDate: '',
     maxPostDate: '',
-    seller: '', // Add seller filter
-    sellerDisplayType: '' // Track if it's seller or agency
+    seller: '', // Add seller filter (agency_id for agencies, seller name for individuals)
+    sellerDisplayType: '', // Track if it's seller or agency
+    sellerDisplayName: '' // Display name for UI (always human-readable name)
   });
   // Helper function to convert sort option to backend parameter
   const getSortParam = (sortBy) => {
@@ -114,34 +115,39 @@ const ListingsPage = () => {
     return params;
   };
 
-  // Frontend sorting fallback function
-  const sortListingsFrontend = (listings, sortBy) => {
-    const sorted = [...listings];
+  // Helper function to create URL with current filters for navigation back
+  const createFilteredURL = (basePath) => {
+    const searchParams = new URLSearchParams();
     
-    switch (sortBy) {
-      case 'newest_listed':
-        return sorted.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
-      case 'oldest_listed':
-        return sorted.sort((a, b) => new Date(a.post_date) - new Date(b.post_date));
-      case 'lowest_price':
-      case 'price_asc':
-        return sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
-      case 'highest_price':
-      case 'price_desc':
-        return sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
-      case 'newest_model':
-        return sorted.sort((a, b) => (b.year || 0) - (a.year || 0));
-      case 'oldest_model':
-        return sorted.sort((a, b) => (a.year || 0) - (b.year || 0));
-      case 'verified_seller':
-        return sorted.sort((a, b) => {
-          if (a.seller_verified && !b.seller_verified) return -1;
-          if (!a.seller_verified && b.seller_verified) return 1;
-          return new Date(b.post_date) - new Date(a.post_date); // Secondary sort by date
-        });
-      default:
-        return sorted;
-    }
+    // Add all active filters to URL
+    if (filters.brand) searchParams.set('brand', filters.brand);
+    if (filters.model) searchParams.set('model', filters.model);
+    if (filters.minYear) searchParams.set('minYear', filters.minYear);
+    if (filters.maxYear) searchParams.set('maxYear', filters.maxYear);
+    if (filters.minPrice) searchParams.set('minPrice', filters.minPrice);
+    if (filters.maxPrice) searchParams.set('maxPrice', filters.maxPrice);
+    if (filters.locationCity) searchParams.set('locationCity', filters.locationCity);
+    if (filters.locationRegion) searchParams.set('locationRegion', filters.locationRegion);
+    if (filters.minMileage) searchParams.set('minMileage', filters.minMileage);
+    if (filters.maxMileage) searchParams.set('maxMileage', filters.maxMileage);
+    if (filters.isNew !== null) searchParams.set('isNew', filters.isNew);
+    if (filters.bodyType) searchParams.set('bodyType', filters.bodyType);
+    if (filters.fuelType) searchParams.set('fuelType', filters.fuelType);
+    if (filters.transmissionType) searchParams.set('transmissionType', filters.transmissionType);
+    if (filters.condition) searchParams.set('condition', filters.condition);
+    if (filters.sellerType) searchParams.set('sellerType', filters.sellerType);
+    if (filters.color) searchParams.set('color', filters.color);
+    if (filters.website) searchParams.set('website', filters.website);
+    if (filters.minPostDate) searchParams.set('minPostDate', filters.minPostDate);
+    if (filters.maxPostDate) searchParams.set('maxPostDate', filters.maxPostDate);
+    if (filters.seller) searchParams.set('seller', filters.seller);
+    if (filters.sellerDisplayType) searchParams.set('sellerType', filters.sellerDisplayType);
+    if (filters.sellerDisplayName) searchParams.set('sellerDisplayName', filters.sellerDisplayName);
+    if (sortBy !== 'newest_listed') searchParams.set('sort', sortBy);
+    if (currentPage !== 1) searchParams.set('page', currentPage);
+    
+    const queryString = searchParams.toString();
+    return queryString ? `${basePath}?${queryString}` : basePath;
   };
 
   useEffect(() => {
@@ -150,21 +156,48 @@ const ListingsPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, filters, sortBy]);
 
-  // Handle URL parameters on component mount
+  // Handle URL parameters on component mount and URL changes
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    const seller = searchParams.get('seller');
-    const sellerType = searchParams.get('sellerType');
     
-    console.log('URL Parameters:', { seller, sellerType });
+    // Read all filter parameters from URL
+    const urlFilters = {
+      brand: searchParams.get('brand') || '',
+      model: searchParams.get('model') || '',
+      minYear: searchParams.get('minYear') || '',
+      maxYear: searchParams.get('maxYear') || '',
+      minPrice: searchParams.get('minPrice') || '',
+      maxPrice: searchParams.get('maxPrice') || '',
+      locationCity: searchParams.get('locationCity') || '',
+      locationRegion: searchParams.get('locationRegion') || '',
+      minMileage: searchParams.get('minMileage') || '',
+      maxMileage: searchParams.get('maxMileage') || '',
+      isNew: searchParams.get('isNew') === 'true' ? true : 
+              searchParams.get('isNew') === 'false' ? false : null,
+      bodyType: searchParams.get('bodyType') || '',
+      fuelType: searchParams.get('fuelType') || '',
+      transmissionType: searchParams.get('transmissionType') || '',
+      condition: searchParams.get('condition') || '',
+      sellerType: searchParams.get('sellerType') || '',
+      color: searchParams.get('color') || '',
+      website: searchParams.get('website') || '',
+      minPostDate: searchParams.get('minPostDate') || '',
+      maxPostDate: searchParams.get('maxPostDate') || '',
+      seller: searchParams.get('seller') || '',
+      sellerDisplayType: searchParams.get('sellerType') || '',
+      sellerDisplayName: searchParams.get('sellerDisplayName') || searchParams.get('seller') || '' // Use display name if available
+    };
     
-    if (seller) {
-      setFilters(prev => ({
-        ...prev,
-        seller: seller,
-        sellerDisplayType: sellerType || 'seller'
-      }));
-    }
+    // Read sort and page parameters
+    const urlSort = searchParams.get('sort') || 'newest_listed';
+    const urlPage = parseInt(searchParams.get('page')) || 1;
+    
+    console.log('URL Parameters:', { urlFilters, urlSort, urlPage });
+    
+    // Update state with URL parameters
+    setFilters(urlFilters);
+    setSortBy(urlSort);
+    setCurrentPage(urlPage);
   }, [location.search]);
 
   const fetchListings = async () => {
@@ -218,8 +251,15 @@ const ListingsPage = () => {
     setFilters(newFilters);
     setCurrentPage(1); // Reset to first page when filters change
     
-    // Update URL parameters when seller filter changes
-    if (!newFilters.seller && location.search.includes('seller=')) {
+    // Check if all filters are cleared (Clear All was pressed)
+    const allFiltersEmpty = Object.values(newFilters).every(value => 
+      value === '' || value === null || value === undefined
+    );
+    
+    if (allFiltersEmpty) {
+      // Clear all URL parameters when all filters are cleared (refresh-like behavior)
+      navigate('/', { replace: true });
+    } else if (!newFilters.seller && location.search.includes('seller=')) {
       // Clear URL parameters when seller filter is cleared
       navigate('/', { replace: true });
     }
@@ -239,28 +279,6 @@ const ListingsPage = () => {
     <div className="listings-page">
       <h1>Car Listings</h1>
       
-      {/* Seller Filter Banner */}
-      {filters.seller && (
-        <div className="seller-filter-banner">
-          <div className="seller-info">
-            <h2>
-              {filters.sellerDisplayType === 'agency' ? '🏢' : '👤'} 
-              {filters.sellerDisplayType === 'agency' ? 'Agency' : 'Seller'}: {filters.seller}
-            </h2>
-            <p>Showing all listings from this {filters.sellerDisplayType}</p>
-          </div>
-          <button 
-            className="clear-seller-filter"
-            onClick={() => {
-              const newFilters = { ...filters, seller: '', sellerDisplayType: '' };
-              setFilters(newFilters);
-              navigate('/', { replace: true });
-            }}
-          >
-            ✕ Clear Filter
-          </button>
-        </div>
-      )}
       
       <div className="listings-container">
         <div className="sidebar">
@@ -298,7 +316,7 @@ const ListingsPage = () => {
               <div className="listings-grid">
                 {listings.length > 0 ? (
                   listings.map(listing => (                <div className="listing-card" key={listing.ad_id}>
-                  <Link to={`/listing/${listing.ad_id}`} className="listing-link">
+                  <Link to={createFilteredURL(`/listing/${listing.ad_id}`)} className="listing-link">
                     <div className="listing-image">
                       {listing.image_url ? (
                         <img 
@@ -374,6 +392,12 @@ const ListingsPage = () => {
                           <span className="post-label">Posted:</span>
                           <span className="post-value">
                             {listing.post_date ? new Date(listing.post_date).toLocaleDateString() : 'N/A'}
+                          </span>
+                        </div>
+                        <div className="scraped-date">
+                          <span className="scraped-label">Scraped:</span>
+                          <span className="scraped-value">
+                            {listing.date_scraped ? new Date(listing.date_scraped).toLocaleDateString() : 'N/A'}
                           </span>
                         </div>
                       </div>

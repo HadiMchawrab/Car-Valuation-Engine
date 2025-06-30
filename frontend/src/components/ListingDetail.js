@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/ListingDetail.css';
 import { getTransmissionType, getBodyType, getColor } from '../utils/mappings';
@@ -8,9 +8,17 @@ import API_BASE_URL from '../config/api';
 const ListingDetail = () => {
 
   const { id } = useParams();
+  const location = useLocation();
   const [listingData, setListingData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Create back URL with preserved filters
+  const createBackURL = () => {
+    const searchParams = new URLSearchParams(location.search);
+    const queryString = searchParams.toString();
+    return queryString ? `/?${queryString}` : '/';
+  };
 
   useEffect(() => {
     const fetchListingDetail = async () => {
@@ -56,7 +64,7 @@ const ListingDetail = () => {
 
   return (
     <div className="listing-detail-container">
-      <Link to="/" className="back-button">← Back to Listings</Link>
+      <Link to={createBackURL()} className="back-button">← Back to Listings</Link>
       
       <h1 className="listing-title">{listing.title}</h1>
       
@@ -119,6 +127,12 @@ const ListingDetail = () => {
             <div className="detail-row">
               <div className="detail-label">Post Date</div>
               <div className="detail-value">{new Date(listing.post_date).toLocaleString()}</div>
+            </div>
+            <div className="detail-row">
+              <div className="detail-label">Scraped Date</div>
+              <div className="detail-value">
+                {listing.date_scraped ? new Date(listing.date_scraped).toLocaleString() : 'N/A'}
+              </div>
             </div>
             {listing.fuel_type && (
               <div className="detail-row">

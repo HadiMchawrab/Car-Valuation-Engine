@@ -121,7 +121,11 @@ const ContributorDetail = () => {
         </div>
         
         <Link 
-          to={`/?seller=${encodeURIComponent(contributor.seller_name)}&sellerType=${contributor.contributor_type || (contributor.agency_name ? 'agency' : 'seller')}`}
+          to={`/?seller=${encodeURIComponent(
+            contributor.contributor_type === 'agency' && contributor.agency_id 
+              ? contributor.agency_id 
+              : contributor.seller_name
+          )}&sellerType=${contributor.contributor_type || (contributor.agency_name ? 'agency' : 'seller')}&sellerDisplayName=${encodeURIComponent(contributor.seller_name)}`}
           className="view-listings-btn"
         >
           🚗 View All Listings
@@ -137,7 +141,7 @@ const ContributorDetail = () => {
           </div>
         </div>
 
-        <div className="stat-card">
+        {/* <div className="stat-card">
           <div className="stat-icon">💰</div>
           <div className="stat-content">
             <h3>Average Price</h3>
@@ -151,7 +155,7 @@ const ContributorDetail = () => {
             <h3>Total Value</h3>
             <p className="stat-number">${Math.round(contributor.total_value || 0).toLocaleString()}</p>
           </div>
-        </div>
+        </div> */}
 
         <div className="stat-card">
           <div className="stat-icon">📅</div>
@@ -165,7 +169,7 @@ const ContributorDetail = () => {
       </div>
 
       <div className="charts-container">
-        <div className="chart-section">
+        {/* <div className="chart-section">
           <h2>📈 Daily Listing Distribution</h2>
           <div className="chart-wrapper">
             <ResponsiveContainer width="100%" height={400}>
@@ -201,7 +205,7 @@ const ContributorDetail = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </div> */}
 
         <div className="chart-section">
           <h2>🚗 Brand Distribution</h2>
