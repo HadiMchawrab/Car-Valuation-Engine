@@ -2,15 +2,48 @@
 
 import logging
 import psycopg2
-from scrapy import signals
+from scrapy import signals, Item, Spider
 from scrapy.exceptions import DropItem, NotConfigured, CloseSpider
 from itemadapter import ItemAdapter
-from datetime import datetime
+from collections import deque
 
+from scripts.utils import normalize_ar, normalize_en
+import os
+
+import json
+from flashtext import KeywordProcessor
+from rapidfuzz import process
 
 import psycopg2
 from scrapy.exceptions import NotConfigured
 from itemadapter import ItemAdapter
+
+# ——— Load master_map.json ———
+HERE = os.path.dirname(__file__)  # .../Markaba_Trial-1/scrapers/scraper
+MASTER_MAP_PATH = os.path.abspath(
+    os.path.join(HERE, os.pardir, 'scripts', 'master_map.json')
+)
+
+with open(MASTER_MAP_PATH, encoding='utf-8') as f:
+    raw = json.load(f)
+
+# rebuild with proper tuple keys
+master_map = {
+    (make, model, int(year)): variants
+    for key, variants in raw.items()
+    for make, model, year in [key.split('|')]
+}
+
+# ——— Build fast lookups ———
+flashtext_procs = {}
+trim_codes      = {}
+
+for key, var2code in master_map.items():
+    kp = KeywordProcessor(case_sensitive=False)
+    for variant_norm, code in var2code.items():
+        kp.add_keyword(variant_norm, code)
+    flashtext_procs[key] = kp
+    trim_codes[key]      = list(set(var2code.values()))
 
 class DubizzlePostgresPipeline:
     """Reliable upsert pipeline: listings + dubizzle_details."""
@@ -68,7 +101,9 @@ class DubizzlePostgresPipeline:
               location_region   TEXT,
               image_url         TEXT,
               number_of_images  INT,
-              post_date         TIMESTAMP
+              post_date         TIMESTAMP,
+              date_scraped      TIMESTAMP,
+              trim              TEXT
             );
             """)
             # Dubizzle‐specific details
@@ -131,7 +166,7 @@ class DubizzlePostgresPipeline:
             "ad_id","url","website","title","price","currency","brand","model","year",
             "mileage","mileage_unit","fuel_type","transmission_type","body_type",
             "condition","color","seller","seller_type","location_city","location_region",
-            "image_url","number_of_images","post_date"
+            "image_url","number_of_images","post_date", "date_scraped", "trim"
         ]
         core = { f: adapter.get(f) or (spider.name if f=="website" else None) for f in core_fields }
 
@@ -187,7 +222,6 @@ logger = logging.getLogger(__name__)
 class LoadSeenIDsPipeline:
     @classmethod
     def from_crawler(cls, crawler):
-        settings = crawler.settings
         pipeline = cls(
             host        = crawler.settings.get("POSTGRES_HOST"),
             port        = crawler.settings.get("POSTGRES_PORT"),
@@ -227,3 +261,108 @@ class LoadSeenIDsPipeline:
 
     def close_spider(self, spider):
         spider.logger.info("🔒 LoadSeenIDsPipeline closed")
+        
+        
+class LoadAllURLsPipeline:
+    
+    
+    def __init__(self, host, port, dbname, user, password, sslmode, sslrootcert):
+        self.db_args = dict(
+            host     = host,
+            port     = port,
+            dbname   = dbname,
+            user     = user,
+            password = password,
+            sslmode  = sslmode,
+            sslrootcert = sslrootcert
+        )
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        pipeline = cls(
+            host        = crawler.settings.get("POSTGRES_HOST"),
+            port        = crawler.settings.get("POSTGRES_PORT"),
+            dbname      = crawler.settings.get("POSTGRES_DB"),
+            user        = crawler.settings.get("POSTGRES_USER"),
+            password    = crawler.settings.get("POSTGRES_PASSWORD"),
+            sslmode     = crawler.settings.get("POSTGRES_SSLMODE"),
+            sslrootcert = crawler.settings.get("POSTGRES_SSLROOTCERT")
+        )
+        # connect the spider_opened/closed signals
+        crawler.signals.connect(pipeline.open_spider, signal=signals.spider_opened)
+        #crawler.signals.connect(pipeline.close_spider, signal=signals.spider_closed)
+        logger.info("🔧 LoadSeenURLsPipeline initialized")
+        return pipeline
+    
+
+    def open_spider(self, spider):
+        spider.logger.info("🔄 Loading seen URLs from Postgres…")
+        conn = psycopg2.connect(**self.db_args)
+        cur  = conn.cursor()
+        cur.execute("SELECT url FROM listings;")
+        rows = cur.fetchall()
+        spider.urls = deque(str(r[0]) for r in rows)
+        spider.logger.info(f"✅ Loaded {len(spider.urls)} seen IDs")
+        cur.close()
+        conn.close()
+
+
+
+
+
+class TrimInferencePipeline:
+
+    def open_spider(self, spider: Spider):
+        logger.info("TrimInferencePipeline opened for spider %s", spider.name)
+
+    def process_item(self, item: Item, spider: Spider):
+        ad_id = item.get('ad_id', '<no-id>')
+        make = item.get('brand') or item.get('make')
+        key  = (make, item.get('model'), item.get('year'))
+        logger.debug("Processing %s with key %s", ad_id, key)
+
+        # Only infer if trim is missing or blank
+        raw_trim = item.get('trim')
+        if raw_trim and raw_trim.strip():
+            logger.debug("Item %s already has trim '%s', skipping inference", ad_id, raw_trim)
+            return item
+
+        text = f"{item.get('title','')} {item.get('description','')}"
+        en = normalize_en(text)
+        ar = normalize_ar(text)
+        logger.debug("Normalized EN: '%s'… AR: '%s'…", en[:50], ar[:50])
+
+        # 1) Exact match
+        proc = flashtext_procs.get(key)
+        if proc:
+            hits = proc.extract_keywords(en) + proc.extract_keywords(ar)
+            if hits:
+                best = max(hits, key=len)
+                logger.info("Exact trim match '%s' for item %s", best, ad_id)
+                item['trim'] = best
+                return item
+            else:
+                logger.debug("No exact trim hit for item %s", ad_id)
+        else:
+            logger.warning("No flashtext processor for key %s", key)
+
+        # 2) Fuzzy fallback
+        codes = trim_codes.get(key, [])
+        best = None
+        if codes:
+            best = process.extractOne(en, codes, score_cutoff=80) \
+                   or process.extractOne(ar, codes, score_cutoff=80)
+        if best:
+            logger.info("Fuzzy trim match '%s' (score=%s) for item %s", best[0], best[1], ad_id)
+            item['trim'] = best[0]
+            return item
+        else:
+            logger.debug("No fuzzy trim hit for item %s", ad_id)
+
+        # 3) Give up
+        logger.info("Could not infer trim for item %s; leaving null", ad_id)
+        item['trim'] = None
+        return item
+
+    def close_spider(self, spider: Spider):
+        logger.info("TrimInferencePipeline closed for spider %s", spider.name)

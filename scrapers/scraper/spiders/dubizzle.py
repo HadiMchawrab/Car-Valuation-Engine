@@ -62,7 +62,7 @@ class DubizzleSpider(Spider):
         self.total_ads = 0
 
     def start_requests(self):
-        total_pages = 200  # change this number to cover as many pages as you need
+        total_pages = 0  # change this number to cover as many pages as you need
         for p in range(1, total_pages + 1):
             url = f"https://www.dubizzle.sa/en/vehicles/cars-for-sale/?page={p}"
             self.logger.info(f"[Loading🚀] Page {p} → {url}")
@@ -135,7 +135,7 @@ class DubizzleSpider(Spider):
             "brand":              schema.get("brand"),
             "model":              schema.get("model"),
             "year":               to_int(schema.get("modelDate")),
-            "color":              schema.get("color"),
+            
         })
 
         # — DataLayer overrides —
@@ -188,6 +188,9 @@ class DubizzleSpider(Spider):
             "number_of_images":  pick("number_of_photos"),
             "ownership_type":    pick("ownership_type"),
             "page_type":         pick("page_type"),
+            "color":             pick("color"),
+             "source":            pick("source")
+
         })
 
         # — Timestamp from window.state —
@@ -205,7 +208,8 @@ class DubizzleSpider(Spider):
 
         item["post_date"] = created_dt
         item["seller"]    = state.get("ad", {}).get("data", {}).get("name")
-
+        trim_obj = state.get("ad", {}).get("data", {}).get("extraFields", {}).get("version", {})
+        item["trim"] = None if not trim_obj else trim_obj
         # — Clean up doors field —
         def clean_doors(v):
             if not v:
@@ -219,6 +223,7 @@ class DubizzleSpider(Spider):
                 return None
 
         item["doors"] = clean_doors(pick("doors"))
+        item["date_scraped"] = datetime.now()
 
         yield item
 

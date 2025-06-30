@@ -40,6 +40,7 @@ class DubizzleDailySpider(Spider):
         },
         "ITEM_PIPELINES": {
             "scraper.pipelines.LoadSeenIDsPipeline":      100,
+            "scraper.pipelines.TrimInferencePipeline" : 200,
             "scraper.pipelines.DubizzlePostgresPipeline": 300,
         },
         "USER_AGENT": None,
@@ -139,7 +140,6 @@ class DubizzleDailySpider(Spider):
             "brand":              schema.get("brand"),
             "model":              schema.get("model"),
             "year":               to_int(schema.get("modelDate")),
-            "color":              schema.get("color"),
         })
 
         # — DataLayer overrides —
@@ -192,6 +192,8 @@ class DubizzleDailySpider(Spider):
             "number_of_images":  pick("number_of_photos"),
             "ownership_type":    pick("ownership_type"),
             "page_type":         pick("page_type"),
+            "color": pick("color"),
+            "source":            pick("source")
         })
 
         # — Timestamp from window.state —
@@ -210,6 +212,10 @@ class DubizzleDailySpider(Spider):
 
         item["post_date"] = created_dt
         item["seller"]    = state.get("ad", {}).get("data", {}).get("name")
+        trim_obj = state.get("ad", {}).get("data", {}).get("extraFields", {}).get("version", {})
+
+        item["trim"] = None if not trim_obj else trim_obj
+
 
         def clean_doors(v):
             if not v:
@@ -223,6 +229,7 @@ class DubizzleDailySpider(Spider):
                 return None
 
         item["doors"] = clean_doors(pick("doors"))
+        item["date_scraped"] = datetime.now()
         yield item
 
     def errback_page(self, failure):

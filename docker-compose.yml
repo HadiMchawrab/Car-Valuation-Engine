@@ -16,10 +16,10 @@ services:
     ports:
       - "8001:8000"
     env_file:
-      - ./backend/.env
+      - ./.env
     volumes:
       - ./backend:/app
-      - C:/Users/Hadi/Downloads/ca.pem:/app/ca.pem
+      - ./certs/ca.pem:/app/certs/ca.pem:ro
     networks:
       - app-network
     restart: on-failure

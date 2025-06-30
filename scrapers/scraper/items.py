@@ -33,6 +33,7 @@ class DubizzleItem(scrapy.Item):
     title                = scrapy.Field()
     brand                = scrapy.Field()
     model                = scrapy.Field()
+    trim                 = scrapy.Field()
     
     year                 = scrapy.Field()
     mileage              = scrapy.Field()  # from mileageFromOdometer.value
@@ -43,6 +44,7 @@ class DubizzleItem(scrapy.Item):
     condition            = scrapy.Field()  # e.g. “used”/“new”
     new_used             = scrapy.Field()  # same as condition
     color                = scrapy.Field()
+    source               = scrapy.Field()
 
     # ——— Usage & ownership ———
     kilometers           = scrapy.Field()  # duplicate of mileage
@@ -95,4 +97,5 @@ class DubizzleItem(scrapy.Item):
 
     # ——— Timing ———
     post_date            = scrapy.Field()  # from JSON-LD or dataLayer
+    date_scraped = scrapy.Field()
 
