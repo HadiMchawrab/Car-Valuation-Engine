@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import '../../styles/ContributorDetail.css';
 
 const ContributorDetail = () => {
   const { sellerId } = useParams();
+  const location = useLocation();
   const [contributorData, setContributorData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -49,6 +50,9 @@ const ContributorDetail = () => {
     }));
   };
 
+  // Get listingId from location state if present
+  const listingId = location.state && location.state.listingId;
+
   if (loading) {
     return (
       <div className="contributor-detail-page">
@@ -92,6 +96,12 @@ const ContributorDetail = () => {
 
   return (
     <div className="contributor-detail-page">
+      {/* Return to Car Detail button if navigated from a listing */}
+      {listingId && (
+        <Link to={`/listing/${listingId}`} className="back-button">
+          ← Return to Car Detail
+        </Link>
+      )}
       <div className="contributor-header">
         <Link to="/analytics" className="back-button">
           ← Back to Analytics
@@ -120,16 +130,22 @@ const ContributorDetail = () => {
           </div>
         </div>
         
-        <Link 
-          to={`/?seller=${encodeURIComponent(
-            contributor.contributor_type === 'agency' && contributor.agency_id 
-              ? contributor.agency_id 
-              : contributor.seller_name
-          )}&sellerType=${contributor.contributor_type || (contributor.agency_name ? 'agency' : 'seller')}&sellerDisplayName=${encodeURIComponent(contributor.seller_name)}`}
-          className="view-listings-btn"
-        >
-          🚗 View All Listings
-        </Link>
+        {contributor.contributor_type === 'agency' && !contributor.agency_id ? (
+          <button className="view-listings-btn" disabled title="No agency ID available for this agency">
+            🚗 View All Listings
+          </button>
+        ) : (
+          <Link 
+            to={`/?seller=${encodeURIComponent(
+              contributor.contributor_type === 'agency'
+                ? contributor.agency_id
+                : contributor.seller_name
+            )}&sellerType=${contributor.contributor_type === 'agency' ? 'business' : 'individual'}&sellerDisplayName=${encodeURIComponent(contributor.seller_name)}`}
+            className="view-listings-btn"
+          >
+            🚗 View All Listings
+          </Link>
+        )}
       </div>
 
       <div className="contributor-stats-grid">

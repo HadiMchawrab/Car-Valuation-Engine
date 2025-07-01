@@ -9,6 +9,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
 
   const [makes, setMakes] = useState([]);
   const [models, setModels] = useState([]);
+  const [trims, setTrims] = useState([]); 
   const [years, setYears] = useState([]);
   const [locations, setLocations] = useState([]);
   const [fuelTypes, setFuelTypes] = useState([]);
@@ -62,7 +63,6 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
   }, [filters]);
 
   useEffect(() => {
-    // No longer need to fetch models separately since dynamic filtering handles this
   }, [localFilters.make, filters.seller]);
   const fetchInitialFilterOptions = async () => {
     try {
@@ -102,9 +102,8 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       setColors(colorsRes.data);
       setWebsites(websitesRes.data);
       
-      // Clear model selection if current make is no longer available
       if (localFilters.make && !makesRes.data.includes(localFilters.make)) {
-        setLocalFilters(prev => ({ ...prev, make: '', model: '' }));
+        setLocalFilters(prev => ({ ...prev, make: '', model: '', trim: '' }));
       }
     } catch (error) {
       console.error('Error fetching initial filter options:', error);
@@ -118,6 +117,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       const backendFilters = {
         brand: localFilters.make,
         model: localFilters.model,
+        trim: localFilters.trim, // Include trim filter
         min_year: localFilters.minYear,
         max_year: localFilters.maxYear,
         min_price: localFilters.minPrice,
@@ -149,6 +149,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       
       setMakes(data.makes || []);
       setModels(data.models || []);
+      setTrims(data.trims || []); // Set trims from response
       setYears(data.years || []);
       setLocations(data.locations || []);
       setFuelTypes(data.fuelTypes || []);
@@ -169,9 +170,9 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
     const { name, value } = e.target;
     let updatedFilters = { ...localFilters, [name]: value };
     
-    // If make is being changed to "All Makes" (empty value), reset model to "All Models"
+    // If make is being changed to "All Makes" (empty value), reset model and trim to "All Models/Trims"
     if (name === 'make' && value === '') {
-      updatedFilters = { ...updatedFilters, model: '' };
+      updatedFilters = { ...updatedFilters, model: '', trim: '' };
     }
     
     setLocalFilters(updatedFilters);
@@ -217,6 +218,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
     const mappedFilters = {
       brand: updatedFilters.make,
       model: updatedFilters.model,
+      trim: updatedFilters.trim, // Include trim filter
       minYear: updatedFilters.minYear,
       maxYear: updatedFilters.maxYear,
       minPrice: updatedFilters.minPrice,
@@ -248,6 +250,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
     const emptyFilters = {
       make: '',
       model: '',
+      trim: '',
       minYear: '',
       maxYear: '',
       minPrice: '',
@@ -276,6 +279,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
     const mappedEmptyFilters = {
       brand: '',
       model: '',
+      trim: '',
       minYear: '',
       maxYear: '',
       minPrice: '',
@@ -406,7 +410,22 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
             ))}
           </select>
         </div>
-        
+
+        <div className="filter-group">
+          <label>Trim</label>
+          <select
+            name="trim"
+            value={localFilters.trim}
+            onChange={handleInputChange}
+            disabled={!localFilters.make || isLoadingOptions}
+          >
+            <option value="">All Trims</option>
+            {trims.map(trim => (
+              <option key={trim} value={trim}>{trim}</option>
+            ))}
+          </select>
+        </div>
+
         <div className="filter-row">
           <div className="filter-group">
             <label>Min Year</label>

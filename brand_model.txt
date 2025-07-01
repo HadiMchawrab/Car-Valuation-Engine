@@ -1,0 +1,751 @@
+Brand: Mercedes-Benz, Model: S-Class
+Brand: Lexus, Model: RX 350H        
+Brand: Porsche, Model: Macan
+Brand: Mercedes-Benz, Model: ML 500
+Brand: Renault, Model: ARKANA
+Brand: Abarath, Model: 695
+Brand: BAIC, Model: X35 AT
+Brand: Lamborghini, Model: Revuelto
+Brand: Genesis, Model: GV 80
+Brand: Mercedes-Benz, Model: SLS AMG
+Brand: Lincoln, Model: Aviator
+Brand: Porsche, Model: 911 4S
+Brand: Land Rover, Model: Defender X
+Brand: Porsche, Model: 911 Targa
+Brand: Mazda, Model: CX-5
+Brand: BMW, Model: 440
+Brand: Jeep, Model: Gladiator
+Brand: Lexus, Model: LS 350
+Brand: Jac, Model: GS3
+Brand: Ssang Yong, Model: XLV
+Brand: Hyundai, Model: Sonata
+Brand: Audi, Model: A8
+Brand: Jaguar, Model: XJ
+Brand: Bentley, Model: Continental
+Brand: BMW, Model: 320
+Brand: BMW, Model: 420
+Brand: Aston Martin, Model: DBS Superleggera
+Brand: Volkswagen, Model: Teramont
+Brand: Mercedes-Benz, Model: C 63 Coupe AMG
+Brand: Mercedes-Benz, Model: GLA 35 AMG
+Brand: Chery, Model: Arrizo 5
+Brand: Mercedes-Benz, Model: GLC 300 Coupe
+Brand: Ford, Model: Ranger
+Brand: Chevrolet, Model: Camaro
+Brand: Jaguar, Model: E-PACE R-DYNAMIC
+Brand: Aston Martin, Model: DB11
+Brand: BMW, Model: 2-Series
+Brand: Rox, Model: 01
+Brand: Bentley, Model: Mulsanne
+Brand: Mercedes-Benz, Model: G 63 AMG
+Brand: Jetour, Model: Dasheng
+Brand: BMW, Model: Other series
+Brand: Mercedes-Benz, Model: S350
+Brand: MINI, Model: Countryman
+Brand: Mercedes-Benz, Model: GLS Class
+Brand: Mercedes-Benz, Model: GLC 200
+Brand: BMW, Model: M8
+Brand: Toyota, Model: FJ Cruiser
+Brand: Lexus, Model: ES 250
+Brand: Mercedes-Benz, Model: A 200
+Brand: Hummer, Model: EV
+Brand: Mercedes-Benz, Model: SLR McLaren
+Brand: Maxus, Model: T90
+Brand: Porsche, Model: Carrera
+Brand: FAW, Model: Other
+Brand: Lucid, Model: Turing
+Brand: Isuzu, Model: Other
+Brand: MINI, Model: John Cooper Works
+Brand: Nissan, Model: Navara
+Brand: Jetour, Model: T2
+Brand: BMW, Model: X5
+Brand: Mercedes-Benz, Model: S 580
+Brand: BMW, Model: X3
+Brand: Geely, Model: Azkarra
+Brand: Haval, Model: H6 GT
+Brand: Land Rover, Model: Range Rover Velar
+Brand: Geely, Model: Okavango
+Brand: Porsche, Model: 911 Targa 4
+Brand: Toyota, Model: Land Cruiser 76
+Brand: Lexus, Model: LC 500
+Brand: Forthing, Model: U-Tour
+Brand: Audi, Model: S5
+Brand: Bentley, Model: FLYING SPUR
+Brand: Ssang Yong, Model: Korando
+Brand: Mitsubishi, Model: Eclipse
+Brand: Lexus, Model: NX 200t
+Brand: Saic, Model: Maxus
+Brand: Land Rover, Model: Range Rover Sport
+Brand: Forthing, Model: T5 EVO
+Brand: Toyota, Model: 86
+Brand: BMW, Model: X4
+Brand: Land Rover, Model: Range Rover Evoque
+Brand: BMW, Model: 7-Series
+Brand: MG, Model: MG ZS
+Brand: Audi, Model: Q3
+Brand: Hummer, Model: H3
+Brand: Infiniti, Model: I35/I30
+Brand: Fiat, Model: Fiorino
+Brand: Mercedes-Benz, Model: Maybakh
+Brand: Renault, Model: Duster
+Brand: Jetour, Model: X70
+Brand: Chrysler, Model: 300M/300C
+Brand: Honda, Model: Accord
+Brand: Kia, Model: Carnival
+Brand: Ford, Model: Territory
+Brand: Suzuki, Model: Vitara
+Brand: Lucid, Model: Air
+Brand: Changan, Model: CS35 PLUS
+Brand: Ford, Model: Fusion
+Brand: Geely, Model: STARRAY
+Brand: Volkswagen, Model: Passat
+Brand: BYD, Model: song plus
+Brand: Peugeot, Model: 208
+Brand: Dongfeng, Model: T5 EVO
+Brand: Ford, Model: Other
+Brand: Haval, Model: H6
+Brand: Honda, Model: City
+Brand: Isuzu, Model: D-Max
+Brand: BMW, Model: 120
+Brand: Mercedes-Benz, Model: S 500
+Brand: Audi, Model: Q7
+Brand: Mercedes-Benz, Model: C250
+Brand: Mercedes-Benz, Model: Vito
+Brand: Rolls Royce, Model: CULLINAN
+Brand: Tank, Model: 500
+Brand: Jeep, Model: Compass
+Brand: Ferrari, Model: 575
+Brand: Cadillac, Model: CTS
+Brand: Mercedes-Benz, Model: GT Class
+Brand: Citroen, Model: Jumpy
+Brand: Ford, Model: Explorer
+Brand: BMW, Model: 318
+Brand: Chery, Model: Tiggo 4
+Brand: Toyota, Model: Cross
+Brand: Kia, Model: Picanto
+Brand: Dodge, Model: Ram
+Brand: Hyundai, Model: Venue
+Brand: BMW, Model: 530
+Brand: GAC, Model: EM POW
+Brand: Suzuki, Model: Ciaz
+Brand: Great wall, Model: Great Wall Wingle 7
+Brand: Mercedes-Benz, Model: S 500 Coupe
+Brand: Toyota, Model: Prado
+Brand: Porsche, Model: Panamera
+Brand: MG, Model: MG 7
+Brand: Nissan, Model: 350Z
+Brand: Chevrolet, Model: Optra
+Brand: Jac, Model: GS4
+Brand: Mercedes-Benz, Model: 190
+Brand: Tank, Model: 300
+Brand: Jaguar, Model: E-PACE R-DYNAMIC SE
+Brand: Mercedes-Benz, Model: GLC 250
+Brand: Changan, Model: Eado Plus
+Brand: Mercedes-Benz, Model: S 600
+Brand: Suzuki, Model: Ertiga
+Brand: MINI, Model: Cooper s
+Brand: Mercedes-Benz, Model: GL-Class
+Brand: BAIC, Model: X55
+Brand: MINI, Model: Cooper
+Brand: Haval, Model: Other
+Brand: Ford, Model: F-250
+Brand: Hummer, Model: Other
+Brand: Kia, Model: Sorento
+Brand: Kia, Model: Mohave
+Brand: Hyundai, Model: Avanti
+Brand: BMW, Model: X6M
+Brand: Mercedes-Benz, Model: GLA 200
+Brand: Toyota, Model: Urban Cruiser
+Brand: Mercedes-Benz, Model: E 450
+Brand: Suzuki, Model: Baleno
+Brand: FAW, Model: T77 PRO
+Brand: Pontiac, Model: Grand Prix
+Brand: Land Rover, Model: LR4
+Brand: Lexus, Model: LX 470
+Brand: Land Rover, Model: Defender
+Brand: Lotus, Model: Other
+Brand: Haval, Model: H7
+Brand: Mercedes-Benz, Model: S 300
+Brand: Geely, Model: Emgrand GS
+Brand: Kia, Model: Rio
+Brand: Ferrari, Model: Ferrari Portofino M
+Brand: MG, Model: MG HS
+Brand: GAC, Model: Aion
+Brand: Hyundai, Model: Creta
+Brand: Hyundai, Model: i40
+Brand: GAC, Model: GS 5
+Brand: Renault, Model: Megan
+Brand: BMW, Model: M4
+Brand: Lexus, Model: LS 460
+Brand: Audi, Model: Q5
+Brand: Mercedes-Benz, Model: GL 500
+Brand: Toyota, Model: Fortuner
+Brand: Changan, Model: CS85
+Brand: Genesis, Model: G80
+Brand: Lexus, Model: NX
+Brand: Cadillac, Model: Eldorado
+Brand: BMW, Model: 760
+Brand: Ford, Model: Tourneo Connect
+Brand: Ferrari, Model: Ferrari 812 GTS
+Brand: BAIC, Model: D50
+Brand: Great wall, Model: Other
+Brand: Audi, Model: R8
+Brand: Maxus, Model: D60
+Brand: Nissan, Model: Patrol
+Brand: Geely, Model: Monjaro
+Brand: Suzuki, Model: Dzire
+Brand: Isuzu, Model: MU-X
+Brand: Mercedes-Benz, Model: G Class
+Brand: Nissan, Model: Patrol Pickup
+Brand: MG, Model: Whale
+Brand: Jac, Model: Other
+Brand: Mercedes-Benz, Model: EQS 580 4Matic SUV
+Brand: Jeep, Model: Cherokee
+Brand: Bestune, Model: B 70
+Brand: Suzuki, Model: Fronx
+Brand: JMC, Model: Touring
+Brand: Cadillac, Model: XTS
+Brand: BMW, Model: X6
+Brand: Chevrolet, Model: Caprice
+Brand: Mercedes-Benz, Model: GLC 43 AMG
+Brand: Kia, Model: Sportage
+Brand: MG, Model: MG RX5
+Brand: Chery, Model: Tiggo 7
+Brand: GMC, Model: Other
+Brand: Hongqi, Model: HS7
+Brand: Mercedes-Benz, Model: GLE 350
+Brand: Mercedes-Benz, Model: C-Class
+Brand: Genesis, Model: G90
+Brand: Porsche, Model: Cayenne
+Brand: Mercedes-Benz, Model: GLS Maybach
+Brand: BMW, Model: 325
+Brand: Hyundai, Model: Palisade
+Brand: Porsche, Model: Cayman
+Brand: Toyota, Model: GR86
+Brand: Ferrari, Model: GTB 296
+Brand: Aston Martin, Model: DBX
+Brand: Porsche, Model: Carrera GT
+Brand: Chevrolet, Model: Epica
+Brand: Mercedes-Benz, Model: GTS
+Brand: Mazda, Model: Pickup
+Brand: Porsche, Model: Panamera GTS
+Brand: Land Rover, Model: Range Rover Autobiography
+Brand: Haval, Model: H2
+Brand: Peugeot, Model: Landtrek
+Brand: Mercedes-Benz, Model: GLS 63 AMG
+Brand: BMW, Model: 5-Series
+Brand: Hyundai, Model: Centennial
+Brand: Chrysler, Model: 300
+Brand: FAW, Model: B70
+Brand: Bentley, Model: Continental GT
+Brand: Mercedes-Benz, Model: GLS 580
+Brand: Mercedes-Benz, Model: SL Class
+Brand: GAC, Model: GS 3
+Brand: Toyota, Model: Sequoia
+Brand: BAIC, Model: X35
+Brand: BAIC, Model: BJ 40
+Brand: Peugeot, Model: Other
+Brand: Ineos, Model: Grenadier
+Brand: Dongfeng, Model: A30 E2
+Brand: BMW, Model: 4-Series
+Brand: Lexus, Model: GX 550
+Brand: Nissan, Model: Patrol Platinum
+Brand: Subaru, Model: WRX
+Brand: Renault, Model: CAPTUR
+Brand: Mercedes-Benz, Model: S 63 AMG
+Brand: Land Rover, Model: Defender 110
+Brand: Lexus, Model: LX 570
+Brand: Geely, Model: Emgrand
+Brand: Chevrolet, Model: Malibu
+Brand: Toyota, Model: Highlander
+Brand: Jetour, Model: X50
+Brand: Ferrari, Model: Ferrari Roma
+Brand: Jetour, Model: T1 Luxury
+Brand: Chery, Model: Long
+Brand: Kia, Model: Pegas
+Brand: Suzuki, Model: Swift
+Brand: BMW, Model: Z8
+Brand: Toyota, Model: Tundra
+Brand: BMW, Model: 740
+Brand: Mercedes-Benz, Model: GLB 200 AMG
+Brand: Toyota, Model: Coaster
+Brand: Ferrari, Model: Purosangue
+Brand: Kia, Model: Soul
+Brand: Chery, Model: Tiggo
+Brand: Kia, Model: K8
+Brand: Chevrolet, Model: Cruze
+Brand: Mercedes-Benz, Model: 450
+Brand: Lexus, Model: LS 400
+Brand: Kia, Model: Telluride
+Brand: Honda, Model: Odyssey
+Brand: Mazda, Model: 2
+Brand: Chery, Model: Arrizo 8
+Brand: Rolls Royce, Model: PHANTOM
+Brand: Lexus, Model: RX 500h
+Brand: Cadillac, Model: Escalade
+Brand: BMW, Model: M2
+Brand: BMW, Model: X7
+Brand: Ferrari, Model: 430
+Brand: Nissan, Model: Maxima
+Brand: BMW, Model: X Series
+Brand: GAC, Model: GS 4
+Brand: Chery, Model: Tiggo8
+Brand: Lexus, Model: RX-Series
+Brand: Lexus, Model: RX 300
+Brand: BMW, Model: 218 M Kit
+Brand: Geely, Model: Tugella
+Brand: Ford, Model: Flex
+Brand: Infiniti, Model: QX80
+Brand: Land Rover, Model: Evoque
+Brand: Mercedes-Benz, Model: S 320
+Brand: GMC, Model: Acadia
+Brand: Porsche, Model: 911
+Brand: Nissan, Model: Kicks
+Brand: BAIC, Model: X7
+Brand: BMW, Model: 750
+Brand: Tesla, Model: Other
+Brand: Toyota, Model: Rush
+Brand: Mitsubishi, Model: Montero
+Brand: Mercedes-Benz, Model: C 200 Coupe
+Brand: Mitsubishi, Model: L200
+Brand: Geely, Model: Binray
+Brand: Ford, Model: Edge
+Brand: Lexus, Model: GS 430
+Brand: Ford, Model: Everest
+Brand: Lexus, Model: LS 500
+Brand: Jeep, Model: Wagoneer
+Brand: Jeep, Model: Wrangler
+Brand: BMW, Model: 528
+Brand: Mercedes-Benz, Model: Viano
+Brand: Kia, Model: Optima
+Brand: Changan, Model: Uni-V
+Brand: GMC, Model: Yukon
+Brand: Ssang Yong, Model: Other
+Brand: Infiniti, Model: Q30
+Brand: Nissan, Model: Sunny
+Brand: Ssang Yong, Model: Actyon
+Brand: Chevrolet, Model: Trailblazer
+Brand: MG, Model: MG ZS EV
+Brand: Ford, Model: Taunus
+Brand: Mercedes-Benz, Model: CLS 450
+Brand: Ford, Model: F150
+Brand: Mazda, Model: CX60
+Brand: Mercedes-Benz, Model: GLE 43 AMG
+Brand: Land Rover, Model: Discovery
+Brand: Hyundai, Model: Genesis
+Brand: Nissan, Model: Stanza
+Brand: Hyundai, Model: Other
+Brand: Foton, Model: Tunland
+Brand: Geely, Model: Preface
+Brand: Mercedes-Benz, Model: R 350
+Brand: Audi, Model: A6
+Brand: Kia, Model: K9
+Brand: Changan, Model: CS75 Plus
+Brand: Kia, Model: Cadenza
+Brand: Mercedes-Benz, Model: S 350
+Brand: Daihatsu, Model: Terios
+Brand: Lincoln, Model: Navigator
+Brand: Geely, Model: Emgrand 7
+Brand: Dongfeng, Model: A60 Max
+Brand: BAIC, Model: BJ60
+Brand: Toyota, Model: Corona
+Brand: Cadillac, Model: XT6
+Brand: Hyundai, Model: Avante
+Brand: Mercedes-Benz, Model: GLE Class
+Brand: Ford, Model: Focus
+Brand: Jac, Model: T8
+Brand: Nissan, Model: Juke
+Brand: Volkswagen, Model: GTI
+Brand: Hyundai, Model: H-1 Starex
+Brand: Mercedes-Benz, Model: V 250
+Brand: Maxus, Model: T 70
+Brand: Ford, Model: Figo
+Brand: Hawtai, Model: Other
+Brand: Mercedes-Benz, Model: E 350e
+Brand: Lincoln, Model: Town Car
+Brand: Audi, Model: A4
+Brand: Renault, Model: TALISMAN
+Brand: Nissan, Model: Datsun
+Brand: Jaguar, Model: E Pace P200
+Brand: Maxus, Model: D90
+Brand: Peugeot, Model: 3008
+Brand: Mercedes-Benz, Model: G-Class
+Brand: Toyota, Model: Land Cruiser
+Brand: Bentley, Model: Bentayga
+Brand: Mercedes-Benz, Model: GLC 300
+Brand: GAC, Model: GS3 Emzoom
+Brand: MG, Model: MG GT
+Brand: Renault, Model: Megane
+Brand: Mercedes-Benz, Model: CLA 250
+Brand: Subaru, Model: Forester
+Brand: Hyundai, Model: Veloster
+Brand: Jaguar, Model: F-PACE R-DYNAMIC S
+Brand: Aston Martin, Model: V12
+Brand: Jeep, Model: Grand Cherokee
+Brand: Changan, Model: Other
+Brand: Hyundai, Model: Accent
+Brand: Mercedes-Benz, Model: A 220
+Brand: Nissan, Model: Xterra
+Brand: Volvo, Model: XC60
+Brand: Ferrari, Model: Testarossa
+Brand: Porsche, Model: Cayenne S
+Brand: BMW, Model: X5 M
+Brand: Jetour, Model: JETOUR X90 PLUS
+Brand: Volvo, Model: XC
+Brand: Changan, Model: Eado
+Brand: Dodge, Model: Charger
+Brand: Porsche, Model: 911 GT3
+Brand: Toyota, Model: Vellfire
+Brand: Ford, Model: F-Series Pickup
+Brand: Hyundai, Model: H1
+Brand: Mitsubishi, Model: Pajero Mini
+Brand: Mercedes-Benz, Model: GLB 250
+Brand: Mazda, Model: Other
+Brand: FAW, Model: X40
+Brand: Audi, Model: A3
+Brand: Kia, Model: K4
+Brand: Volkswagen, Model: Touareg
+Brand: Volkswagen, Model: Beetle
+Brand: Toyota, Model: Land Cruiser Pickup
+Brand: Honda, Model: ZR-V
+Brand: Chrysler, Model: 300S
+Brand: Mercedes-Benz, Model: GLE 500
+Brand: Nissan, Model: Altima
+Brand: Mitsubishi, Model: Attrage
+Brand: Hyundai, Model: Kona
+Brand: GMC, Model: Sierra
+Brand: Jetour, Model: X70S
+Brand: Genesis, Model: G70
+Brand: Lexus, Model: GX 470
+Brand: Chrysler, Model: Other
+Brand: Toyota, Model: Yaris
+Brand: BMW, Model: 640
+Brand: Mercedes-Benz, Model: S 400
+Brand: Toyota, Model: avanza
+Brand: Peugeot, Model: 408
+Brand: Nissan, Model: Pathfinder
+Brand: Great wall, Model: Wingle
+Brand: Mazda, Model: 6
+Brand: Peugeot, Model: Traveller
+Brand: Daihatsu, Model: Sirion
+Brand: Land Rover, Model: Defender 130
+Brand: Toyota, Model: Hiace
+Brand: Mercedes-Benz, Model: CLE 53
+Brand: Audi, Model: A5
+Brand: Ssang Yong, Model: Torres
+Brand: Lexus, Model: IS500
+Brand: Hyundai, Model: Stargazer
+Brand: Porsche, Model: Cayenne Turbo
+Brand: Aston Martin, Model: Other
+Brand: Changan, Model: UNI-S
+Brand: Mercedes-Benz, Model: G 500
+Brand: Chery, Model: Exeed
+Brand: Fiat, Model: Other
+Brand: Audi, Model: A7
+Brand: Jaguar, Model: F-TYPE
+Brand: Dodge, Model: Durango
+Brand: Mitsubishi, Model: Other
+Brand: Mercedes-Benz, Model: SL 55 AMG
+Brand: Mercedes-Benz, Model: E 300
+Brand: Nissan, Model: Patrol Safari
+Brand: Mercedes-Benz, Model: ML 400
+Brand: Mercedes-Benz, Model: C200
+Brand: Infiniti, Model: QX55
+Brand: Honda, Model: Civic
+Brand: Nissan, Model: X-Trail
+Brand: Maserati, Model: Quattroporte
+Brand: Lexus, Model: ES 300
+Brand: Ford, Model: Escape
+Brand: BMW, Model: 330
+Brand: Ford, Model: Bronco
+Brand: Mercedes-Benz, Model: GLE 53 AMG
+Brand: Kia, Model: Seltos
+Brand: BMW, Model: M5
+Brand: Mercedes-Benz, Model: S 580 Maybach
+Brand: Ford, Model: Transit
+Brand: Infiniti, Model: QX60
+Brand: Bentley, Model: FLYING SPUR S
+Brand: Toyota, Model: Raize
+Brand: Changan, Model: CS95
+Brand: Lexus, Model: LX-Series
+Brand: Chevrolet, Model: Suburban
+Brand: Toyota, Model: Corolla Cross
+Brand: Lexus, Model: GS 350
+Brand: Geely, Model: Emgrand X7
+Brand: Ford, Model: Granada
+Brand: Lexus, Model: Tx 350
+Brand: Mazda, Model: Mazda 6
+Brand: Suzuki, Model: Jimny
+Brand: Jac, Model: J7
+Brand: Mitsubishi, Model: Pajero Sport
+Brand: Toyota, Model: Innova
+Brand: Lamborghini, Model: Urus
+Brand: Fiat, Model: 500
+Brand: Hongqi, Model: E-HS9
+Brand: Cadillac, Model: CT6
+Brand: Mercedes-Benz, Model: GLE 450
+Brand: Mercedes-Benz, Model: S 450
+Brand: Toyota, Model: Hilux
+Brand: Lincoln, Model: Continental
+Brand: Volkswagen, Model: T-Roc
+Brand: Maserati, Model: Levante
+Brand: Cadillac, Model: DeVille
+Brand: Mercedes-Benz, Model: G 55 AMG
+Brand: Jaguar, Model: Other
+Brand: Fiat, Model: 500C
+Brand: BAIC, Model: EU5
+Brand: Mercedes-Benz, Model: S 560
+Brand: BMW, Model: 745
+Brand: Mazda, Model: CX-9
+Brand: Lincoln, Model: MKZ
+Brand: Tesla, Model: Model 3
+Brand: Ford, Model: Mustang
+Brand: Changan, Model: Uni-K
+Brand: Lexus, Model: ES 350
+Brand: Mercedes-Benz, Model: GLS 450
+Brand: MG, Model: MG 3
+Brand: Genesis, Model: GV 70
+Brand: Cadillac, Model: SRX
+Brand: BMW, Model: 840
+Brand: Jetour, Model: JETOUR X70 PLUS
+Brand: Mercedes-Benz, Model: S 650 Maybach
+Brand: Jeep, Model: Renegade
+Brand: Aston Martin, Model: V8 Vantage
+Brand: Mercedes-Benz, Model: C180
+Brand: Mercedes-Benz, Model: CLS 350
+Brand: Kaiyi, Model: X7
+Brand: Toyota, Model: Rav 4
+Brand: Mercedes-Benz, Model: CLS 53
+Brand: Kia, Model: Cerato
+Brand: Lexus, Model: IS 300
+Brand: Lexus, Model: IS 200
+Brand: GAC, Model: GS8
+Brand: Chevrolet, Model: Groove
+Brand: Changan, Model: Hunter
+Brand: Mercedes-Benz, Model: GLB 200
+Brand: Lexus, Model: LX 450
+Brand: Mercedes-Benz, Model: Cle
+Brand: Mercedes-Benz, Model: S550
+Brand: Porsche, Model: Macan S
+Brand: Kia, Model: K5
+Brand: Geely, Model: Emgrand EC7
+Brand: Renault, Model: CLIO RS
+Brand: Kia, Model: Quoris
+Brand: Nissan, Model: Armada
+Brand: Haval, Model: Jolion
+Brand: MG, Model: MG 5
+Brand: Lexus, Model: UX
+Brand: Lexus, Model: LS 430
+Brand: Mercedes-Benz, Model: GLS 500
+Brand: Mercedes-Benz, Model: CLA 45 AMG
+Brand: Mitsubishi, Model: Xpander
+Brand: Lexus, Model: NX350
+Brand: Changan, Model: Uni-T
+Brand: Porsche, Model: 911 Turbo
+Brand: Mercedes-Benz, Model: GLE 63 AMG
+Brand: Mercedes-Benz, Model: SLK 200
+Brand: Hyundai, Model: Staria
+Brand: Jetour, Model: JETOUR X70
+Brand: Jaecoo, Model: J7
+Brand: Ssang Yong, Model: Rexton
+Brand: Nissan, Model: GT-R
+Brand: Ford, Model: Raptor
+Brand: Ford, Model: EcoSport
+Brand: Mercedes-Benz, Model: EQS 580 4Matic
+Brand: GAC, Model: GS 3 EM ZOOM
+Brand: MG, Model: MG ONE
+Brand: Lamborghini, Model: Huracán
+Brand: Haval, Model: H9
+Brand: Mercedes-Benz, Model: E200
+Brand: Mahindra, Model: XUV300
+Brand: Hyundai, Model: I10
+Brand: Chery, Model: Exeed VX
+Brand: Mercedes-Benz, Model: E 400
+Brand: Honda, Model: CR-V
+Brand: Porsche, Model: Cayenne GTS
+Brand: Omoda, Model: C5
+Brand: Cadillac, Model: XT4
+Brand: Mercedes-Benz, Model: E 200
+Brand: Mercedes-Benz, Model: E 350
+Brand: Infiniti, Model: QX50
+Brand: Mercedes-Benz, Model: GLE 450 AMG
+Brand: Lexus, Model: LS-Series
+Brand: Chevrolet, Model: Blazer
+Brand: BMW, Model: X1
+Brand: GAC, Model: EMKOO
+Brand: Mitsubishi, Model: Lancer
+Brand: BMW, Model: 3-Series
+Brand: Jetour, Model: X90
+Brand: Chrysler, Model: C300
+Brand: Land Rover, Model: Range Rover
+Brand: Mclaren, Model: 570
+Brand: Rolls Royce, Model: GHOST
+Brand: Land Rover, Model: Defender 90
+Brand: Mercedes-Benz, Model: CLA 200
+Brand: Mazda, Model: CX-30
+Brand: BMW, Model: 6-Series
+Brand: Mercedes-Benz, Model: 320
+Brand: Mercedes-Benz, Model: 200SEL
+Brand: Hyundai, Model: Elantra
+Brand: Hyundai, Model: Grandeur
+Brand: Chery, Model: Tiggo 2
+Brand: Lexus, Model: IS 250
+Brand: Mercedes-Benz, Model: 200
+Brand: Ssang Yong, Model: Tivoli
+Brand: Lexus, Model: RX 450h
+Brand: Dongfeng, Model: Shine
+Brand: BMW, Model: 430i
+Brand: Cadillac, Model: CT5
+Brand: Toyota, Model: Veloz
+Brand: Mercedes-Benz, Model: A 45 AMG
+Brand: Toyota, Model: Avalon
+Brand: Porsche, Model: Cayman GTS
+Brand: Lexus, Model: LS 600
+Brand: Lamborghini, Model: Aventador
+Brand: Mercedes-Benz, Model: E-Class
+Brand: Jaguar, Model: XF
+Brand: Changan, Model: CS75
+Brand: BMW, Model: 520
+Brand: FAW, Model: Bestune T90
+Brand: Volkswagen, Model: Tiguan
+Brand: Mercedes-Benz, Model: C 300
+Brand: Audi, Model: S8
+Brand: Dodge, Model: Challenger
+Brand: Honda, Model: Pilot
+Brand: ZXAUTO, Model: Grand Tiger
+Brand: Chevrolet, Model: Traverse
+Brand: Mercedes-Benz, Model: Other
+Brand: Great wall, Model: Poer King Kong
+Brand: GAC, Model: Other
+Brand: Abarath, Model: 595
+Brand: Mitsubishi, Model: Outlander
+Brand: BMW, Model: X2
+Brand: Chevrolet, Model: Corvette
+Brand: Toyota, Model: Crown
+Brand: Ferrari, Model: GTC4 Lusso
+Brand: Maxus, Model: T60
+Brand: Chevrolet, Model: Silverado
+Brand: Hyundai, Model: Tuscani
+Brand: Chevrolet, Model: Spark
+Brand: Ferrari, Model: Ferrari Italia
+Brand: MG, Model: MG RX8
+Brand: Mercedes-Benz, Model: C 300 Coupe
+Brand: Chevrolet, Model: Captiva
+Brand: Lexus, Model: IS-Series
+Brand: Lexus, Model: IS 350
+Brand: Jaguar, Model: JAGUAR XE
+Brand: BAIC, Model: EU5 Plus
+Brand: MG, Model: T60
+Brand: Volkswagen, Model: Golf
+Brand: Ferrari, Model: California
+Brand: Changan, Model: CS35
+Brand: TATA, Model: Xenon
+Brand: GAC, Model: GA 4
+Brand: Nissan, Model: Pickup
+Brand: Maserati, Model: Ghibli
+Brand: Land Rover, Model: Range Rover HSE
+Brand: Lexus, Model: RX 350
+Brand: Rolls Royce, Model: SPECTRE
+Brand: Lexus, Model: RX 330
+Brand: Mercedes-Benz, Model: E 53 AMG
+Brand: Kia, Model: Sonet
+Brand: Kia, Model: Optima K5
+Brand: BMW, Model: X3 M
+Brand: Mercedes-Benz, Model: EQE AMG
+Brand: Geely, Model: GX3
+Brand: Hyundai, Model: Tucson
+Brand: Volkswagen, Model: Arteon
+Brand: Infiniti, Model: Q70
+Brand: Lexus, Model: LX 600
+Brand: Hunaghai, Model: N2
+Brand: Ferrari, Model: F8 Tributo
+Brand: BMW, Model: X4 M
+Brand: Mercedes-Benz, Model: S500
+Brand: Porsche, Model: Panamera 4S
+Brand: GMC, Model: Canyon
+Brand: Mercedes-Benz, Model: GLS 600
+Brand: Mercedes-Benz, Model: GLE 53 Coupe AMG
+Brand: Toyota, Model: Cressida
+Brand: Mitsubishi, Model: Space Star
+Brand: Mercedes-Benz, Model: GL 63 AMG
+Brand: Infiniti, Model: Other
+Brand: Mercedes-Benz, Model: GLA 250
+Brand: Porsche, Model: Boxster S
+Brand: Cadillac, Model: XT5
+Brand: Mercedes-Benz, Model: C 43 AMG
+Brand: Kia, Model: Carens
+Brand: Mitsubishi, Model: Pajero
+Brand: MG, Model: Other
+Brand: Cadillac, Model: Fleetwood
+Brand: Kia, Model: K3
+Brand: Audi, Model: Q8
+Brand: Lincoln, Model: Nautilus
+Brand: Ford, Model: Taurus
+Brand: Toyota, Model: Corolla
+Brand: Chevrolet, Model: Equinox
+Brand: BAIC, Model: Other
+Brand: Mercedes-Benz, Model: S 63 AMG Coupe
+Brand: MG, Model: MG 6
+Brand: Renault, Model: Koleos
+Brand: Changan, Model: ALSVIN
+Brand: FAW, Model: Bestune T77
+Brand: BMW, Model: 735
+Brand: BMW, Model: M240i
+Brand: Mclaren, Model: 720S
+Brand: Lamborghini, Model: Other
+Brand: Lexus, Model: NX 300
+Brand: Dongfeng, Model: AX7
+Brand: Citroen, Model: C5
+Brand: Chevrolet, Model: Impala
+Brand: Honda, Model: Element
+Brand: Mercedes-Benz, Model: E 53 Coupe AMG
+Brand: Cadillac, Model: DTS
+Brand: Mercedes-Benz, Model: SLS
+Brand: Chevrolet, Model: Tahoe
+Brand: Ford, Model: Crown Victoria
+Brand: Mitsubishi, Model: ASX
+Brand: BMW, Model: 730
+Brand: Hyundai, Model: Santa Fe
+Brand: Geely, Model: Coolray
+Brand: Lexus, Model: ES-Series
+Brand: Rolls Royce, Model: Wraith
+Brand: Hyundai, Model: Azera
+Brand: BMW, Model: 750i
+Brand: ZXAUTO, Model: Other
+Brand: BMW, Model: Other
+Brand: Cadillac, Model: ATS
+Brand: Mercedes-Benz, Model: E300
+Brand: Mercedes-Benz, Model: GT63
+Brand: Chery, Model: Arrizo
+Brand: Chery, Model: Arrizo 6
+Brand: Peugeot, Model: 5008
+Brand: Hummer, Model: H1
+Brand: Mazda, Model: CX-3
+Brand: Lexus, Model: GS 460
+Brand: Jetour, Model: T2 Luxury
+Brand: Renault, Model: Logan
+Brand: GMC, Model: Terrain
+Brand: Other make, Model: Other
+Brand: GAC, Model: Emkoo GL
+Brand: Mercedes-Benz, Model: GLE 63 S AMG
+Brand: Geely, Model: Other
+Brand: Land Rover, Model: Range Rover Vogue
+Brand: Renault, Model: Symbol
+Brand: Mazda, Model: 3
+Brand: Bestune, Model: T 33
+Brand: Nissan, Model: Sentra
+Brand: Toyota, Model: Previa
+Brand: Lincoln, Model: MKX
+Brand: Great wall, Model: Poer
+Brand: Toyota, Model: Camry
+Brand: BMW, Model: M3
+Brand: Honda, Model: HR-V
+Brand: Mercedes-Benz, Model: CLA Class
+Brand: Ford, Model: Expedition
+Brand: BMW, Model: 850
+Brand: Rover, Model: Other
+Brand: BMW, Model: Z4
+Brand: Lexus, Model: Other
+Brand: Toyota, Model: Prius
+Brand: Dongfeng, Model: Other
+Brand: Mercedes-Benz, Model: E220

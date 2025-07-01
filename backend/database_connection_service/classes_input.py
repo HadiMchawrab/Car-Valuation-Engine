@@ -72,6 +72,7 @@ class DubizzleDetails(BaseModel):
 class ListingSearch(BaseModel):
     brand: Optional[str] = None
     model: Optional[str] = None
+    trim: Optional[str] = None
     min_year: Optional[int] = None
     max_year: Optional[int] = None
     min_price: Optional[float] = None
@@ -125,6 +126,7 @@ class ListingWithDetails(BaseModel):
     currency: str
     brand: str
     model: str
+    trim : Optional[str] = None
     year: int
     mileage: Optional[int] = None
     mileage_unit: Optional[str] = None

@@ -11,13 +11,13 @@
 }
 
 .analysis-header h2 {
-  color: #2c3e50;
+  color: var(--text-primary);
   font-size: 2rem;
   margin-bottom: 10px;
 }
 
 .analysis-subtitle {
-  color: #7f8c8d;
+  color: var(--text-secondary);
   font-size: 1.1rem;
   margin: 0;
 }
@@ -39,7 +39,7 @@
 
 .control-group label {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-primary);
   font-size: 0.9rem;
 }
 
@@ -108,7 +108,7 @@
 }
 
 .error-message p {
-  color: #856404;
+  color: var(--text-primary);
   margin: 0 0 15px 0;
   font-weight: 500;
   line-height: 1.5;
@@ -122,7 +122,7 @@
 }
 
 .error-suggestion p {
-  color: #495057;
+  color: var(--text-secondary);
   margin: 0 0 10px 0;
   font-size: 0.9rem;
 }
@@ -161,7 +161,7 @@
 
 .stat-card h3 {
   margin: 0 0 10px 0;
-  color: #2c3e50;
+  color: var(--text-primary);
   font-size: 0.9rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -185,7 +185,7 @@
 }
 
 .depreciation-table {
-  background: white;
+  background: var(--bg-secondary);
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -195,7 +195,7 @@
 
 .depreciation-table h3 {
   margin: 0 0 20px 0;
-  color: #2c3e50;
+  color: var(--text-primary);
   font-size: 1.2rem;
 }
 
@@ -210,12 +210,13 @@
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #e9ecef;
+  color: var(--text-primary);
 }
 
 .depreciation-table th {
-  background-color: #f8f9fa;
+  background: var(--bg-secondary);
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-primary);
   text-transform: uppercase;
   font-size: 0.8rem;
   letter-spacing: 0.5px;
@@ -234,7 +235,7 @@
 .placeholder-state {
   text-align: center;
   padding: 60px 20px;
-  color: #7f8c8d;
+  color: var(--text-secondary);
   font-size: 1.1rem;
 }
 
@@ -257,4 +258,16 @@
   .analysis-header h2 {
     font-size: 1.5rem;
   }
+}
+
+.statistical-summary {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+}
+
+.statistical-summary h3 {
+  color: var(--text-primary);
 }

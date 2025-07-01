@@ -110,40 +110,19 @@ const PriceSpreadAnalysis = () => {
     if (!priceSpreadData || !priceSpreadData.listings) return null;
 
     const listings = priceSpreadData.listings;
-    const outliers = priceSpreadData.outliers || [];
-    const outlierIds = new Set(outliers.map(o => o.ad_id));
-
-    const normalData = listings
-      .filter(listing => !outlierIds.has(listing.ad_id))
-      .map((listing, index) => ({
-        x: index + 1,
-        y: listing.price,
-        listing: listing
-      }));
-
-    const outlierData = listings
-      .filter(listing => outlierIds.has(listing.ad_id))
-      .map((listing, index) => ({
-        x: listings.findIndex(l => l.ad_id === listing.ad_id) + 1,
-        y: listing.price,
-        listing: listing
-      }));
 
     return {
       datasets: [
         {
-          label: 'Normal Prices',
-          data: normalData,
+          label: 'Prices',
+          data: listings.map((listing, index) => ({
+            x: index + 1,
+            y: listing.price,
+            listing: listing
+          })),
           backgroundColor: 'rgba(75, 192, 192, 0.6)',
           borderColor: 'rgba(75, 192, 192, 1)',
           pointRadius: 5,
-        },
-        {
-          label: 'Outliers',
-          data: outlierData,
-          backgroundColor: 'rgba(255, 99, 132, 0.6)',
-          borderColor: 'rgba(255, 99, 132, 1)',
-          pointRadius: 8,
         },
       ],
     };
@@ -201,7 +180,7 @@ const PriceSpreadAnalysis = () => {
       <div className="analysis-header">
         <h2>💰 Price Spread Analysis</h2>
         <p className="analysis-subtitle">
-          Identify price outliers and market anomalies
+          View price distribution and market statistics
         </p>
       </div>
 
@@ -291,13 +270,6 @@ const PriceSpreadAnalysis = () => {
                 {priceSpreadData.min_price.toLocaleString()} - {priceSpreadData.max_price.toLocaleString()} SAR
               </p>
             </div>
-            
-            <div className="stat-card">
-              <h3>Outliers Detected</h3>
-              <p className="stat-value text-red">
-                {priceSpreadData.outliers ? priceSpreadData.outliers.length : 0}
-              </p>
-            </div>
           </div>
 
           <div className="chart-container">
@@ -305,49 +277,6 @@ const PriceSpreadAnalysis = () => {
               <Scatter data={getChartData()} options={chartOptions} />
             )}
           </div>
-
-          {priceSpreadData.outliers && priceSpreadData.outliers.length > 0 && (
-            <div className="outliers-table">
-              <h3>Price Outliers</h3>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Price</th>
-                    <th>Mileage</th>
-                    <th>Location</th>
-                    <th>Seller</th>
-                    <th>Deviation</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {priceSpreadData.outliers.map((outlier) => (
-                    <tr key={outlier.ad_id}>
-                      <td className="price-cell">
-                        {outlier.price.toLocaleString()} SAR
-                      </td>
-                      <td>{outlier.mileage || 'N/A'} km</td>
-                      <td>{outlier.location_city || 'N/A'}</td>
-                      <td>{outlier.seller || 'N/A'}</td>
-                      <td className={outlier.deviation_type === 'high' ? 'high-outlier' : 'low-outlier'}>
-                        {outlier.deviation_type === 'high' ? 'Above Market' : 'Below Market'}
-                      </td>
-                      <td>
-                        <a 
-                          href={outlier.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="view-listing-btn"
-                        >
-                          View
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
 
           <div className="statistical-summary">
             <h3>Statistical Summary</h3>

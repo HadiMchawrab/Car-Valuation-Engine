@@ -25,20 +25,21 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: white;
+  color: #222;
   text-decoration: none;
   font-weight: 600;
   margin-bottom: 20px;
   padding: 8px 16px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #fff;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   align-self: flex-start;
 }
 
 .back-button:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--accent-green);
+  color: #fff;
   transform: translateX(-4px);
 }
 
@@ -279,6 +280,16 @@
 .dark-theme .chart-section:hover,
 .dark-theme .info-card:hover {
   border-color: var(--accent-green);
+}
+
+.dark-theme .back-button {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.dark-theme .back-button:hover {
+  background: var(--accent-green);
+  color: #fff;
 }
 
 /* Responsive design */

@@ -30,14 +30,15 @@ const ListingsPage = () => {
     { value: 'newest_model', label: 'Newest Model Year' },
     { value: 'oldest_model', label: 'Oldest Model Year' },
     { value: 'verified_seller', label: 'Verified Account' },
-    { value: 'price_asc', label: 'Price A to Z' },
-    { value: 'price_desc', label: 'Price Z to A' }
+    { value: 'title_az', label: 'A to Z' },
+    { value: 'title_za', label: 'Z to A' }
   ];
   
   // Filter states
   const [filters, setFilters] = useState({
     brand: '',
     model: '',
+    trim: '', // Add trim filter
     minYear: '',
     maxYear: '',
     minPrice: '',
@@ -68,11 +69,11 @@ const ListingsPage = () => {
       case 'oldest_listed':
         return 'post_date_asc';
       case 'lowest_price':
-      case 'price_asc':
-        return 'price_asc';
+      case 'title_az':
+        return 'title_az';
       case 'highest_price':
-      case 'price_desc':
-        return 'price_desc';
+      case 'title_za':
+        return 'title_za';
       case 'newest_model':
         return 'year_desc';
       case 'oldest_model':
@@ -89,6 +90,7 @@ const ListingsPage = () => {
     const params = {
       brand: filters.brand || null,
       model: filters.model || null,
+      trim: filters.trim || null, // Include trim filter
       min_year: filters.minYear ? parseInt(filters.minYear) : null,
       max_year: filters.maxYear ? parseInt(filters.maxYear) : null,
       min_price: filters.minPrice ? parseFloat(filters.minPrice) : null,
@@ -122,6 +124,7 @@ const ListingsPage = () => {
     // Add all active filters to URL
     if (filters.brand) searchParams.set('brand', filters.brand);
     if (filters.model) searchParams.set('model', filters.model);
+    if (filters.trim) searchParams.set('trim', filters.trim); // Add trim filter
     if (filters.minYear) searchParams.set('minYear', filters.minYear);
     if (filters.maxYear) searchParams.set('maxYear', filters.maxYear);
     if (filters.minPrice) searchParams.set('minPrice', filters.minPrice);
@@ -164,6 +167,7 @@ const ListingsPage = () => {
     const urlFilters = {
       brand: searchParams.get('brand') || '',
       model: searchParams.get('model') || '',
+      trim: searchParams.get('trim') || '', // Read trim filter
       minYear: searchParams.get('minYear') || '',
       maxYear: searchParams.get('maxYear') || '',
       minPrice: searchParams.get('minPrice') || '',
@@ -353,6 +357,11 @@ const ListingsPage = () => {
                           <span className="detail-label">Model</span>
                           <span className="detail-value">{listing.model || 'N/A'}</span>
                         </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Trim</span>  
+                          <span className="detail-value">{listing.trim || 'N/A'}</span>
+                        </div>  
+
                         <div className="detail-item">
                           <span className="detail-label">Year</span>
                           <span className="detail-value">{listing.year || 'N/A'}</span>

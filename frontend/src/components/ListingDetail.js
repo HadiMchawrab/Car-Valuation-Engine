@@ -62,6 +62,11 @@ const ListingDetail = () => {
   const sellerStats = listingData.seller_stats;  // In new schema, we have a single image URL
   const hasImage = listing.image_url && listing.image_url.trim() !== '';
 
+  // Determine seller/contributor info
+  const sellerName = listing.seller && listing.seller !== 'Unknown' && listing.seller !== '' ? listing.seller : (listing.agency_name || 'Unknown');
+  const sellerId = listing.seller_id || listing.agency_id;
+  const contributorType = listing.seller && listing.seller !== 'Unknown' && listing.seller !== '' ? 'individual_seller' : 'agency';
+
   return (
     <div className="listing-detail-container">
       <Link to={createBackURL()} className="back-button">← Back to Listings</Link>
@@ -75,7 +80,7 @@ const ListingDetail = () => {
               <div className="main-image-container">
                 <img 
                   src={listing.image_url}
-                  alt={`${listing.brand} ${listing.model}`}
+                  alt={`${listing.brand} ${listing.model} (${listing.year})`}
                   className="main-image"
                   onError={(e) => {
                     e.target.onerror = null;
@@ -103,7 +108,12 @@ const ListingDetail = () => {
             <div className="detail-row">
               <div className="detail-label">Model</div>
               <div className="detail-value">{listing.model}</div>
-            </div>            <div className="detail-row">
+            </div>            
+            <div className="detail-row">
+              <div className="detail-label">Trim</div>
+              <div className="detail-value">{listing.trim || 'N/A'}</div>
+            </div>
+            <div className="detail-row">
               <div className="detail-label">Year</div>
               <div className="detail-value">{listing.year}</div>
             </div>
@@ -228,6 +238,24 @@ const ListingDetail = () => {
               )}
             </div>
           )}
+          
+          <div className="seller-section">
+            <div className="seller-info">
+              <span className="seller-label">Seller:</span>
+              <span className="seller-value">{sellerName}</span>
+            </div>
+            {sellerId && (
+              <Link
+                to={{
+                  pathname: `/analytics/contributor/${encodeURIComponent(sellerId)}`,
+                  state: { listingId: listing.ad_id }
+                }}
+                className="view-contributor-btn"
+              >
+                View Contributor Details
+              </Link>
+            )}
+          </div>
           
           <div className="listing-actions">            <a 
               href={listing.url} 

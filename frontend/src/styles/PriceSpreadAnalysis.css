@@ -11,13 +11,13 @@
 }
 
 .analysis-header h2 {
-  color: #2c3e50;
+  color: var(--text-primary);
   font-size: 2rem;
   margin-bottom: 10px;
 }
 
 .analysis-subtitle {
-  color: #7f8c8d;
+  color: var(--text-secondary);
   font-size: 1.1rem;
   margin: 0;
 }
@@ -39,7 +39,7 @@
 
 .control-group label {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-primary);
   font-size: 0.9rem;
 }
 
@@ -95,7 +95,7 @@
 }
 
 .error-message p {
-  color: #c33;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -121,7 +121,7 @@
 
 .stat-card h3 {
   margin: 0 0 10px 0;
-  color: #2c3e50;
+  color: var(--text-primary);
   font-size: 0.9rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -161,7 +161,7 @@
 
 .outliers-table h3 {
   margin: 0 0 20px 0;
-  color: #2c3e50;
+  color: var(--text-primary);
   font-size: 1.2rem;
 }
 
@@ -181,7 +181,7 @@
 .outliers-table th {
   background-color: #f8f9fa;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-primary);
   text-transform: uppercase;
   font-size: 0.8rem;
   letter-spacing: 0.5px;
@@ -189,7 +189,7 @@
 
 .price-cell {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-primary);
 }
 
 .high-outlier {
@@ -229,7 +229,7 @@
 
 .statistical-summary h3 {
   margin: 0 0 20px 0;
-  color: #2c3e50;
+  color: var(--text-primary);
   font-size: 1.2rem;
 }
 
@@ -253,7 +253,7 @@
 
 .stat-label {
   font-weight: 500;
-  color: #2c3e50;
+  color: var(--text-primary);
 }
 
 .stat-item .stat-value {
@@ -265,7 +265,7 @@
 .placeholder-state {
   text-align: center;
   padding: 60px 20px;
-  color: #7f8c8d;
+  color: var(--text-secondary);
   font-size: 1.1rem;
 }
 
