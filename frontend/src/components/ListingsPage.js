@@ -69,9 +69,11 @@ const ListingsPage = () => {
       case 'oldest_listed':
         return 'post_date_asc';
       case 'lowest_price':
+        return 'price_asc';
+      case 'highest_price':
+        return 'price_desc';
       case 'title_az':
         return 'title_az';
-      case 'highest_price':
       case 'title_za':
         return 'title_za';
       case 'newest_model':

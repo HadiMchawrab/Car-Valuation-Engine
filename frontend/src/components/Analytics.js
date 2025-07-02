@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import TopContributors from './Analytics/TopContributors';
 import DepreciationAnalysis from './Analytics/DepreciationAnalysis';
 import PriceSpreadAnalysis from './Analytics/PriceSpreadAnalysis';
+import API_BASE_URL from '../config/api';
 import '../styles/Analytics.css';
 
 const Analytics = () => {
@@ -58,7 +59,7 @@ const Analytics = () => {
       );
 
       // Use POST to send filters in request body
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/analytics/stats`, {
+      const response = await fetch(`${API_BASE_URL}/api/analytics/stats`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

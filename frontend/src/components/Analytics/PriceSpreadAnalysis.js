@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Scatter } from 'react-chartjs-2';
+import API_BASE_URL from '../../config/api';
 import {
   Chart as ChartJS,
   LinearScale,
@@ -23,11 +24,11 @@ const PriceSpreadAnalysis = () => {
   const [priceSpreadData, setPriceSpreadData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [noYearsAvailable, setNoYearsAvailable] = useState(false);
 
   // Fetch makes on component mount
   useEffect(() => {
     fetchMakes();
-    fetchYears();
   }, []);
 
   // Fetch models when make is selected
@@ -49,9 +50,19 @@ const PriceSpreadAnalysis = () => {
     }
   }, [selectedMake, selectedModel, selectedYear]);
 
+  // Fetch years when make and model are selected
+  useEffect(() => {
+    if (selectedMake && selectedModel) {
+      fetchYearsForMakeModel(selectedMake, selectedModel);
+    } else {
+      setYears([]);
+      setSelectedYear('');
+    }
+  }, [selectedMake, selectedModel]);
+
   const fetchMakes = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/makes`);
+      const response = await fetch(`${API_BASE_URL}/makes`);
       if (!response.ok) throw new Error('Failed to fetch makes');
       const data = await response.json();
       setMakes(data);
@@ -63,7 +74,7 @@ const PriceSpreadAnalysis = () => {
 
   const fetchModels = async (make) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/models/${encodeURIComponent(make)}`);
+      const response = await fetch(`${API_BASE_URL}/models/${encodeURIComponent(make)}`);
       if (!response.ok) throw new Error('Failed to fetch models');
       const data = await response.json();
       setModels(data);
@@ -73,15 +84,16 @@ const PriceSpreadAnalysis = () => {
     }
   };
 
-  const fetchYears = async () => {
+  const fetchYearsForMakeModel = async (make, model) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/years`);
+      const response = await fetch(`${API_BASE_URL}/years/${encodeURIComponent(make)}/${encodeURIComponent(model)}`);
       if (!response.ok) throw new Error('Failed to fetch years');
       const data = await response.json();
-      setYears(data.sort((a, b) => b - a)); // Sort descending
+      setYears(data.sort((a, b) => b - a));
+      setNoYearsAvailable(data.length === 0);
     } catch (err) {
-      console.error('Error fetching years:', err);
-      setError('Failed to load years');
+      setYears([]);
+      setNoYearsAvailable(true);
     }
   };
 
@@ -91,7 +103,7 @@ const PriceSpreadAnalysis = () => {
     
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/analytics/price-spread?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&year=${year}`
+        `${API_BASE_URL}/api/analytics/price-spread?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&year=${year}`
       );
       
       if (!response.ok) throw new Error('Failed to fetch price spread data');
@@ -120,9 +132,18 @@ const PriceSpreadAnalysis = () => {
             y: listing.price,
             listing: listing
           })),
-          backgroundColor: 'rgba(75, 192, 192, 0.6)',
-          borderColor: 'rgba(75, 192, 192, 1)',
-          pointRadius: 5,
+          backgroundColor: 'black',
+          borderColor: 'black',
+          pointBackgroundColor: 'black',
+          pointBorderColor: 'black',
+          showLine: true,
+          fill: false,
+          tension: 0,
+          borderWidth: 2,
+          lineTension: 0,
+          segment: {
+            borderColor: 'red',
+          },
         },
       ],
     };
@@ -225,13 +246,19 @@ const PriceSpreadAnalysis = () => {
             id="year-select"
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
-            disabled={!selectedModel}
+            disabled={!selectedMake || !selectedModel || noYearsAvailable}
             className="analysis-select"
           >
-            <option value="">Choose a year...</option>
-            {years.map(year => (
-              <option key={year} value={year}>{year}</option>
-            ))}
+            {noYearsAvailable ? (
+              <option value="">No years available</option>
+            ) : (
+              <>
+                <option value="">All years</option>
+                {years.map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </>
+            )}
           </select>
         </div>
       </div>

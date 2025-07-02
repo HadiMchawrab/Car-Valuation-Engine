@@ -30,6 +30,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
     contributorName: '', // Track contributor (agency/seller) name for profile link
     contributorType: '' // Track if contributor is agency or individual_seller
   });
+  const [initialYears, setInitialYears] = useState([]);
 
   useEffect(() => {
     // Fetch initial filter options when component mounts or seller changes
@@ -94,6 +95,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       
       setMakes(makesRes.data);
       setYears(yearsRes.data);
+      setInitialYears(yearsRes.data);
       setLocations(locationsRes.data);
       setFuelTypes(fuelTypesRes.data);
       setBodyTypes(bodyTypesRes.data);
@@ -150,7 +152,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       setMakes(data.makes || []);
       setModels(data.models || []);
       setTrims(data.trims || []); // Set trims from response
-      setYears(data.years || []);
+      setYears((data.years && data.years.length > 0) ? data.years : initialYears);
       setLocations(data.locations || []);
       setFuelTypes(data.fuelTypes || []);
       setBodyTypes(data.bodyTypes || []);

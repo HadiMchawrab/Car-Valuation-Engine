@@ -11,6 +11,7 @@ class Listing(BaseModel):
     currency: str
     brand: str  # was 'make' in old schema
     model: str
+    trim: Optional[str] = None
     year: int
     mileage: Optional[int] = None  # was 'kilometers' in old schema
     mileage_unit: Optional[str] = None

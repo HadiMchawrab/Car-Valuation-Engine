@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import API_BASE_URL from '../../config/api';
 import '../../styles/ContributorDetail.css';
 
 const ContributorDetail = () => {
@@ -15,7 +16,7 @@ const ContributorDetail = () => {
     setError(null);
     
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/analytics/contributor/${encodeURIComponent(sellerId)}`);
+      const response = await fetch(`${API_BASE_URL}/api/analytics/contributor/${encodeURIComponent(sellerId)}`);
       if (!response.ok) {
         throw new Error('Failed to fetch contributor data');
       }

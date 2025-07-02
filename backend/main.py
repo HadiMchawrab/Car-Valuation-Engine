@@ -42,7 +42,9 @@ def get_order_by_clause(sort_by: str = "post_date_desc"):
         "title_za": "title COLLATE \"ar-x-icu\" ASC NULLS LAST",   # ي to أ (Z-A in Arabic)
         "year_desc": "year DESC NULLS LAST",
         "year_asc": "year ASC NULLS LAST",
-        "verified_seller": "COALESCE(dd.seller_verified, false) DESC, post_date DESC"
+        "verified_seller": "COALESCE(dd.seller_verified, false) DESC, post_date DESC",
+        "price_desc": "price DESC NULLS LAST",
+        "price_asc": "price ASC NULLS LAST"
     }
     
     return sort_mappings.get(sort_by, "post_date DESC")
@@ -89,7 +91,7 @@ def get_listing_by_id(ad_id: str):
             "l.fuel_type, l.transmission_type, l.body_type, l.condition, l.color, "
             "CASE "
             "WHEN l.seller IS NULL OR l.seller = '' OR l.seller = 'N/A' "
-            "THEN COALESCE(dd.agency_name, l.seller, 'Unknown') "
+            "THEN COALESCE(NULLIF(dd.agency_name, ''), 'Individual Seller') "
             "ELSE l.seller "
             "END as seller, "
             "l.seller_type, "
@@ -136,7 +138,7 @@ def search_listings(
             "l.fuel_type, l.transmission_type, l.body_type, l.condition, l.color, "
             "CASE "
             "WHEN l.seller IS NULL OR l.seller = '' OR l.seller = 'N/A' "
-            "THEN COALESCE(dd.agency_name, l.seller, 'Unknown') "
+            "THEN COALESCE(NULLIF(dd.agency_name, ''), 'Individual Seller') "
             "ELSE l.seller "
             "END as seller, "
             "l.seller_type, "
@@ -372,6 +374,17 @@ def get_year_range(seller: str = Query(None, description="Filter years by seller
         return list(range(min_year, max_year + 1))
     else:
         return []
+
+@app.get("/years/{brand}/{model}", response_model=List[int])
+def get_years_by_brand_model(brand: str, model: str):
+    # Select all distinct years for the given brand and model, case-insensitive and trimmed
+    result = fetch_list(
+        "SELECT DISTINCT year FROM listings WHERE LOWER(TRIM(brand)) = LOWER(TRIM(%s)) AND LOWER(TRIM(model)) = LOWER(TRIM(%s)) AND year IS NOT NULL ORDER BY year DESC",
+        [brand.strip(), model.strip()]
+    )
+    # Flatten the result and return as a list of years
+    years = [row[0] if isinstance(row, (list, tuple)) else row for row in result]
+    return years
 
 @app.get("/locations", response_model=List[str])
 def get_all_locations(seller: str = Query(None, description="Filter locations by seller/agency")):

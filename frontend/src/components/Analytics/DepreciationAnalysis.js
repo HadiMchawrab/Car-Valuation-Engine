@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
+import API_BASE_URL from '../../config/api';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -58,7 +59,7 @@ const DepreciationAnalysis = () => {
 
   const fetchMakes = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/makes`);
+      const response = await fetch(`${API_BASE_URL}/makes`);
       if (!response.ok) throw new Error('Failed to fetch makes');
       const data = await response.json();
       setMakes(data);
@@ -70,7 +71,7 @@ const DepreciationAnalysis = () => {
 
   const fetchModels = async (make) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/models/${encodeURIComponent(make)}`);
+      const response = await fetch(`${API_BASE_URL}/models/${encodeURIComponent(make)}`);
       if (!response.ok) throw new Error('Failed to fetch models');
       const data = await response.json();
       setModels(data);
@@ -86,7 +87,7 @@ const DepreciationAnalysis = () => {
     
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/analytics/depreciation?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`
+        `${API_BASE_URL}/api/analytics/depreciation?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`
       );
       
       if (!response.ok) {
@@ -118,12 +119,17 @@ const DepreciationAnalysis = () => {
     }
   };
 
+  // Helper to get reversed yearly data
+  const getReversedYearlyData = () => {
+    if (!depreciationData || !depreciationData.yearly_data) return [];
+    return [...depreciationData.yearly_data].sort((a, b) => b.year - a.year);
+  };
+
   const getChartData = () => {
-    if (!depreciationData || !depreciationData.yearly_data) return null;
-
-    const years = depreciationData.yearly_data.map(item => item.year);
-    const prices = depreciationData.yearly_data.map(item => item.average_price);
-
+    const reversedData = getReversedYearlyData();
+    if (!reversedData.length) return null;
+    const years = reversedData.map(item => item.year);
+    const prices = reversedData.map(item => item.average_price);
     return {
       labels: years,
       datasets: [
@@ -295,12 +301,11 @@ const DepreciationAnalysis = () => {
                 </tr>
               </thead>
               <tbody>
-                {depreciationData.yearly_data.map((item, index) => {
-                  const prevItem = index > 0 ? depreciationData.yearly_data[index - 1] : null;
-                  const yoyChange = prevItem ? 
-                    (((item.average_price - prevItem.average_price) / prevItem.average_price) * 100).toFixed(2) : 
+                {getReversedYearlyData().map((item, index, arr) => {
+                  const nextItem = index < arr.length - 1 ? arr[index + 1] : null;
+                  const yoyChange = nextItem ?
+                    (((item.average_price - nextItem.average_price) / item.average_price) * 100).toFixed(2) :
                     'N/A';
-                  
                   return (
                     <tr key={item.year}>
                       <td>{item.year}</td>

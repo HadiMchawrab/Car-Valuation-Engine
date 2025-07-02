@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import API_BASE_URL from '../../config/api';
 import '../../styles/TopContributors.css';
 
 const TopContributors = ({ filters }) => {
@@ -35,7 +36,7 @@ const TopContributors = ({ filters }) => {
       );
 
       // Use POST to send filters in request body
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/analytics/contributors?limit=20`, {
+      const response = await fetch(`${API_BASE_URL}/api/analytics/contributors?limit=20`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
