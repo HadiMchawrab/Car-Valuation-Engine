@@ -21,15 +21,19 @@
 
 .analytics-header h1 {
   font-size: 3rem;
-  font-weight: 800;
-  margin-bottom: 12px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: 900;
+  color: #111;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
 }
 
 .analytics-subtitle {
+  color: #222;
   font-size: 1.2rem;
-  opacity: 0.9;
   font-weight: 500;
+  margin-top: 8px;
 }
 
 /* Analytics Navigation Styles */
@@ -121,15 +125,26 @@
 }
 
 .stat-icon {
-  font-size: 2.5rem;
-  width: 70px;
-  height: 70px;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-green-hover) 100%);
+  background: #fff;
+  color: #222;
   border-radius: 50%;
-  box-shadow: 0 4px 15px rgba(74, 222, 128, 0.3);
+  box-shadow: 0 2px 8px rgba(74, 222, 128, 0.08);
+  overflow: hidden;
+  flex-shrink: 0;
+  padding: 6px;
+}
+
+.stat-icon svg,
+.stat-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .stat-content h3 {

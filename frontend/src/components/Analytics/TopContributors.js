@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { FaTrophy } from 'react-icons/fa';
 import API_BASE_URL from '../../config/api';
 import '../../styles/TopContributors.css';
 
@@ -65,7 +66,7 @@ const TopContributors = ({ filters }) => {
   if (loading) {
     return (
       <div className="top-contributors">
-        <h2>🏆 Top Contributors</h2>
+        <h2 style={{ color: '#fff' }}><FaTrophy style={{ marginRight: 8, color: '#bfa100' }} />Top Contributors</h2>
         <div className="loading-contributors">
           <div className="loading-spinner"></div>
           <p>Calculating contributor statistics...</p>
@@ -77,7 +78,7 @@ const TopContributors = ({ filters }) => {
   return (
     <div className="top-contributors">
       <div className="contributors-header">
-        <h2>🏆 Top Contributors</h2>
+        <h2 style={{ color: '#fff' }}><FaTrophy style={{ marginRight: 8, color: '#bfa100' }} />Top Contributors</h2>
         <p className="contributors-subtitle">
           Sellers with the most listings
         </p>

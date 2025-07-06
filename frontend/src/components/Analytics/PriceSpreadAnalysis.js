@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Scatter } from 'react-chartjs-2';
+import { FaDollarSign } from 'react-icons/fa';
 import API_BASE_URL from '../../config/api';
 import {
   Chart as ChartJS,
@@ -235,7 +236,7 @@ const PriceSpreadAnalysis = () => {
   return (
     <div className="price-spread-analysis">
       <div className="analysis-header">
-        <h2>💰 Price Spread Analysis</h2>
+        <h2><FaDollarSign /> Price Spread Analysis</h2>
         <p className="analysis-subtitle">
           View price distribution and market statistics
         </p>

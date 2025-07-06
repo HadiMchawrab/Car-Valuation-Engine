@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
+import { FaBuilding, FaUser, FaCar, FaChartBar, FaCalendarAlt, FaChartLine, FaArrowLeft } from 'react-icons/fa';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import API_BASE_URL from '../../config/api';
 import '../../styles/ContributorDetail.css';
@@ -100,17 +101,17 @@ const ContributorDetail = () => {
       {/* Return to Car Detail button if navigated from a listing */}
       {listingId && (
         <Link to={`/listing/${listingId}`} className="back-button">
-          ← Return to Car Detail
+          <FaArrowLeft /> Return to Car Detail
         </Link>
       )}
       <div className="contributor-header">
         <Link to="/analytics" className="back-button">
-          ← Back to Analytics
+          <FaArrowLeft /> Back to Analytics
         </Link>
         
         <div className="contributor-info">
           <h1>
-            {contributor.contributor_type === 'agency' ? '🏢' : '👤'} {contributor.seller_name}
+            {contributor.contributor_type === 'agency' ? <FaBuilding /> : <FaUser />} {contributor.seller_name}
           </h1>
           {contributor.contributor_type === 'agency' && (
             <p className="agency-name">Agency</p>
@@ -133,7 +134,7 @@ const ContributorDetail = () => {
         
         {contributor.contributor_type === 'agency' && !contributor.agency_id ? (
           <button className="view-listings-btn" disabled title="No agency ID available for this agency">
-            🚗 View All Listings
+            <FaCar /> View All Listings
           </button>
         ) : (
           <Link 
@@ -144,38 +145,22 @@ const ContributorDetail = () => {
             )}&sellerType=${contributor.contributor_type === 'agency' ? 'business' : 'individual'}&sellerDisplayName=${encodeURIComponent(contributor.seller_name)}`}
             className="view-listings-btn"
           >
-            🚗 View All Listings
+            <FaCar /> View All Listings
           </Link>
         )}
       </div>
 
       <div className="contributor-stats-grid">
         <div className="stat-card">
-          <div className="stat-icon">📊</div>
+          <FaChartBar className="stat-icon" />
           <div className="stat-content">
             <h3>Total Listings</h3>
             <p className="stat-number">{contributor.total_listings}</p>
           </div>
         </div>
 
-        {/* <div className="stat-card">
-          <div className="stat-icon">💰</div>
-          <div className="stat-content">
-            <h3>Average Price</h3>
-            <p className="stat-number">${Math.round(contributor.average_price || 0).toLocaleString()}</p>
-          </div>
-        </div>
-
         <div className="stat-card">
-          <div className="stat-icon">💵</div>
-          <div className="stat-content">
-            <h3>Total Value</h3>
-            <p className="stat-number">${Math.round(contributor.total_value || 0).toLocaleString()}</p>
-          </div>
-        </div> */}
-
-        <div className="stat-card">
-          <div className="stat-icon">📅</div>
+          <FaCalendarAlt className="stat-icon" />
           <div className="stat-content">
             <h3>Active Since</h3>
             <p className="stat-number">
@@ -186,46 +171,9 @@ const ContributorDetail = () => {
       </div>
 
       <div className="charts-container">
-        {/* <div className="chart-section">
-          <h2>📈 Daily Listing Distribution</h2>
-          <div className="chart-wrapper">
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={dailyChartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                <XAxis 
-                  dataKey="day" 
-                  stroke="var(--text-secondary)"
-                  fontSize={12}
-                  angle={-45}
-                  textAnchor="end"
-                  height={80}
-                />
-                <YAxis 
-                  stroke="var(--text-secondary)"
-                  fontSize={12}
-                />
-                <Tooltip 
-                  contentStyle={{
-                    backgroundColor: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '8px',
-                    color: 'var(--text-primary)'
-                  }}
-                />
-                <Legend />
-                <Bar 
-                  dataKey="listings" 
-                  fill="#4ade80" 
-                  name="Listings Count"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div> */}
 
         <div className="chart-section">
-          <h2>🚗 Brand Distribution</h2>
+          <h2><FaCar /> Brand Distribution</h2>
           <div className="chart-wrapper">
             <ResponsiveContainer width="100%" height={400}>
               <PieChart>
@@ -257,7 +205,7 @@ const ContributorDetail = () => {
         </div>
 
         <div className="chart-section full-width">
-          <h2>📊 Listing Trend Over Time</h2>
+          <h2><FaChartBar /> Listing Trend Over Time</h2>
           <div className="chart-wrapper">
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={dailyChartData}>

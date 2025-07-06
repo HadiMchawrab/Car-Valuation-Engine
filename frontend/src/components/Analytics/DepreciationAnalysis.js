@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
+import { FaChartLine, FaExclamationTriangle, FaLightbulb } from 'react-icons/fa';
 import API_BASE_URL from '../../config/api';
 import {
   Chart as ChartJS,
@@ -202,7 +203,7 @@ const DepreciationAnalysis = () => {
   return (
     <div className="depreciation-analysis">
       <div className="analysis-header">
-        <h2>📉 Depreciation Analysis</h2>
+        <h2><FaChartLine /> Depreciation Analysis</h2>
         <p className="analysis-subtitle">
           Analyze how vehicle values change over time
         </p>
@@ -266,12 +267,12 @@ const DepreciationAnalysis = () => {
 
       {error && (
         <div className="error-message">
-          <div className="error-icon">⚠️</div>
+          <div className="error-icon"><FaExclamationTriangle /></div>
           <div className="error-content">
             <p>{error}</p>
             {error.includes('Only one year of data exists') && (
               <div className="error-suggestion">
-                <p>💡 Try selecting:</p>
+                <p><FaLightbulb /> Try selecting:</p>
                 <ul>
                   <li>A more popular make/model combination</li>
                   <li>Different model years with more market data</li>

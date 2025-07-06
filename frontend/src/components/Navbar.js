@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { FaHome, FaChartBar } from 'react-icons/fa';
 import '../styles/Navbar.css';
 import markabaLogo from '../Markaba logo.png';
 
@@ -27,11 +28,11 @@ const Navbar = () => {
         </Link>
         <div className="navbar-links">
           <Link to="/" className="nav-link">
-            <span className="nav-icon">🏠</span>
+            <FaHome className="nav-icon" />
             <span className="nav-text">Home</span>
           </Link>
           <Link to="/analytics" className="nav-link">
-            <span className="nav-icon">🏠</span>
+            <FaChartBar className="nav-icon" />
             <span className="nav-text">Analytics</span>
           </Link>
         </div>

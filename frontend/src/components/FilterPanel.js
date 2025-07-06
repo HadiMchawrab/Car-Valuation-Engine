@@ -4,6 +4,7 @@ import axios from 'axios';
 import '../styles/FilterPanel.css';
 import { getTransmissionType, getBodyType, getColor } from '../utils/mappings';
 import API_BASE_URL from '../config/api';
+import { FaBuilding, FaUser, FaChartBar, FaTimes } from 'react-icons/fa';
 
 const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
 
@@ -371,7 +372,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
           <div className="contributor-info">
             <div className="contributor-details">
               <span className="contributor-icon">
-                {localFilters.contributorType === 'agency' ? '🏢' : '👤'}
+                {localFilters.contributorType === 'agency' ? <FaBuilding /> : <FaUser />}
               </span>
               <div className="contributor-text">
                 <strong>{localFilters.contributorName}</strong>
@@ -386,7 +387,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
                 className="profile-btn"
                 title="View Profile & Analytics"
               >
-                📊 Profile
+                <FaChartBar /> Profile
               </Link>
               <button 
                 onClick={() => {
@@ -401,7 +402,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
                 className="remove-contributor-btn"
                 title="Remove contributor filter"
               >
-                ✕
+                <FaTimes />
               </button>
             </div>
           </div>

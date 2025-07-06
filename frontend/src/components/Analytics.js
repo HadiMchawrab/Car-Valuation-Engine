@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { FaCar, FaCalendarAlt, FaChartBar, FaTrophy, FaChartLine, FaDollarSign } from 'react-icons/fa';
 import TopContributors from './Analytics/TopContributors';
 import DepreciationAnalysis from './Analytics/DepreciationAnalysis';
 import PriceSpreadAnalysis from './Analytics/PriceSpreadAnalysis';
@@ -98,7 +99,7 @@ const Analytics = () => {
         return (
           <div className="analytics-stats">
             <div className="stat-card">
-              <div className="stat-icon">🚗</div>
+              <FaCar className="stat-icon" />
               <div className="stat-content">
                 <h3>Total Listings</h3>
                 <p className="stat-number">
@@ -108,7 +109,7 @@ const Analytics = () => {
             </div>
 
             <div className="stat-card">
-              <div className="stat-icon">📅</div>
+              <FaCalendarAlt className="stat-icon" />
               <div className="stat-content">
                 <h3>This Month</h3>
                 <p className="stat-number">
@@ -148,7 +149,7 @@ const Analytics = () => {
   return (
     <div className="analytics-page">
       <div className="analytics-header">
-        <h1>📊 Analytics Dashboard</h1>
+        <h1><FaChartBar /> Analytics Dashboard</h1>
         <p className="analytics-subtitle">
           Explore car listing trends and market insights
         </p>
@@ -159,25 +160,25 @@ const Analytics = () => {
           className={`nav-btn ${activeSection === 'overview' ? 'active' : ''}`}
           onClick={() => setActiveSection('overview')}
         >
-          📈 Overview
+          <FaChartLine /> Overview
         </button>
         <button 
           className={`nav-btn ${activeSection === 'contributors' ? 'active' : ''}`}
           onClick={() => setActiveSection('contributors')}
         >
-          🏆 Top Contributors
+          <FaTrophy /> Top Contributors
         </button>
         <button 
           className={`nav-btn ${activeSection === 'depreciation' ? 'active' : ''}`}
           onClick={() => setActiveSection('depreciation')}
         >
-          📉 Depreciation Analysis
+          <FaChartLine /> Depreciation Analysis
         </button>
         <button 
           className={`nav-btn ${activeSection === 'price-spread' ? 'active' : ''}`}
           onClick={() => setActiveSection('price-spread')}
         >
-          💰 Price Spread Analysis
+          <FaDollarSign /> Price Spread Analysis
         </button>
       </div>
 

@@ -5,6 +5,7 @@ import '../styles/ListingsPage.css';
 import FilterPanel from './FilterPanel';
 import { getTransmissionType, getBodyType, getColor } from '../utils/mappings';
 import API_BASE_URL from '../config/api';
+import { FaMapMarkerAlt } from 'react-icons/fa';
 
 const ListingsPage = () => {
   const location = useLocation();
@@ -400,7 +401,7 @@ const ListingsPage = () => {
                       
                       <div className="listing-meta">
                         <div className="listing-location">
-                          📍
+                          <FaMapMarkerAlt />
                           {(listing.location_city || listing.location_region) ? 
                             `${listing.location_city || ''} ${listing.location_region || ''}`.trim() : 
                             'Location N/A'}

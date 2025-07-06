@@ -39,7 +39,7 @@
 
 .back-button:hover {
   background: var(--accent-green);
-  color: #fff;
+  color: #000000;
   transform: translateX(-4px);
 }
 
@@ -47,7 +47,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--accent-green);
+  color: black;
   background: white;
   text-decoration: none;
   font-weight: 600;
@@ -72,6 +72,7 @@
 }
 
 .agency-name {
+  color: #000000;
   font-size: 1.2rem;
   opacity: 0.9;
   margin-bottom: 15px;
@@ -86,7 +87,7 @@
 
 .badge {
   background: rgba(255, 255, 255, 0.2);
-  color: white;
+  color: #000000;
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 0.9rem;
@@ -120,15 +121,26 @@
 }
 
 .stat-icon {
-  font-size: 2.5rem;
-  width: 70px;
-  height: 70px;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-green-hover) 100%);
-  border-radius: 50%;
-  box-shadow: 0 4px 15px rgba(74, 222, 128, 0.3);
+  background: #fff;
+  color: #222;
+  border-radius: 20%;
+  box-shadow: 0 2px 8px rgba(74, 222, 128, 0.08);
+  overflow: hidden;
+  flex-shrink: 0;
+  padding: 10px;
+}
+
+.stat-icon svg,
+.stat-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .stat-content h3 {
@@ -264,7 +276,15 @@
   transform: translateY(-2px);
 }
 
-
+.contributor-header h1 {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #111;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
 
 /* Responsive design */
 @media (max-width: 1024px) {
