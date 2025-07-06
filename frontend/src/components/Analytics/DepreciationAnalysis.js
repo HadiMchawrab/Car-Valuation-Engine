@@ -27,8 +27,10 @@ ChartJS.register(
 const DepreciationAnalysis = () => {
   const [makes, setMakes] = useState([]);
   const [models, setModels] = useState([]);
+  const [trims, setTrims] = useState([]);
   const [selectedMake, setSelectedMake] = useState('');
   const [selectedModel, setSelectedModel] = useState('');
+  const [selectedTrim, setSelectedTrim] = useState('');
   const [depreciationData, setDepreciationData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -48,14 +50,24 @@ const DepreciationAnalysis = () => {
     }
   }, [selectedMake]);
 
-  // Fetch depreciation data when both make and model are selected
+  // Fetch trims when make and model are selected
   useEffect(() => {
     if (selectedMake && selectedModel) {
-      fetchDepreciationData(selectedMake, selectedModel);
+      fetchTrims(selectedMake, selectedModel);
+    } else {
+      setTrims([]);
+      setSelectedTrim('');
+    }
+  }, [selectedMake, selectedModel]);
+
+  // Fetch depreciation data when make, model, and trim are selected
+  useEffect(() => {
+    if (selectedMake && selectedModel) {
+      fetchDepreciationData(selectedMake, selectedModel, selectedTrim);
     } else {
       setDepreciationData(null);
     }
-  }, [selectedMake, selectedModel]);
+  }, [selectedMake, selectedModel, selectedTrim]);
 
   const fetchMakes = async () => {
     try {
@@ -81,20 +93,37 @@ const DepreciationAnalysis = () => {
     }
   };
 
-  const fetchDepreciationData = async (make, model) => {
+  const fetchTrims = async (make, model) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/trims/${encodeURIComponent(make)}/${encodeURIComponent(model)}`);
+      if (!response.ok) throw new Error('Failed to fetch trims');
+      const data = await response.json();
+      setTrims(data);
+    } catch (err) {
+      console.error('Error fetching trims:', err);
+      setTrims([]);
+    }
+  };
+
+  const fetchDepreciationData = async (make, model, trim = '') => {
     setLoading(true);
     setError(null);
+    setDepreciationData(null); // Clear previous data immediately
     
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/analytics/depreciation?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`
-      );
+      let url = `${API_BASE_URL}/api/analytics/depreciation?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
+      if (trim && trim.trim() !== '') {
+        url += `&trim=${encodeURIComponent(trim)}`;
+      }
+      
+      const response = await fetch(url);
       
       if (!response.ok) {
         if (response.status === 400) {
           // Handle bad request - likely insufficient data
           const errorData = await response.json().catch(() => ({}));
-          setError(`Cannot calculate depreciation for ${make} ${model}. Only one year of data exists - need at least 2 years to show depreciation trends.`);
+          const trimText = trim && trim.trim() !== '' ? ` ${trim}` : '';
+          setError(`Cannot calculate depreciation for ${make} ${model}${trimText}. Only one year of data exists - need at least 2 years to show depreciation trends.`);
           return;
         }
         throw new Error('Failed to fetch depreciation data');
@@ -104,13 +133,13 @@ const DepreciationAnalysis = () => {
       
       // Additional client-side check for insufficient data
       if (!data.yearly_data || data.yearly_data.length < 2) {
-        setError(`Cannot calculate depreciation for ${make} ${model}. Only one year of data exists - need at least 2 years to show depreciation trends.`);
+        const trimText = trim && trim.trim() !== '' ? ` ${trim}` : '';
+        setError(`Cannot calculate depreciation for ${make} ${model}${trimText}. Only one year of data exists - need at least 2 years to show depreciation trends.`);
         return;
       }
       
       setDepreciationData(data);
     } catch (err) {
-      console.error('Error fetching depreciation data:', err);
       if (!error) { // Only set generic error if we haven't already set a specific one
         setError('Failed to load depreciation analysis');
       }
@@ -130,11 +159,13 @@ const DepreciationAnalysis = () => {
     if (!reversedData.length) return null;
     const years = reversedData.map(item => item.year);
     const prices = reversedData.map(item => item.average_price);
+    const trimText = selectedTrim && selectedTrim.trim() !== '' ? ` ${selectedTrim}` : '';
+    
     return {
       labels: years,
       datasets: [
         {
-          label: `${selectedMake} ${selectedModel} - Average Price`,
+          label: `${selectedMake} ${selectedModel}${trimText} - Average Price`,
           data: prices,
           borderColor: 'rgb(75, 192, 192)',
           backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -186,6 +217,7 @@ const DepreciationAnalysis = () => {
             onChange={(e) => {
               setSelectedMake(e.target.value);
               setSelectedModel(''); // Reset model when make changes
+              setSelectedTrim(''); // Reset trim when make changes
             }}
             className="analysis-select"
           >
@@ -201,13 +233,32 @@ const DepreciationAnalysis = () => {
           <select
             id="model-select"
             value={selectedModel}
-            onChange={(e) => setSelectedModel(e.target.value)}
+            onChange={(e) => {
+              setSelectedModel(e.target.value);
+              setSelectedTrim(''); // Reset trim when model changes
+            }}
             disabled={!selectedMake}
             className="analysis-select"
           >
             <option value="">Choose a model...</option>
             {models.map(model => (
               <option key={model} value={model}>{model}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="control-group">
+          <label htmlFor="trim-select">Select Trim (Optional):</label>
+          <select
+            id="trim-select"
+            value={selectedTrim}
+            onChange={(e) => setSelectedTrim(e.target.value)}
+            disabled={!selectedMake || !selectedModel}
+            className="analysis-select"
+          >
+            <option value="">All trims</option>
+            {trims.map(trim => (
+              <option key={trim} value={trim}>{trim}</option>
             ))}
           </select>
         </div>
@@ -220,11 +271,12 @@ const DepreciationAnalysis = () => {
             <p>{error}</p>
             {error.includes('Only one year of data exists') && (
               <div className="error-suggestion">
-                <p>💡 <strong>Try selecting:</strong></p>
+                <p>💡 Try selecting:</p>
                 <ul>
                   <li>A more popular make/model combination</li>
                   <li>Different model years with more market data</li>
                   <li>Models that have been in production for multiple years</li>
+                  <li>Try without selecting a specific trim</li>
                 </ul>
               </div>
             )}
@@ -332,6 +384,12 @@ const DepreciationAnalysis = () => {
       {selectedMake && !selectedModel && (
         <div className="placeholder-state">
           <p>Select a model to view depreciation curve</p>
+        </div>
+      )}
+
+      {selectedMake && selectedModel && !depreciationData && !loading && !error && (
+        <div className="placeholder-state">
+          <p>Select a trim (optional) to view depreciation curve</p>
         </div>
       )}
     </div>

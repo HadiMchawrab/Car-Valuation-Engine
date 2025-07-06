@@ -1,0 +1,18 @@
+location: uaenorth
+resourceGroup: markaba-app-new-rg
+properties:
+  configuration:
+    ingress:
+      external: true
+      targetPort: 80
+      transport: auto
+    registries:
+    - server: markabanewregistry.azurecr.io
+      identity: system
+  template:
+    containers:
+    - image: markabanewregistry.azurecr.io/markaba-frontend-new:v8
+      name: car-listings-markaba
+      resources:
+        cpu: 0.5
+        memory: 1Gi

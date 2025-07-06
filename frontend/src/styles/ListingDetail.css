@@ -211,7 +211,7 @@
 .view-original-btn {
   display: inline-block;
   background-color: var(--accent-green);
-  color: white;
+  color: #1d1d3d;
   padding: 12px 20px;
   border-radius: 4px;
   text-decoration: none;

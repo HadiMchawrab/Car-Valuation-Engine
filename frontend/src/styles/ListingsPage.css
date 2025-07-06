@@ -297,7 +297,7 @@
 .pagination button {
   padding: 12px 20px;
   background-color: var(--accent-green);
-  color: white;
+  color: #1d1d3d;
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -339,7 +339,7 @@
   margin-left: 8px;
   padding: 2px 6px;
   background-color: var(--success-color);
-  color: white;
+  color: #1d1d3d;
   font-size: 0.7rem;
   font-weight: 600;
   border-radius: 4px;

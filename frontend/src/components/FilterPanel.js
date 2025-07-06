@@ -48,7 +48,6 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
 
   // Update local filters when props change (important for URL-based filters)
   useEffect(() => {
-    console.log('FilterPanel: Received new filters from parent:', filters);
     setLocalFilters(prev => {
       const updated = {
         ...prev,
@@ -58,13 +57,42 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
         contributorName: filters.sellerDisplayName || filters.seller || '', // Use display name for UI
         contributorType: filters.sellerDisplayType || ''
       };
-      console.log('FilterPanel: Updated local filters:', updated);
       return updated;
     });
   }, [filters]);
 
   useEffect(() => {
   }, [localFilters.make, filters.seller]);
+
+  useEffect(() => {
+    const fetchYears = async () => {
+      setIsLoadingOptions(true);
+      try {
+        let yearsRes;
+        if (localFilters.make && localFilters.model) {
+          // Both make and model selected
+          yearsRes = await axios.get(`${API_BASE_URL}/years/${encodeURIComponent(localFilters.make)}/${encodeURIComponent(localFilters.model)}`);
+          setYears(yearsRes.data);
+          setInitialYears(yearsRes.data);
+        } else {
+          // No make/model or only make selected: show full range 1950-2025
+          const defaultYears = Array.from({length: 2025 - 1950 + 1}, (_, i) => 1950 + i);
+          setYears(defaultYears);
+          setInitialYears(defaultYears);
+        }
+      } catch (error) {
+        // On error, also fallback to default range
+        const defaultYears = Array.from({length: 2025 - 1950 + 1}, (_, i) => 1950 + i);
+        setYears(defaultYears);
+        setInitialYears(defaultYears);
+      } finally {
+        setIsLoadingOptions(false);
+      }
+    };
+    fetchYears();
+  // Only run when make or model changes
+  }, [localFilters.make, localFilters.model]);
+
   const fetchInitialFilterOptions = async () => {
     try {
       // Build base URL with seller filter if present
@@ -243,7 +271,6 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       sellerDisplayName: filters.sellerDisplayName
     };
     
-    console.log("Applying filters immediately:", mappedFilters);
     onFilterChange(mappedFilters);
   };
 

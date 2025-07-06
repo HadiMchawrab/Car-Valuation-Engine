@@ -3,6 +3,7 @@
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  color: white;
 }
 
 .analysis-header {
@@ -11,13 +12,13 @@
 }
 
 .analysis-header h2 {
-  color: var(--text-primary);
+  color: white;
   font-size: 2rem;
   margin-bottom: 10px;
 }
 
 .analysis-subtitle {
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 1.1rem;
   margin: 0;
 }
@@ -39,7 +40,7 @@
 
 .control-group label {
   font-weight: 600;
-  color: var(--text-primary);
+  color: white;
   font-size: 0.9rem;
 }
 
@@ -49,6 +50,7 @@
   border-radius: 8px;
   font-size: 1rem;
   background-color: white;
+  color: #1d1d3d;
   cursor: pointer;
   transition: border-color 0.3s ease;
 }
@@ -68,6 +70,7 @@
 .loading-state {
   text-align: center;
   padding: 40px;
+  color: white;
 }
 
 .loading-spinner {
@@ -95,6 +98,7 @@
   align-items: flex-start;
   gap: 15px;
   box-shadow: 0 2px 8px rgba(255, 234, 167, 0.3);
+  color: #1d1d3d;
 }
 
 .error-icon {
@@ -108,7 +112,7 @@
 }
 
 .error-message p {
-  color: var(--text-primary);
+  color: #1d1d3d;
   margin: 0 0 15px 0;
   font-weight: 500;
   line-height: 1.5;
@@ -119,10 +123,11 @@
   border-radius: 8px;
   padding: 15px;
   border-left: 4px solid #17a2b8;
+  color: #1d1d3d;
 }
 
 .error-suggestion p {
-  color: var(--text-secondary);
+  color: rgba(29, 29, 61, 0.8);
   margin: 0 0 10px 0;
   font-size: 0.9rem;
 }
@@ -151,17 +156,18 @@
 }
 
 .stat-card {
-  background: white;
+  background: #232347;
+  border: 1px solid #39396a;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   border-radius: 12px;
   padding: 20px;
   text-align: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e9ecef;
+  color: white;
 }
 
 .stat-card h3 {
   margin: 0 0 10px 0;
-  color: var(--text-primary);
+  color: white;
   font-size: 0.9rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -182,20 +188,26 @@
   margin-bottom: 30px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border: 1px solid #e9ecef;
+  color: #1d1d3d;
+}
+
+.chart-container h3 {
+  color: #1d1d3d;
 }
 
 .depreciation-table {
-  background: var(--bg-secondary);
+  background: #232347;
+  border: 1px solid #39396a;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e9ecef;
   overflow-x: auto;
+  color: white;
 }
 
 .depreciation-table h3 {
   margin: 0 0 20px 0;
-  color: var(--text-primary);
+  color: white;
   font-size: 1.2rem;
 }
 
@@ -209,14 +221,14 @@
 .depreciation-table td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #e9ecef;
-  color: var(--text-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
 .depreciation-table th {
-  background: var(--bg-secondary);
+  background: rgba(255, 255, 255, 0.1);
   font-weight: 600;
-  color: var(--text-primary);
+  color: white;
   text-transform: uppercase;
   font-size: 0.8rem;
   letter-spacing: 0.5px;
@@ -235,8 +247,21 @@
 .placeholder-state {
   text-align: center;
   padding: 60px 20px;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 1.1rem;
+}
+
+.statistical-summary {
+  background: #232347;
+  border: 1px solid #39396a;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-radius: 12px;
+  padding: 20px;
+  color: white;
+}
+
+.statistical-summary h3 {
+  color: white;
 }
 
 /* Responsive Design */
@@ -258,16 +283,4 @@
   .analysis-header h2 {
     font-size: 1.5rem;
   }
-}
-
-.statistical-summary {
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e9ecef;
-}
-
-.statistical-summary h3 {
-  color: var(--text-primary);
 }

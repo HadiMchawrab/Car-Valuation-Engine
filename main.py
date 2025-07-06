@@ -42,6 +42,3 @@ params = {
 }
 
 response = requests.get('https://www.dubizzle.sa/api/listing/', params=params, cookies=cookies, headers=headers)
-
-print(response.status_code)
-print(response.json())

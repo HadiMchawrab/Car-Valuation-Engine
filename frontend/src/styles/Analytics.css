@@ -67,7 +67,7 @@
 
 .nav-btn.active {
   background: var(--accent-green);
-  color: white;
+  color: #1d1d3d;
   border-color: var(--accent-green);
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(74, 222, 128, 0.3);
@@ -181,7 +181,7 @@
 
 .retry-button {
   background: var(--accent-green);
-  color: white;
+  color: #1d1d3d;
   border: none;
   padding: 12px 24px;
   border-radius: 8px;
@@ -196,19 +196,7 @@
   transform: translateY(-2px);
 }
 
-/* Dark theme specific adjustments */
-.dark-theme .analytics-header {
-  background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-green-hover) 100%);
-}
 
-.dark-theme .stat-card {
-  background: var(--bg-secondary);
-  border-color: var(--border-color);
-}
-
-.dark-theme .stat-card:hover {
-  border-color: var(--accent-green);
-}
 
 /* Responsive design */
 @media (max-width: 1024px) {

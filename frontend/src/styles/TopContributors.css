@@ -73,7 +73,7 @@
 
 .contributor-rank {
   background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-green-hover) 100%);
-  color: white;
+  color: #1d1d3d;
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -157,19 +157,7 @@
   font-size: 1.1rem;
 }
 
-/* Dark theme adjustments */
-.dark-theme .contributor-card {
-  background: var(--bg-secondary);
-  border-color: var(--border-color);
-}
 
-.dark-theme .contributor-card:hover {
-  border-color: var(--accent-green);
-}
-
-.dark-theme .contributor-listings {
-  border-color: var(--border-color);
-}
 
 /* Responsive design */
 @media (max-width: 768px) {

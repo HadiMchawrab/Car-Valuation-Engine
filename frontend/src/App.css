@@ -2,35 +2,175 @@
 
 :root {
   /* Light theme colors */
-  --bg-primary: #f8fafc;
-  --bg-secondary: #ffffff;
-  --text-primary: #2d3748;
-  --text-secondary: #4a5568;
+  --bg-primary: #1d1d3d;
+  --bg-secondary: #1d1d3d;
+  --text-primary: white;
+  --text-secondary: rgba(255, 255, 255, 0.8);
   --border-color: #e2e8f0;
   --shadow: rgba(0, 0, 0, 0.1);
-  --accent-green: #4ade80;
-  --accent-green-hover: #22c55e;
-  --accent-color: #4ade80;
-  --success-color: #22c55e;
-  --navy: #2d3748;
-  --navy-dark: #1a202c;
+  --accent-green: #70f69c;
+  --accent-green-hover: #70f69c;
+  --accent-color: #70f69c;
+  --success-color: #70f69c;
+  --navy: #1d1d3d;
+  --navy-dark: #1d1d3d;
 }
 
-.dark-theme {
-  /* Dark theme colors */
-  --bg-primary: #1a202c;
-  --bg-secondary: #2d3748;
-  --text-primary: #e2e8f0;
-  --text-secondary: #a0aec0;
-  --border-color: #4a5568;
-  --shadow: rgba(0, 0, 0, 0.3);
-  --accent-green: #4ade80;
-  --accent-green-hover: #22c55e;
-  --accent-color: #4ade80;
-  --success-color: #22c55e;
-  --navy: #e2e8f0;
-  --navy-dark: #f7fafc;
+/* Light mode overrides for elements with light backgrounds */
+.error-message,
+.error-suggestion,
+.loading-indicator,
+.results-count,
+.contributor-filter-section {
+  color: #1d1d3d !important;
 }
+
+.error-message p,
+.error-suggestion p,
+.error-suggestion li,
+.loading-indicator span,
+.count-text,
+.contributor-text strong,
+.contributor-type {
+  color: #1d1d3d !important;
+}
+
+/* Filter panel specific overrides for light backgrounds */
+.filter-panel {
+  color: #1d1d3d !important;
+}
+
+.filter-panel h3,
+.filter-panel label,
+.filter-panel select,
+.filter-panel input,
+.filter-panel option {
+  color: #1d1d3d !important;
+}
+
+.condition-btn {
+  color: #1d1d3d !important;
+}
+
+.condition-btn.active {
+  color: #1d1d3d !important;
+}
+
+/* Listings page specific overrides for light backgrounds */
+.listing-card {
+  color: white !important;
+}
+
+.listing-card .listing-title,
+.listing-card .listing-price,
+.listing-card .detail-label,
+.listing-card .detail-value,
+.listing-card .seller-label,
+.listing-card .seller-value,
+.listing-card .post-label,
+.listing-card .post-value,
+.listing-card .scraped-label,
+.listing-card .scraped-value {
+  color: white !important;
+}
+
+/* Listing detail specific overrides for light backgrounds */
+.listing-details-section {
+  color: white !important;
+}
+
+.listing-details-section .detail-label,
+.listing-details-section .detail-value,
+.listing-details-section h2,
+.listing-details-section h3 {
+  color: white !important;
+}
+
+.seller-info-section {
+  color: white !important;
+}
+
+.seller-info-section h3,
+.seller-info-section h4,
+.seller-info-section .detail-label,
+.seller-info-section .detail-value,
+.seller-info-section .stat-number,
+.seller-info-section .stat-label {
+  color: white !important;
+}
+
+/* Analytics specific overrides for light backgrounds */
+.analytics-page .stat-card {
+  color: white !important;
+}
+
+.analytics-page .stat-card h3,
+.analytics-page .stat-card .stat-number {
+  color: white !important;
+}
+
+.analytics-page .stat-card .stat-content h3 {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Contributor detail specific overrides for light backgrounds */
+.contributor-detail-page .stat-card {
+  color: white !important;
+}
+
+.contributor-detail-page .stat-card h3,
+.contributor-detail-page .stat-card .stat-number {
+  color: white !important;
+}
+
+.contributor-detail-page .chart-section {
+  color: white !important;
+}
+
+.contributor-detail-page .chart-section h2 {
+  color: white !important;
+}
+
+.contributor-detail-page .info-card {
+  color: white !important;
+}
+
+.contributor-detail-page .info-card h3,
+.contributor-detail-page .info-card p,
+.contributor-detail-page .info-card strong {
+  color: white !important;
+}
+
+/* Top contributors specific overrides for light backgrounds */
+.contributor-card {
+  color: white !important;
+}
+
+.contributor-card .contributor-name,
+.contributor-card .contributor-type,
+.contributor-card .listings-label,
+.contributor-card .listings-value,
+.contributor-card .contributor-arrow {
+  color: white !important;
+}
+
+.contributor-card .contributor-type {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.contributor-card .listings-value {
+  color: var(--accent-green) !important;
+}
+
+.contributor-card .contributor-arrow {
+  color: var(--accent-green) !important;
+}
+
+
+
+
+
+
 
 * {
   margin: 0;

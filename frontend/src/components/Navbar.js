@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import DarkModeToggle from './DarkModeToggle';
 import '../styles/Navbar.css';
 import markabaLogo from '../Markaba logo.png';
 
@@ -32,10 +31,9 @@ const Navbar = () => {
             <span className="nav-text">Home</span>
           </Link>
           <Link to="/analytics" className="nav-link">
-            <span className="nav-icon">�</span>
+            <span className="nav-icon">🏠</span>
             <span className="nav-text">Analytics</span>
           </Link>
-          <DarkModeToggle />
         </div>
       </div>
     </nav>

@@ -17,9 +17,11 @@ ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend);
 const PriceSpreadAnalysis = () => {
   const [makes, setMakes] = useState([]);
   const [models, setModels] = useState([]);
+  const [trims, setTrims] = useState([]);
   const [years, setYears] = useState([]);
   const [selectedMake, setSelectedMake] = useState('');
   const [selectedModel, setSelectedModel] = useState('');
+  const [selectedTrim, setSelectedTrim] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
   const [priceSpreadData, setPriceSpreadData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -41,14 +43,24 @@ const PriceSpreadAnalysis = () => {
     }
   }, [selectedMake]);
 
+  // Fetch trims when make and model are selected
+  useEffect(() => {
+    if (selectedMake && selectedModel) {
+      fetchTrims(selectedMake, selectedModel);
+    } else {
+      setTrims([]);
+      setSelectedTrim('');
+    }
+  }, [selectedMake, selectedModel]);
+
   // Fetch price spread data when all selections are made
   useEffect(() => {
     if (selectedMake && selectedModel && selectedYear) {
-      fetchPriceSpreadData(selectedMake, selectedModel, selectedYear);
+      fetchPriceSpreadData(selectedMake, selectedModel, selectedYear, selectedTrim);
     } else {
       setPriceSpreadData(null);
     }
-  }, [selectedMake, selectedModel, selectedYear]);
+  }, [selectedMake, selectedModel, selectedYear, selectedTrim]);
 
   // Fetch years when make and model are selected
   useEffect(() => {
@@ -84,6 +96,18 @@ const PriceSpreadAnalysis = () => {
     }
   };
 
+  const fetchTrims = async (make, model) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/trims/${encodeURIComponent(make)}/${encodeURIComponent(model)}`);
+      if (!response.ok) throw new Error('Failed to fetch trims');
+      const data = await response.json();
+      setTrims(data);
+    } catch (err) {
+      console.error('Error fetching trims:', err);
+      setTrims([]);
+    }
+  };
+
   const fetchYearsForMakeModel = async (make, model) => {
     try {
       const response = await fetch(`${API_BASE_URL}/years/${encodeURIComponent(make)}/${encodeURIComponent(model)}`);
@@ -97,16 +121,28 @@ const PriceSpreadAnalysis = () => {
     }
   };
 
-  const fetchPriceSpreadData = async (make, model, year) => {
+  const fetchPriceSpreadData = async (make, model, year, trim = '') => {
     setLoading(true);
     setError(null);
     
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/analytics/price-spread?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&year=${year}`
-      );
+      let url = `${API_BASE_URL}/api/analytics/price-spread?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&year=${year}`;
+      if (trim && trim.trim() !== '') {
+        url += `&trim=${encodeURIComponent(trim)}`;
+      }
       
-      if (!response.ok) throw new Error('Failed to fetch price spread data');
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          // Specific error for no data found
+          const trimText = trim && trim.trim() !== '' ? ` ${trim}` : '';
+          setError(`No price spread data found for ${make} ${model}${trimText} ${year}. Try a different trim or year.`);
+          setPriceSpreadData(null); // Clear previous data
+          return;
+        }
+        throw new Error('Failed to fetch price spread data');
+      }
       
       const data = await response.json();
       setPriceSpreadData(data);
@@ -157,7 +193,7 @@ const PriceSpreadAnalysis = () => {
       },
       title: {
         display: true,
-        text: `Price Distribution for ${selectedMake} ${selectedModel} ${selectedYear}`,
+        text: `Price Distribution for ${selectedMake} ${selectedModel} ${selectedYear}${selectedTrim && selectedTrim.trim() !== '' ? ` ${selectedTrim}` : ''}`,
       },
       tooltip: {
         callbacks: {
@@ -214,6 +250,7 @@ const PriceSpreadAnalysis = () => {
             onChange={(e) => {
               setSelectedMake(e.target.value);
               setSelectedModel('');
+              setSelectedTrim('');
             }}
             className="analysis-select"
           >
@@ -229,13 +266,32 @@ const PriceSpreadAnalysis = () => {
           <select
             id="model-select"
             value={selectedModel}
-            onChange={(e) => setSelectedModel(e.target.value)}
+            onChange={(e) => {
+              setSelectedModel(e.target.value);
+              setSelectedTrim('');
+            }}
             disabled={!selectedMake}
             className="analysis-select"
           >
             <option value="">Choose a model...</option>
             {models.map(model => (
               <option key={model} value={model}>{model}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="control-group">
+          <label htmlFor="trim-select">Select Trim (Optional):</label>
+          <select
+            id="trim-select"
+            value={selectedTrim}
+            onChange={(e) => setSelectedTrim(e.target.value)}
+            disabled={!selectedMake || !selectedModel}
+            className="analysis-select"
+          >
+            <option value="">All trims</option>
+            {trims.map(trim => (
+              <option key={trim} value={trim}>{trim}</option>
             ))}
           </select>
         </div>

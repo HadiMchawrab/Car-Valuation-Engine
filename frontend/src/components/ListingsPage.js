@@ -115,7 +115,6 @@ const ListingsPage = () => {
       sort_by: getSortParam(sortBy) // Use backend sort parameter
     };
     
-    console.log('Search params being sent:', params);
     return params;
   };
 
@@ -198,8 +197,6 @@ const ListingsPage = () => {
     const urlSort = searchParams.get('sort') || 'newest_listed';
     const urlPage = parseInt(searchParams.get('page')) || 1;
     
-    console.log('URL Parameters:', { urlFilters, urlSort, urlPage });
-    
     // Update state with URL parameters
     setFilters(urlFilters);
     setSortBy(urlSort);
@@ -214,29 +211,17 @@ const ListingsPage = () => {
       // Calculate offset based on current page
       const offset = (currentPage - 1) * listingsPerPage;
       
-      console.log('Fetching listings with sort:', searchParams.sort_by);
-      
       // Make the API call with sorting in the POST body
       const response = await axios.post(
         `${API_BASE_URL}/search?limit=${listingsPerPage}&offset=${offset}`, 
         searchParams
       );
       
-      // Log the response for debugging
-      console.log('API Response:', response.data);
-      console.log('First few listings post_dates:', response.data.slice(0, 3).map(l => ({ 
-        title: l.title, 
-        post_date: l.post_date,
-        price: l.price,
-        year: l.year 
-      })));
-      
       setListings(response.data);
       setLoading(false);
     } catch (err) {
       setError('Error fetching listings. Please try again later.');
       setLoading(false);
-      console.error('Error fetching listings:', err);
     }
   };
 
@@ -415,7 +400,8 @@ const ListingsPage = () => {
                       
                       <div className="listing-meta">
                         <div className="listing-location">
-                          📍 {(listing.location_city || listing.location_region) ? 
+                          📍
+                          {(listing.location_city || listing.location_region) ? 
                             `${listing.location_city || ''} ${listing.location_region || ''}`.trim() : 
                             'Location N/A'}
                         </div>

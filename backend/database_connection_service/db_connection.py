@@ -24,8 +24,6 @@ def get_connection():
             password   = os.getenv(password_key)
             sslrootcert= os.getenv(sslcert_key)
             
-            print(f"Attempting to connect to Postgres: host={host}, port={port}, db={dbname}")
-            
             conn = psycopg2.connect(
                 host=host,
                 port=port,
@@ -37,15 +35,11 @@ def get_connection():
             )
             conn.autocommit = True
             
-            print(f"✓ Connected to Postgres (Attempt {attempt})")
             return conn
 
         except OperationalError as e:
-            print(f"✗ Connection failed (Attempt {attempt}): {e}")
             if attempt < max_retries:
-                print(f"Retrying in {retry_delay}s…")
                 time.sleep(retry_delay)
                 retry_delay *= 2
 
-    print("⚠️  Failed to connect after multiple attempts")
     return None

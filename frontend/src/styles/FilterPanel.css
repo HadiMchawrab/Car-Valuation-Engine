@@ -161,7 +161,7 @@
 
 .apply-filters-btn {
   background-color: #4ade80;
-  color: white;
+  color: #1d1d3d;
 }
 
 .apply-filters-btn:hover {
@@ -209,7 +209,7 @@
 
 .condition-btn.active {
   background-color: #4ade80;
-  color: white;
+  color: #1d1d3d;
   border-color: #22c55e;
 }
 

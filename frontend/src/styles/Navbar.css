@@ -1,12 +1,12 @@
 /* Navbar.css */
 
 .navbar {
-  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+  background: linear-gradient(135deg, #1d1d3d 0%, #1d1d3d 100%);
   height: 95px;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white;
+  color: #70f69c;
   box-shadow: 0 4px 20px rgba(45, 55, 72, 0.25);
   position: sticky;
   top: 0;
@@ -58,7 +58,7 @@
   font-size: 24px;
   font-weight: 700;
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  background: linear-gradient(135deg, #70f69c 0%, #70f69c 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

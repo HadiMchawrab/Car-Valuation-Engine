@@ -4,6 +4,7 @@ from database_connection_service.db_connection import get_connection
 from database_connection_service.classes_input import ListingSearch
 import logging
 from filters import build_search_filters, build_dynamic_filter_query
+from utils import format_db_row
 
 router = APIRouter(prefix="/api/analytics", tags=["analytics"])
 logger = logging.getLogger(__name__)
@@ -215,14 +216,34 @@ def get_contributor_details(seller_identifier: str):
         conn.close()
 
 @router.get("/depreciation")
-def get_depreciation_analysis(make: str = Query(...), model: str = Query(...)):
-    """Get depreciation analysis for a specific make and model"""
+def get_depreciation_analysis(make: str = Query(...), model: str = Query(...), trim: str = Query(None)):
+    """Get depreciation analysis for a specific make and model with optional trim"""
     conn = get_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
     try:
         cur = conn.cursor()
-        yearly_query = """
+        
+        # Build the WHERE clause with optional trim filter
+        where_conditions = [
+            "brand ILIKE %s",
+            "model ILIKE %s",
+            "price IS NOT NULL",
+            "price > 0",
+            "year IS NOT NULL"
+        ]
+        params = [f"%{make}%", f"%{model}%"]
+        
+        if trim and trim.strip():
+            where_conditions.append("trim ILIKE %s")
+            params.append(f"%{trim}%")
+        
+        where_clause = " AND ".join(where_conditions)
+        
+        # Adjust minimum threshold based on whether trim filter is applied
+        min_listings = 1 if trim and trim.strip() else 3
+        
+        yearly_query = f"""
         SELECT 
             year,
             AVG(price) as average_price,
@@ -230,19 +251,16 @@ def get_depreciation_analysis(make: str = Query(...), model: str = Query(...)):
             MIN(price) as min_price,
             MAX(price) as max_price
         FROM listings 
-        WHERE brand ILIKE %s 
-        AND model ILIKE %s 
-        AND price IS NOT NULL 
-        AND price > 0
-        AND year IS NOT NULL
+        WHERE {where_clause}
         GROUP BY year
-        HAVING COUNT(*) >= 3  -- At least 3 listings per year for meaningful average
+        HAVING COUNT(*) >= {min_listings}  -- At least {min_listings} listings per year for meaningful average
         ORDER BY year
         """
-        cur.execute(yearly_query, (f"%{make}%", f"%{model}%"))
+        cur.execute(yearly_query, tuple(params))
         yearly_rows = cur.fetchall()
         if not yearly_rows:
-            raise HTTPException(status_code=404, detail=f"No sufficient data found for {make} {model}")
+            trim_text = f" {trim}" if trim and trim.strip() else ""
+            raise HTTPException(status_code=404, detail=f"No sufficient data found for {make} {model}{trim_text}")
         yearly_cols = [d[0] for d in cur.description]
         yearly_data = [format_db_row(dict(zip(yearly_cols, row))) for row in yearly_rows]
         prices = [float(item['average_price']) for item in yearly_data]
@@ -259,6 +277,7 @@ def get_depreciation_analysis(make: str = Query(...), model: str = Query(...)):
         return {
             "make": make,
             "model": model,
+            "trim": trim,
             "yearly_data": yearly_data,
             "current_avg_price": current_price,
             "highest_avg_price": highest_price,
@@ -277,14 +296,31 @@ def get_depreciation_analysis(make: str = Query(...), model: str = Query(...)):
         conn.close()
 
 @router.get("/price-spread")
-def get_price_spread_analysis(make: str = Query(...), model: str = Query(...),  year: int = Query(...)):
-    """Get price spread analysis for a specific make, model, and year"""
+def get_price_spread_analysis(make: str = Query(...), model: str = Query(...), year: int = Query(...), trim: str = Query(None)):
+    """Get price spread analysis for a specific make, model, year with optional trim"""
     conn = get_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
     try:
         cur = conn.cursor()
-        listings_query = """
+        
+        # Build the WHERE clause with optional trim filter
+        where_conditions = [
+            "brand ILIKE %s",
+            "model ILIKE %s",
+            "year = %s",
+            "price IS NOT NULL",
+            "price > 0"
+        ]
+        params = [f"%{make}%", f"%{model}%", year]
+        
+        if trim and trim.strip():
+            where_conditions.append("trim ILIKE %s")
+            params.append(f"%{trim}%")
+        
+        where_clause = " AND ".join(where_conditions)
+        
+        listings_query = f"""
         SELECT 
             ad_id,
             url,
@@ -295,17 +331,14 @@ def get_price_spread_analysis(make: str = Query(...), model: str = Query(...),  
             seller,
             post_date
         FROM listings 
-        WHERE brand ILIKE %s 
-        AND model ILIKE %s 
-        AND year = %s
-        AND price IS NOT NULL 
-        AND price > 0
+        WHERE {where_clause}
         ORDER BY price
         """
-        cur.execute(listings_query, (f"%{make}%", f"%{model}%", year))
+        cur.execute(listings_query, tuple(params))
         listings_rows = cur.fetchall()
         if not listings_rows:
-            raise HTTPException(status_code=404, detail=f"No data found for {make} {model} {year}")
+            trim_text = f" {trim}" if trim and trim.strip() else ""
+            raise HTTPException(status_code=404, detail=f"No data found for {make} {model}{trim_text} {year}")
         listings_cols = [d[0] for d in cur.description]
         listings_data = [format_db_row(dict(zip(listings_cols, row))) for row in listings_rows]
         prices = [float(item['price']) for item in listings_data]
@@ -319,6 +352,7 @@ def get_price_spread_analysis(make: str = Query(...), model: str = Query(...),  
         return {
             "make": make,
             "model": model,
+            "trim": trim,
             "year": year,
             "total_listings": len(listings_data),
             "listings": listings_data,
@@ -357,7 +391,6 @@ def get_years(make: str = Query(...), model: str = Query(...)):
         """
         cur.execute(query, (f"%{make}%", f"%{model}%"))
         result = cur.fetchone()
-        print("Year range query result:", result)  # Add this for debugging
 
         if result and len(result) == 2:
             min_year, max_year = result
