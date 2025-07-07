@@ -14,7 +14,7 @@ class DubizzleEditSpider(Spider):
     name = "dubizzle_edit"
     custom_settings = {
         "FEEDS": {
-            "dubizzle.json": {"format": "json", "encoding": "utf8", "overwrite": True}
+            "dubizzle_edit.json": {"format": "json", "encoding": "utf8", "overwrite": True}
         },
         "COOKIES_ENABLED": True,
         "CONCURRENT_REQUESTS": 34,
@@ -63,7 +63,7 @@ class DubizzleEditSpider(Spider):
         self.link_no = 0;
 
 
-    
+
 
     def start_requests(self):
         self.logger.info(f"🚀 Starting edit crawl: {len(self.urls)} URLs to refresh")
@@ -122,7 +122,7 @@ class DubizzleEditSpider(Spider):
             "brand":              schema.get("brand"),
             "model":              schema.get("model"),
             "year":               to_int(schema.get("modelDate")),
-            
+
         })
 
         # — DataLayer overrides —

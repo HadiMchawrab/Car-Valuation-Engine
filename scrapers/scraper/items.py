@@ -27,14 +27,14 @@ class DubizzleItem(scrapy.Item):
     price                = scrapy.Field()
     currency             = scrapy.Field()  # “SAR”
     price_valid_until    = scrapy.Field()  # ISO timestamp from offers.priceValidUntil
-   
+
 
     # ——— Basic info & specs ———
     title                = scrapy.Field()
     brand                = scrapy.Field()
     model                = scrapy.Field()
     trim                 = scrapy.Field()
-    
+
     year                 = scrapy.Field()
     mileage              = scrapy.Field()  # from mileageFromOdometer.value
     mileage_unit         = scrapy.Field()  # from mileageFromOdometer.unitCode
@@ -56,7 +56,7 @@ class DubizzleItem(scrapy.Item):
     ownership_type       = scrapy.Field()  # “freehold” / “non-freehold”
 
     # ——— Price breakdown ———
-    
+
     price_type           = scrapy.Field()  # “price” / “rental”
 
     # ——— Seller & agency ———
@@ -98,4 +98,88 @@ class DubizzleItem(scrapy.Item):
     # ——— Timing ———
     post_date            = scrapy.Field()  # from JSON-LD or dataLayer
     date_scraped = scrapy.Field()
+
+class OpenSooqItem(scrapy.Item):
+
+    ad_id                = scrapy.Field()
+    url                  = scrapy.Field()
+    website              = scrapy.Field()
+    name                 = scrapy.Field()
+    title                = scrapy.Field()
+    price                = scrapy.Field()
+
+    currency                = scrapy.Field()
+    brand                  = scrapy.Field()
+    model              = scrapy.Field()
+    year                 = scrapy.Field()
+    trim                = scrapy.Field()
+
+    mileage                = scrapy.Field()
+    mileage_unit                  = scrapy.Field()
+    fuel_type              = scrapy.Field()
+    transmission_type                 = scrapy.Field()
+
+
+    condition                = scrapy.Field()
+    color                  = scrapy.Field()
+    location_city                = scrapy.Field()
+
+    location_region                = scrapy.Field()
+    image_url                  = scrapy.Field()
+
+
+    date_scraped                = scrapy.Field()
+
+    engine_size                 = scrapy.Field()
+    body_type            = scrapy.Field()
+    payment_method       = scrapy.Field()
+
+    seats                = scrapy.Field()
+    interior_color       = scrapy.Field()
+
+    source               = scrapy.Field()
+    paint_quality        = scrapy.Field()
+    body_condition       = scrapy.Field()
+    category             = scrapy.Field()
+    subcategory          = scrapy.Field()
+
+    interior_options     = scrapy.Field()
+    exterior_options     = scrapy.Field()
+    technology_options   = scrapy.Field()
+
+    description         = scrapy.Field()
+
+    seller              = scrapy.Field()
+    seller_type          = scrapy.Field()
+    seller_url           = scrapy.Field()
+    seller_id            = scrapy.Field()
+    is_shop               = scrapy.Field()
+    is_pro_buyer        = scrapy.Field()
+    seller_verified      = scrapy.Field()
+    rating_avg          = scrapy.Field()
+    number_of_ratings   = scrapy.Field()
+    seller_joined          = scrapy.Field()
+    response_time         = scrapy.Field()
+
+
+
+
+     # ——— Timing ———
+    post_date            = scrapy.Field()  # from JSON-LD or dataLayer
+    date_scraped         = scrapy.Field()
+
+    image_url            = scrapy.Field()  # first/thumb
+    number_of_images     = scrapy.Field()  # count of photos
+    has_video            = scrapy.Field()  # yes/no
+    has_panorama         = scrapy.Field()  # yes/no
+    price_valid_until    = scrapy.Field()  # ISO timestamp from serp['listings']['meta'][1]
+    listing_status       = scrapy.Field()
+    user_target_type = scrapy.Field() #Free/Sponsored
+    post_map      = scrapy.Field()
+
+
+
+
+
+
 

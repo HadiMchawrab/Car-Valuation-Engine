@@ -116,209 +116,6 @@ class ScraperDownloaderMiddleware:
         spider.logger.info("Spider opened: %s" % spider.name)
 
 
-# class ScrapeOpsHeaderMiddleware:
-#     def __init__(self):
-        
-        
-#         load_dotenv() 
-#         self.api_key = os.getenv("SCRAPEOPS_API_KEY")
-#         if not self.api_key:
-#             raise NotConfigured("Missing SCRAPEOPS_API_KEY in environment")
-#         self.endpoint = (
-#             f"http://headers.scrapeops.io/v1/browser-headers"
-#             f"?api_key={self.api_key}"
-#         )
-#         self.headers_list = []
-
-#     def _fetch_headers(self):
-#         resp = requests.get(self.endpoint)
-#         resp.raise_for_status()
-#         data = resp.json()
-#         self.headers_list = data.get("result", [])
-
-#     def process_request(self, request, spider):
-        
-#         if not self.headers_list:
-#             self._fetch_headers()
-       
-#         hdrs = random.choice(self.headers_list)
-#         for name, val in hdrs.items():
-#             request.headers[name] = val
-       
-#         return None
-
-#     def spider_opened(self, spider):
-#         spider.logger.info("ScrapeOpsHeaderMiddleware enabled")
-
-
-# class FreeProxyMiddleware:
-#     def __init__(self):
-#         self.proxies = []
-#         self.idx     = 0
-#         self.lock    = threading.Lock()
-#         self.enabled = True
-
-#     @classmethod
-#     def from_crawler(cls, crawler):
-#         mw = cls()
-#         crawler.signals.connect(mw.spider_opened, signal=signals.spider_opened)
-#         crawler.signals.connect(mw.spider_idle,  signal=signals.spider_idle)
-#         return mw
-
-#     def spider_opened(self, spider):
-#         # initial load
-#         self._refresh(spider)
-
-#     def spider_idle(self, spider):
-#         # every time the spider goes idle, kick off a 30m refresh if not already running
-#         # (this ensures a fresh list periodically)
-#         spider.logger.info("[FreeProxy] Spider idle—refreshing proxy list")
-#         self._refresh(spider)
-
-# def _refresh(self, spider, max_rows=1000):
-#     new_list = []
-#     sources = [
-#       "https://proxylist.geonode.com/api/proxy-list?limit=1000&page=1&sort_by=lastChecked&sort_type=desc",
-#       "https://api.proxyscrape.com/v2/?request=getproxies&protocol=http&timeout=10000&country=all",
-#       "https://www.proxy-list.download/api/v1/get?type=https"
-#     ]
-#     for url in sources:
-#         try:
-#             resp = requests.get(url, timeout=10)
-#             resp.raise_for_status()
-#             # JSON source
-#             if "json" in resp.headers.get("Content-Type", ""):
-#                 data = resp.json().get("data", [])
-#                 for e in data[:max_rows]:
-#                     ip, port = e["ip"], e["port"]
-#                     proto = "https" if "https" in e.get("protocols",[]) else "http"
-#                     new_list.append(f"{proto}://{ip}:{port}")
-#             else:
-#                 # plain-text list
-#                 for line in resp.text.splitlines()[:max_rows]:
-#                     line=line.strip()
-#                     if line:
-#                         if ":" in line:
-#                             proto="https" if url.endswith("type=https") else "http"
-#                             new_list.append(f"{proto}://{line}")
-#         except Exception as e:
-#             spider.logger.warning(f"[FreeProxy] source failed {url}: {e}")
-
-#     # dedupe
-#     with self.lock:
-#         self.proxies = list(dict.fromkeys(new_list))
-#         self.idx     = 0
-#     spider.logger.info(f"[FreeProxy] Total unique IPs: {len(self.proxies)}")
-
-
-#     def process_request(self, request, spider):
-#         with self.lock:
-#             if not self.proxies:
-#                 return
-#             proxy = self.proxies[self.idx]
-#             # round-robin index
-#             self.idx = (self.idx + 1) % len(self.proxies)
-
-#         spider.logger.debug(f"[FreeProxy] Using proxy #{self.idx}: {proxy}")
-#         request.meta["proxy"] = proxy
-
-#     def process_exception(self, request, exception, spider):
-#         # on any download exception, drop this proxy and retry
-#         if "proxy" in request.meta:
-#             bad = request.meta.pop("proxy")
-#             spider.logger.debug(f"[FreeProxy] Dropping bad proxy {bad}: {exception}")
-#         raise IgnoreRequest("Proxy failed, retrying")
-
-# class EmptyPageRetryMiddleware:
-#     def process_response(self, request, response, spider):
-#         if "/en/ad/" not in request.url:
-#             return response
-#         has_title = bool(response.xpath("//h1/text()").get())
-#         has_data  = b"dataLayer" in response.body
-#         if not (has_title and has_data):
-#             spider.logger.warning("Empty ad page—retrying: %s", request.url)
-#             raise IgnoreRequest("Stub page")
-#         return response
-# # class CloudflareProxyMiddleware:
-#     """
-#     Only rewrite individual ad URLs via Workers. Leave listing pages alone
-#     so pagination and offsite filtering still work normally.
-#     """
-#     def __init__(self, worker_urls):
-#         self.workers = worker_urls or []
-#         self.idx = 0
-
-#     @classmethod
-#     def from_crawler(cls, crawler):
-#         return cls(crawler.settings.getlist("CLOUDFLARE_WORKER_URLS"))
-
-#     def process_request(self, request, spider):
-#         # Only proxy ad details pages, not listing or pagination pages
-#         if "/en/ad/" not in request.url or not self.workers:
-#             return
-
-#         # pick next worker
-#         worker = self.workers[self.idx]
-#         self.idx = (self.idx + 1) % len(self.workers)
-
-#         # rebuild path+query
-#         parts = urllib.parse.urlsplit(request.url)
-#         path_qs = parts.path + (f"?{parts.query}" if parts.query else "")
-#         new_url = worker.rstrip("/") + path_qs
-
-#         spider.logger.debug(f"[CFProxy] {request.url} → {new_url}")
-#         return request.replace(url=new_url)
-
-# class EmptyPageRetryMiddleware:
-
-    # """
-    # Only retry “empty” stub pages on *ad* URLs.  Category pages will pass through.
-    # """
-    # def process_response(self, request, response, spider):
-    #     # only apply to individual ad URLs
-    #     if "/en/ad/" not in request.url:
-    #         return response
-
-    #     # now check for the two key markers of a valid *ad* page
-    #     has_title = bool(response.xpath("//h1/text()").get())
-    #     has_data  = b"dataLayer" in response.body
-    #     if not (has_title and has_data):
-    #         spider.logger.warning(
-    #             "Empty/stub ad page detected, dropping proxy & retrying: %s",
-    #             request.url
-    #         )
-    #         request.meta.pop("proxy", None)   # rotate free proxy next time
-    #         raise IgnoreRequest("Stub ad page")
-    #     return response
-
-
-# class SingleCookieMiddleware:
-#     """
-#     Force every request to share the same cookiejar ID (1),
-#     so cookies persist across retries & proxy switches.
-#     """
-#     def process_request(self, request, spider):
-#         request.meta['cookiejar'] = 1
-#         return None
-    
-
-# class BrowserHeaderMiddleware:
-#     def process_request(self, request, spider):
-#         # only apply to dubizzle requests
-#         if 'dubizzle.sa' in request.url:
-#             hdrs = {
-#                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-#                 'Accept-Language': 'en-US,en;q=0.5',
-#                 'Referer': 'https://www.dubizzle.sa/en/vehicles/cars-for-sale/',
-#             }
-#             for k, v in hdrs.items():
-#                 request.headers.setdefault(k, v)
-#         return None
-    
-
-
-
-
 class SingleCookieMiddleware:
     """Force every request to share the same cookiejar ID."""
     def process_request(self, request, spider):
@@ -501,10 +298,17 @@ class EmptyPageRetryMiddleware:
 
     def _should_retry(self, request, response):
         # only for detail pages
+
+
+        # if ad tag from spider not in request url
+
         if "/en/ad/" not in request.url:
             return False
 
         # stub detection
+
+        # check if it has title, and if has data (can be different fro different spiders)
+
         has_title = bool(response.xpath("//h1/text()").get())
         has_data  = b"dataLayer" in response.body
         if not (has_title and has_data):
@@ -578,8 +382,8 @@ class EmptyPageRetryMiddleware:
     LANGUAGES = [
         "en-US,en;q=0.9",
         "en-GB,en;q=0.8",
-        "ar-SA,ar;q=0.9,en;q=0.8",
-        "fr-FR,fr;q=0.9,en;q=0.8",
+        # "ar-SA,ar;q=0.9,en;q=0.8",
+        # "fr-FR,fr;q=0.9,en;q=0.8",
     ]
 
     def __init__(
@@ -876,212 +680,212 @@ class EmptyPageRetryMiddleware:
             meta={**request.meta, "stub_retry": retry}
         )
         return deferLater(reactor, delay, lambda: new_req)
-    
 
 
 
-class MixedHeadersRetryMiddleware:
-    """
-    1) On every request: rotate UA, Accept-Language, Referer.
-    2) On 401 or stub/5xx responses: backoff, drop proxy, set impersonate.
-    3) Retry indefinitely with jitter + human think delays.
-    """
 
-    # Browsers for scrapy-impersonate
-    BROWSERS = ["chrome110", "chrome119", "edge99", "firefox133", "safari15_5"]
-    # Accept-Language pool
-    LANGUAGES = ["en-US,en;q=0.9", "en-GB,en;q=0.8", "ar-SA,ar;q=0.9,en;q=0.8"]
-    # Base listing URL for fake Referer
-    BASE_LISTING = "https://www.dubizzle.sa/en/vehicles/cars-for-sale/"
+# class MixedHeadersRetryMiddleware:
+#     """
+#     1) On every request: rotate UA, Accept-Language, Referer.
+#     2) On 401 or stub/5xx responses: backoff, drop proxy, set impersonate.
+#     3) Retry indefinitely with jitter + human think delays.
+#     """
 
-    def __init__(
-        self,
-        base_delay=1.0,
-        max_delay=60.0,
-        jitter_factor=0.5,
-        think_chance=0.05,
-        think_min=0.1,
-        think_max=0.5
-    ):
-        self.ua = UserAgent()
-        self.base_delay    = base_delay
-        self.max_delay     = max_delay
-        self.jitter_factor = jitter_factor
-        self.think_chance  = think_chance
-        self.think_min     = think_min
-        self.think_max     = think_max
+#     # Browsers for scrapy-impersonate
+#     BROWSERS = ["chrome110", "chrome119", "edge99", "firefox133", "safari15_5"]
+#     # Accept-Language pool
+#     LANGUAGES = ["en-US,en;q=0.9", "en-GB,en;q=0.8", "ar-SA,ar;q=0.9,en;q=0.8"]
+#     # Base listing URL for fake Referer
+#     BASE_LISTING = "https://www.dubizzle.sa/en/vehicles/cars-for-sale/"
 
-    @classmethod
-    def from_crawler(cls, crawler):
-        return cls(
-            base_delay    = crawler.settings.getfloat("BACKOFF_BASE_DELAY",   1.0),
-            max_delay     = crawler.settings.getfloat("BACKOFF_MAX_DELAY",   60.0),
-            jitter_factor = crawler.settings.getfloat("BACKOFF_JITTER",      0.5),
-            think_chance  = crawler.settings.getfloat("HUMAN_THINK_CHANCE",  0.05),
-            think_min     = crawler.settings.getfloat("HUMAN_THINK_MIN",     0.1),
-            think_max     = crawler.settings.getfloat("HUMAN_THINK_MAX",     0.5),
-        )
+#     def __init__(
+#         self,
+#         base_delay=1.0,
+#         max_delay=60.0,
+#         jitter_factor=0.5,
+#         think_chance=0.05,
+#         think_min=0.1,
+#         think_max=0.5
+#     ):
+#         self.ua = UserAgent()
+#         self.base_delay    = base_delay
+#         self.max_delay     = max_delay
+#         self.jitter_factor = jitter_factor
+#         self.think_chance  = think_chance
+#         self.think_min     = think_min
+#         self.think_max     = think_max
 
-    def _compute_delay(self, retry):
-        d = min(self.max_delay, self.base_delay * (2 ** (retry - 1)))
-        jitter = random.uniform(-self.jitter_factor * d, self.jitter_factor * d)
-        return max(0, d + jitter)
+#     @classmethod
+#     def from_crawler(cls, crawler):
+#         return cls(
+#             base_delay    = crawler.settings.getfloat("BACKOFF_BASE_DELAY",   1.0),
+#             max_delay     = crawler.settings.getfloat("BACKOFF_MAX_DELAY",   60.0),
+#             jitter_factor = crawler.settings.getfloat("BACKOFF_JITTER",      0.5),
+#             think_chance  = crawler.settings.getfloat("HUMAN_THINK_CHANCE",  0.05),
+#             think_min     = crawler.settings.getfloat("HUMAN_THINK_MIN",     0.1),
+#             think_max     = crawler.settings.getfloat("HUMAN_THINK_MAX",     0.5),
+#         )
 
-    def process_request(self, request, spider):
-        """
-        Always rotate these on every request before download:
-        - User-Agent via fake_useragent
-        - Accept-Language
-        - Referer to a random page of the listing search
-        """
-        # 1) UA
-        ua = self.ua.random
-        request.headers["User-Agent"] = ua
+#     def _compute_delay(self, retry):
+#         d = min(self.max_delay, self.base_delay * (2 ** (retry - 1)))
+#         jitter = random.uniform(-self.jitter_factor * d, self.jitter_factor * d)
+#         return max(0, d + jitter)
 
-        # 2) Accept-Language
-        request.headers["Accept-Language"] = random.choice(self.LANGUAGES)
+#     def process_request(self, request, spider):
+#         """
+#         Always rotate these on every request before download:
+#         - User-Agent via fake_useragent
+#         - Accept-Language
+#         - Referer to a random page of the listing search
+#         """
+#         # 1) UA
+#         ua = self.ua.random
+#         request.headers["User-Agent"] = ua
 
-        # 3) Referer
-        page = random.randint(1, 10)
-        request.headers["Referer"] = f"{self.BASE_LISTING}?page={page}"
+#         # 2) Accept-Language
+#         request.headers["Accept-Language"] = random.choice(self.LANGUAGES)
 
-        spider.logger.debug(f"[Headers] UA={ua}, Lang={request.headers['Accept-Language']}, Ref={request.headers['Referer']}")
+#         # 3) Referer
+#         page = random.randint(1, 10)
+#         request.headers["Referer"] = f"{self.BASE_LISTING}?page={page}"
 
-        return None
+#         spider.logger.debug(f"[Headers] UA={ua}, Lang={request.headers['Accept-Language']}, Ref={request.headers['Referer']}")
 
-    def _should_retry(self, request, response):
-        # detail pages only
-        if "/en/ad/" not in request.url:
-            return False
-        # stub detection
-        has_title = bool(response.xpath("//h1/text()").get())
-        has_data  = b"dataLayer" in response.body
+#         return None
 
-        if not (has_title and has_data):
-            # exponential back-off counter
-            retry = request.meta.get("stub_retry", 0) + 1
-            # base delay * 2^(retry-1)
-            delay = min(self.max_delay, self.base_delay * (2 ** (retry - 1)))
-            # add random jitter up to ± jitter_factor * delay
-            jitter = random.uniform(-self.jitter_factor * delay, self.jitter_factor * delay)
-            delay = max(0, delay + jitter)
+#     def _should_retry(self, request, response):
+#         # detail pages only
+#         if "/en/ad/" not in request.url:
+#             return False
+#         # stub detection
+#         has_title = bool(response.xpath("//h1/text()").get())
+#         has_data  = b"dataLayer" in response.body
 
-            spider.logger.warning(
-                f"[EmptyPageRetry] Stub detected on {request.url} "
-                f"(retry #{retry}, delaying {delay:.1f}s)…"
-            )
+#         if not (has_title and has_data):
+#             # exponential back-off counter
+#             retry = request.meta.get("stub_retry", 0) + 1
+#             # base delay * 2^(retry-1)
+#             delay = min(self.max_delay, self.base_delay * (2 ** (retry - 1)))
+#             # add random jitter up to ± jitter_factor * delay
+#             jitter = random.uniform(-self.jitter_factor * delay, self.jitter_factor * delay)
+#             delay = max(0, delay + jitter)
 
-            # drop proxy if present
-            proxy = request.meta.pop("proxy", None)
-            if proxy and hasattr(spider, "free_proxy_middleware"):
-                spider.free_proxy_middleware.drop_proxy(proxy, spider)
+#             spider.logger.warning(
+#                 f"[EmptyPageRetry] Stub detected on {request.url} "
+#                 f"(retry #{retry}, delaying {delay:.1f}s)…"
+#             )
 
-            # schedule retry
-            new_req = request.replace(
-                dont_filter=True,
-                meta={**request.meta, "stub_retry": retry}
-            )
-            return deferLater(reactor, delay, lambda: new_req)
+#             # drop proxy if present
+#             proxy = request.meta.pop("proxy", None)
+#             if proxy and hasattr(spider, "free_proxy_middleware"):
+#                 spider.free_proxy_middleware.drop_proxy(proxy, spider)
 
-        # on success: optional human “think” delay
-        if "stub_retry" in request.meta:
-            spider.logger.debug(
-                f"[EmptyPageRetry] Success after {request.meta['stub_retry']} retries on {request.url}"
-            )
-        if random.random() < self.think_chance:
-            think = random.uniform(self.think_min, self.think_max)
-            spider.logger.debug(f"[Humanize] Thinking for {think:.2f}s before proceeding")
-            return deferLater(reactor, think, lambda: response)
+#             # schedule retry
+#             new_req = request.replace(
+#                 dont_filter=True,
+#                 meta={**request.meta, "stub_retry": retry}
+#             )
+#             return deferLater(reactor, delay, lambda: new_req)
 
-        return response
+#         # on success: optional human “think” delay
+#         if "stub_retry" in request.meta:
+#             spider.logger.debug(
+#                 f"[EmptyPageRetry] Success after {request.meta['stub_retry']} retries on {request.url}"
+#             )
+#         if random.random() < self.think_chance:
+#             think = random.uniform(self.think_min, self.think_max)
+#             spider.logger.debug(f"[Humanize] Thinking for {think:.2f}s before proceeding")
+#             return deferLater(reactor, think, lambda: response)
 
-    def process_exception(self, request, exception, spider):
-        # treat exceptions like stubs
-        retry = request.meta.get("stub_retry", 0) + 1
-        delay = min(self.max_delay, self.base_delay * (2 ** (retry - 1)))
-        jitter = random.uniform(-self.jitter_factor * delay, self.jitter_factor * delay)
-        delay = max(0, delay + jitter)
+#         return response
 
-        spider.logger.error(
-            f"[EmptyPageRetry] Exception {exception} on {request.url}; "
-            f"retry #{retry} in {delay:.1f}s"
-        )
-        new_req = request.replace(
-            dont_filter=True,
-            meta={**request.meta, "stub_retry": retry}
-        )
-        return deferLater(reactor, delay, lambda: new_req)
-    """
-    Detect stub ad pages (no <h1> or dataLayer), blacklist that proxy,
-    and retry the request with exponential back-off until the real page loads.
-    """
+#     def process_exception(self, request, exception, spider):
+#         # treat exceptions like stubs
+#         retry = request.meta.get("stub_retry", 0) + 1
+#         delay = min(self.max_delay, self.base_delay * (2 ** (retry - 1)))
+#         jitter = random.uniform(-self.jitter_factor * delay, self.jitter_factor * delay)
+#         delay = max(0, delay + jitter)
 
-    def __init__(self, base_delay=1.0, max_delay=60.0):
-        self.base_delay = base_delay
-        self.max_delay = max_delay
+#         spider.logger.error(
+#             f"[EmptyPageRetry] Exception {exception} on {request.url}; "
+#             f"retry #{retry} in {delay:.1f}s"
+#         )
+#         new_req = request.replace(
+#             dont_filter=True,
+#             meta={**request.meta, "stub_retry": retry}
+#         )
+#         return deferLater(reactor, delay, lambda: new_req)
+#     """
+#     Detect stub ad pages (no <h1> or dataLayer), blacklist that proxy,
+#     and retry the request with exponential back-off until the real page loads.
+#     """
 
-    @classmethod
-    def from_crawler(cls, crawler):
-        mw = cls(
-            base_delay=crawler.settings.getfloat("BACKOFF_BASE_DELAY", 1.0),
-            max_delay=crawler.settings.getfloat("BACKOFF_MAX_DELAY", 60.0),
-        )
-        return mw
+#     def __init__(self, base_delay=1.0, max_delay=60.0):
+#         self.base_delay = base_delay
+#         self.max_delay = max_delay
 
-    def process_response(self, request, response, spider):
-        # only re-try detail ad pages
-        if "/en/ad/" not in request.url:
-            return response
+#     @classmethod
+#     def from_crawler(cls, crawler):
+#         mw = cls(
+#             base_delay=crawler.settings.getfloat("BACKOFF_BASE_DELAY", 1.0),
+#             max_delay=crawler.settings.getfloat("BACKOFF_MAX_DELAY", 60.0),
+#         )
+#         return mw
 
-        has_title = bool(response.xpath("//h1/text()").get())
-        has_data  = b"dataLayer" in response.body
+#     def process_response(self, request, response, spider):
+#         # only re-try detail ad pages
+#         if "/en/ad/" not in request.url:
+#             return response
 
-        if not (has_title and has_data):
-            # exponential back-off counter
-            retry = request.meta.get("stub_retry", 0) + 1
-            delay = min(self.max_delay, self.base_delay * (2 ** (retry - 1)))
+#         has_title = bool(response.xpath("//h1/text()").get())
+#         has_data  = b"dataLayer" in response.body
 
-            spider.logger.warning(
-                f"[EmptyPageRetry] Stub detected: {request.url} "
-                f"(retry #{retry} in {delay:.1f}s), dropping proxy."
-            )
+#         if not (has_title and has_data):
+#             # exponential back-off counter
+#             retry = request.meta.get("stub_retry", 0) + 1
+#             delay = min(self.max_delay, self.base_delay * (2 ** (retry - 1)))
 
-            # drop the bad proxy from your free_proxy middleware
-            proxy = request.meta.pop("proxy", None)
-            if proxy and hasattr(spider, "free_proxy_middleware"):
-                spider.free_proxy_middleware.drop_proxy(proxy, spider)
+#             spider.logger.warning(
+#                 f"[EmptyPageRetry] Stub detected: {request.url} "
+#                 f"(retry #{retry} in {delay:.1f}s), dropping proxy."
+#             )
 
-            # schedule the retry after the delay
-            new_req = request.replace(
-                dont_filter=True,
-                meta={**request.meta, "stub_retry": retry}
-            )
-            return deferLater(reactor, delay, lambda: new_req)
+#             # drop the bad proxy from your free_proxy middleware
+#             proxy = request.meta.pop("proxy", None)
+#             if proxy and hasattr(spider, "free_proxy_middleware"):
+#                 spider.free_proxy_middleware.drop_proxy(proxy, spider)
 
-        # on success, clear the retry counter
-        if "stub_retry" in request.meta:
-            spider.logger.debug(
-                f"[EmptyPageRetry] Success after {request.meta['stub_retry']} retries on {request.url}"
-            )
+#             # schedule the retry after the delay
+#             new_req = request.replace(
+#                 dont_filter=True,
+#                 meta={**request.meta, "stub_retry": retry}
+#             )
+#             return deferLater(reactor, delay, lambda: new_req)
 
-        return response
+#         # on success, clear the retry counter
+#         if "stub_retry" in request.meta:
+#             spider.logger.debug(
+#                 f"[EmptyPageRetry] Success after {request.meta['stub_retry']} retries on {request.url}"
+#             )
 
-    def process_exception(self, request, exception, spider):
-        # treat network errors the same way
-        retry = request.meta.get("stub_retry", 0) + 1
-        delay = min(self.max_delay, self.base_delay * (2 ** (retry - 1)))
+#         return response
 
-        spider.logger.error(
-            f"[EmptyPageRetry] Exception {exception} on {request.url}; "
-            f"retry #{retry} in {delay:.1f}s"
-        )
+#     def process_exception(self, request, exception, spider):
+#         # treat network errors the same way
+#         retry = request.meta.get("stub_retry", 0) + 1
+#         delay = min(self.max_delay, self.base_delay * (2 ** (retry - 1)))
 
-        new_req = request.replace(
-            dont_filter=True,
-            meta={**request.meta, "stub_retry": retry}
-        )
-        return deferLater(reactor, delay, lambda: new_req)
-    
+#         spider.logger.error(
+#             f"[EmptyPageRetry] Exception {exception} on {request.url}; "
+#             f"retry #{retry} in {delay:.1f}s"
+#         )
+
+#         new_req = request.replace(
+#             dont_filter=True,
+#             meta={**request.meta, "stub_retry": retry}
+#         )
+#         return deferLater(reactor, delay, lambda: new_req)
+
 
 
 class MixedHeadersRetryMiddleware:
@@ -1105,6 +909,7 @@ class MixedHeadersRetryMiddleware:
         self.think_chance  = think_chance
         self.think_min     = think_min
         self.think_max     = think_max
+        self._mobile_indicators = ["Mobile", "Android", "iPhone", "iPad", "Tablet"]
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -1124,15 +929,19 @@ class MixedHeadersRetryMiddleware:
 
     def process_request(self, request, spider):
         # rotate UA
-        ua = self.ua.random
-        request.headers["User-Agent"] = ua
+         mobile_indicators = ["Mobile", "Android", "iPhone", "iPad", "Tablet"]
+     # keep re-picking until we get something without any mobile keywords
+         ua = self.ua.random
+         while any(mi in ua for mi in self._mobile_indicators):
+            ua = self.ua.random
+         request.headers["User-Agent"] = ua
         # rotate Accept-Language
-        request.headers["Accept-Language"] = random.choice(self.LANGUAGES)
+         request.headers["Accept-Language"] = random.choice(self.LANGUAGES)
         # rotate Referer
-        page = random.randint(1,10)
-        request.headers["Referer"] = f"{self.BASE_LISTING}?page={page}"
-        spider.logger.debug(f"[Headers] UA={ua}, AL={request.headers['Accept-Language']}, Ref={request.headers['Referer']}")
-        return None
+         page = random.randint(1,10)
+         request.headers["Referer"] = f"{self.BASE_LISTING}?page={page}"
+         spider.logger.debug(f"[Headers] UA={ua}, AL={request.headers['Accept-Language']}, Ref={request.headers['Referer']}")
+         return None
 
     def _should_retry(self, request, response):
         if "/en/ad/" not in request.url:

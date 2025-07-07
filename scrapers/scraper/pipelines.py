@@ -45,8 +45,44 @@ for key, var2code in master_map.items():
     flashtext_procs[key] = kp
     trim_codes[key]      = list(set(var2code.values()))
 
-class DubizzlePostgresPipeline:
-    """Reliable upsert pipeline: listings + dubizzle_details."""
+
+class BasePostgresPipeline:
+    """Generic Postgres pipeline for upserting into a shared `listings` table and an optional detail table."""
+    table = 'listings'
+    key_column = 'ad_id'
+
+    # Core listings schema: column name -> SQL type
+    core_schema = {
+        'ad_id':            'TEXT PRIMARY KEY',
+        'url':              'TEXT UNIQUE NOT NULL',
+        'website':          'TEXT NOT NULL',
+        'title':            'TEXT',
+        'price':            'NUMERIC',
+        'currency':         'TEXT',
+        'brand':            'TEXT',
+        'model':            'TEXT',
+        'year':             'INT',
+        'mileage':          'INT',
+        'mileage_unit':     'TEXT',
+        'fuel_type':        'TEXT',
+        'transmission_type':'TEXT',
+        'body_type':        'TEXT',
+        'condition':        'TEXT',
+        'color':            'TEXT',
+        'seller':           'TEXT',
+        'seller_type':      'TEXT',
+        'location_city':    'TEXT',
+        'location_region':  'TEXT',
+        'image_url':        'TEXT',
+        'number_of_images':'INT',
+        'post_date':        'TIMESTAMP',
+        'date_scraped':     'TIMESTAMP',
+        'trim':             'TEXT',
+    }
+
+    # Subclasses configure these
+    detail_table = None          # e.g. 'dubizzle_details'
+    detail_schema = None         # dict of detail columns -> SQL types
 
     def __init__(self, conn_params):
         self.conn_params = conn_params
@@ -55,166 +91,341 @@ class DubizzlePostgresPipeline:
     @classmethod
     def from_crawler(cls, crawler):
         params = dict(
-            host        = crawler.settings.get("POSTGRES_HOST"),
-            port        = crawler.settings.get("POSTGRES_PORT"),
-            dbname      = crawler.settings.get("POSTGRES_DB"),
-            user        = crawler.settings.get("POSTGRES_USER"),
-            password    = crawler.settings.get("POSTGRES_PASSWORD"),
-            sslmode     = crawler.settings.get("POSTGRES_SSLMODE"),
-            sslrootcert = crawler.settings.get("POSTGRES_SSLROOTCERT"),
+            host        = crawler.settings.get('POSTGRES_HOST'),
+            port        = crawler.settings.get('POSTGRES_PORT'),
+            dbname      = crawler.settings.get('POSTGRES_DB'),
+            user        = crawler.settings.get('POSTGRES_USER'),
+            password    = crawler.settings.get('POSTGRES_PASSWORD'),
+            sslmode     = crawler.settings.get('POSTGRES_SSLMODE'),
+            sslrootcert = crawler.settings.get('POSTGRES_SSLROOTCERT'),
         )
         if not all(params.values()):
-            raise NotConfigured("Postgres settings incomplete")
+            raise NotConfigured(f"{cls.__name__}: incomplete Postgres settings")
         return cls(params)
 
     def open_spider(self, spider):
-        try:
-            self.conn = psycopg2.connect(**self.conn_params)
-            self.conn.autocommit = True
-        except psycopg2.OperationalError as e:
-            spider.logger.error("Postgres connect error: %s", e)
-            raise
+        # Establish connection
+        self.conn = psycopg2.connect(**self.conn_params)
+        self.conn.autocommit = True
 
+        # Ensure tables exist with correct types
         with self.conn.cursor() as cur:
-            # Core listings table
-            cur.execute("""
-            CREATE TABLE IF NOT EXISTS listings (
-              ad_id             TEXT PRIMARY KEY,
-              url               TEXT UNIQUE NOT NULL,
-              website           TEXT NOT NULL,
-              title             TEXT,
-              price             NUMERIC,
-              currency          TEXT,
-              brand             TEXT,
-              model             TEXT,
-              year              INT,
-              mileage           INT,
-              mileage_unit      TEXT,
-              fuel_type         TEXT,
-              transmission_type TEXT,
-              body_type         TEXT,
-              condition         TEXT,
-              color             TEXT,
-              seller            TEXT,
-              seller_type       TEXT,
-              location_city     TEXT,
-              location_region   TEXT,
-              image_url         TEXT,
-              number_of_images  INT,
-              post_date         TIMESTAMP,
-              date_scraped      TIMESTAMP,
-              trim              TEXT
+            # Create shared listings table
+            core_cols = ",\n  ".join(f"{col} {typ}" for col, typ in self.core_schema.items())
+            cur.execute(f"""
+            CREATE TABLE IF NOT EXISTS {self.table} (
+              {core_cols}
             );
             """)
-            # Dubizzle‐specific details
-            cur.execute("""
-            CREATE TABLE IF NOT EXISTS dubizzle_details (
-              ad_id             TEXT PRIMARY KEY REFERENCES listings(ad_id) ON DELETE CASCADE,
-              name              TEXT,
-              sku               TEXT,
-              description       TEXT,
-              image_urls        TEXT,
-              price_valid_until TIMESTAMP,
-              business_function TEXT,
-              new_used          TEXT,
-              kilometers        INT,
-              doors             INT,
-              seats             INT,
-              owners            INT,
-              interior          TEXT,
-              air_con           TEXT,
-              ownership_type    TEXT,
-              cost              NUMERIC,
-              vat_amount        NUMERIC,
-              price_type        TEXT,
-              seller_verified   BOOLEAN,
-              seller_id         TEXT,
-              agency_id         TEXT,
-              agency_name       TEXT,
-              is_agent          BOOLEAN,
-              loc_id            TEXT,
-              loc_name          TEXT,
-              loc_breadcrumb    TEXT,
-              loc_1_id          TEXT,
-              loc_1_name        TEXT,
-              loc_2_id          TEXT,
-              loc_2_name        TEXT,
-              category_1_id     INT,
-              category_1_name   TEXT,
-              category_2_id     INT,
-              category_2_name   TEXT,
-              page_type         TEXT,
-              website_section   TEXT,
-              has_video         BOOLEAN,
-              has_panorama      BOOLEAN,
-              deliverable       BOOLEAN,
-              delivery_option   TEXT
-            );
-            """)
-        spider.logger.info("DubizzlePostgresPipeline opened and tables ensured.")
+
+            # Create detail table if provided
+            if self.detail_table and self.detail_schema:
+                detail_cols = ",\n  ".join(f"{col} {typ}" for col, typ in self.detail_schema.items())
+                cur.execute(f"""
+                CREATE TABLE IF NOT EXISTS {self.detail_table} (
+                  {detail_cols}
+                );
+                """)
+
+        spider.logger.info(f"{self.__class__.__name__}: ready (tables ensured).")
 
     def close_spider(self, spider):
         if self.conn:
             self.conn.close()
-            spider.logger.info("Postgres connection closed.")
+            spider.logger.info(f"{self.__class__.__name__}: connection closed.")
 
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
 
-        # 1) Build core dict
-        core_fields = [
-            "ad_id","url","website","title","price","currency","brand","model","year",
-            "mileage","mileage_unit","fuel_type","transmission_type","body_type",
-            "condition","color","seller","seller_type","location_city","location_region",
-            "image_url","number_of_images","post_date", "date_scraped", "trim"
-        ]
-        core = { f: adapter.get(f) or (spider.name if f=="website" else None) for f in core_fields }
+        # Build main data dict
+        main_cols = list(self.core_schema.keys())
+        main_data = {col: adapter.get(col) for col in main_cols}
 
-        # 2) Build details dict
-        detail_fields = [
-            "ad_id","name","sku","description","image_urls","price_valid_until",
-            "business_function","new_used","kilometers","doors","seats","owners",
-            "interior","air_con","ownership_type","cost","vat_amount","price_type",
-            "seller_verified","seller_id","agency_id","agency_name","is_agent",
-            "loc_id","loc_name","loc_breadcrumb","loc_1_id","loc_1_name",
-            "loc_2_id","loc_2_name","category_1_id","category_1_name",
-            "category_2_id","category_2_name","page_type","website_section",
-            "has_video","has_panorama","deliverable","delivery_option"
-        ]
-        details = { f: adapter.get(f) for f in detail_fields }
+        # Build detail data dict (if any)
+        if self.detail_table and self.detail_schema:
+            detail_cols = list(self.detail_schema.keys())
+            detail_data = {col: adapter.get(col) for col in detail_cols}
+        else:
+            detail_cols = detail_data = None
 
-        placeholders_core   = ", ".join(f"%({f})s" for f in core_fields)
-        columns_core        = ", ".join(core_fields)
-        update_core_clause  = ", ".join(f"{f}=EXCLUDED.{f}" for f in core_fields if f!="ad_id")
+        # Helper to create upsert SQL
+        def build_upsert(table, cols):
+            cols_list  = ", ".join(cols)
+            vals_list  = ", ".join(f"%({c})s" for c in cols)
+            upd_clause = ", ".join(f"{c}=EXCLUDED.{c}" for c in cols if c != self.key_column)
+            return f"""
+            INSERT INTO {table} ({cols_list})
+            VALUES ({vals_list})
+            ON CONFLICT ({self.key_column}) DO UPDATE
+              SET {upd_clause};
+            """
 
-        placeholders_det    = ", ".join(f"%({f})s" for f in detail_fields)
-        columns_det         = ", ".join(detail_fields)
-        update_det_clause   = ", ".join(f"{f}=EXCLUDED.{f}" for f in detail_fields if f!="ad_id")
+        sql_main = build_upsert(self.table, main_cols)
+        sql_det  = build_upsert(self.detail_table, detail_cols) if detail_cols else None
 
-        upsert_core_sql = f"""
-            INSERT INTO listings ({columns_core})
-            VALUES ({placeholders_core})
-            ON CONFLICT (ad_id) DO UPDATE
-              SET {update_core_clause};
-        """
-
-        upsert_det_sql = f"""
-            INSERT INTO dubizzle_details ({columns_det})
-            VALUES ({placeholders_det})
-            ON CONFLICT (ad_id) DO UPDATE
-              SET {update_det_clause};
-        """
-
-        try:
-            with self.conn.cursor() as cur:
-                cur.execute(upsert_core_sql, core)
-                spider.logger.debug(f"[DB] Upserted listings.ad_id={core['ad_id']}")
-                cur.execute(upsert_det_sql, details)
-                spider.logger.debug(f"[DB] Upserted dubizzle_details.ad_id={core['ad_id']}")
-        except Exception as e:
-            spider.logger.error(f"Failed to upsert item {core.get('ad_id')}: {e}")
+        # Execute upserts
+        with self.conn.cursor() as cur:
+            cur.execute(sql_main, main_data)
+            spider.logger.debug(f"[DB] upsert {self.table}.{main_data[self.key_column]}")
+            if sql_det:
+                cur.execute(sql_det, detail_data)
+                spider.logger.debug(f"[DB] upsert {self.detail_table}.{detail_data[self.key_column]}")
 
         return item
+
+
+class DubizzlePostgresPipeline(BasePostgresPipeline):
+    detail_table = 'dubizzle_details'
+    detail_schema = {
+        'ad_id':            'TEXT PRIMARY KEY REFERENCES listings(ad_id) ON DELETE CASCADE',
+        'name':             'TEXT',
+        'sku':              'TEXT',
+        'description':      'TEXT',
+        'image_urls':       'TEXT',
+        'price_valid_until':'TIMESTAMP',
+        'business_function':'TEXT',
+        'new_used':         'TEXT',
+        'kilometers':       'INT',
+        'doors':            'INT',
+        'seats':            'INT',
+        'owners':           'INT',
+        'interior':         'TEXT',
+        'air_con':          'TEXT',
+        'ownership_type':   'TEXT',
+        'cost':             'NUMERIC',
+        'vat_amount':       'NUMERIC',
+        'price_type':       'TEXT',
+        'seller_verified':  'BOOLEAN',
+        'seller_id':        'TEXT',
+        'agency_id':        'TEXT',
+        'agency_name':      'TEXT',
+        'is_agent':         'BOOLEAN',
+        'loc_id':           'TEXT',
+        'loc_name':         'TEXT',
+        'loc_breadcrumb':   'TEXT',
+        'loc_1_id':         'TEXT',
+        'loc_1_name':       'TEXT',
+        'loc_2_id':         'TEXT',
+        'loc_2_name':       'TEXT',
+        'category_1_id':    'INT',
+        'category_1_name':  'TEXT',
+        'category_2_id':    'INT',
+        'category_2_name':  'TEXT',
+        'page_type':        'TEXT',
+        'website_section':  'TEXT',
+        'has_video':        'BOOLEAN',
+        'has_panorama':     'BOOLEAN',
+        'deliverable':      'BOOLEAN',
+        'delivery_option':  'TEXT',
+    }
+
+
+class OpenSooqPostgresPipeline(BasePostgresPipeline):
+    detail_table = 'opensooq_details'
+    detail_schema = {
+        'ad_id':             'TEXT PRIMARY KEY REFERENCES listings(ad_id) ON DELETE CASCADE',
+        'name':              'TEXT',
+        'description':       'TEXT',
+        'engine_size':       'TEXT',
+        'body_type':         'TEXT',
+        'payment_method':    'TEXT',
+        'seats':             'INT',
+        'interior_color':    'TEXT',
+        'source':            'TEXT',
+        'paint_quality':     'TEXT',
+        'body_condition':    'TEXT',
+        'category':          'TEXT',
+        'subcategory':       'TEXT',
+        'interior_options':  'TEXT',
+        'exterior_options':  'TEXT',
+        'technology_options':'TEXT',
+        'seller_url':        'TEXT',
+        'seller_id':         'TEXT',
+        'is_shop':           'BOOLEAN',
+        'is_pro_buyer':      'BOOLEAN',
+        'seller_verified':   'BOOLEAN',
+        'rating_avg':        'NUMERIC',
+        'number_of_ratings': 'INT',
+        'seller_joined':     'TIMESTAMP',
+        'response_time':     'TEXT',
+        'has_video':         'BOOLEAN',
+        'has_panorama':      'BOOLEAN',
+        'price_valid_until': 'TIMESTAMP',
+        'listing_status':    'TEXT',
+        'user_target_type':  'TEXT',
+        'post_map': 'JSONB'
+    }
+
+# class DubizzlePostgresPipeline:
+#     """Reliable upsert pipeline: listings + dubizzle_details."""
+
+#     def __init__(self, conn_params):
+#         self.conn_params = conn_params
+#         self.conn = None
+
+#     @classmethod
+#     def from_crawler(cls, crawler):
+#         params = dict(
+#             host        = crawler.settings.get("POSTGRES_HOST"),
+#             port        = crawler.settings.get("POSTGRES_PORT"),
+#             dbname      = crawler.settings.get("POSTGRES_DB"),
+#             user        = crawler.settings.get("POSTGRES_USER"),
+#             password    = crawler.settings.get("POSTGRES_PASSWORD"),
+#             sslmode     = crawler.settings.get("POSTGRES_SSLMODE"),
+#             sslrootcert = crawler.settings.get("POSTGRES_SSLROOTCERT"),
+#         )
+#         if not all(params.values()):
+#             raise NotConfigured("Postgres settings incomplete")
+#         return cls(params)
+
+#     def open_spider(self, spider):
+#         try:
+#             self.conn = psycopg2.connect(**self.conn_params)
+#             self.conn.autocommit = True
+#         except psycopg2.OperationalError as e:
+#             spider.logger.error("Postgres connect error: %s", e)
+#             raise
+
+#         with self.conn.cursor() as cur:
+#             # Core listings table
+#             cur.execute("""
+#             CREATE TABLE IF NOT EXISTS listings (
+#               ad_id             TEXT PRIMARY KEY,
+#               url               TEXT UNIQUE NOT NULL,
+#               website           TEXT NOT NULL,
+#               title             TEXT,
+#               price             NUMERIC,
+#               currency          TEXT,
+#               brand             TEXT,
+#               model             TEXT,
+#               year              INT,
+#               mileage           INT,
+#               mileage_unit      TEXT,
+#               fuel_type         TEXT,
+#               transmission_type TEXT,
+#               body_type         TEXT,
+#               condition         TEXT,
+#               color             TEXT,
+#               seller            TEXT,
+#               seller_type       TEXT,
+#               location_city     TEXT,
+#               location_region   TEXT,
+#               image_url         TEXT,
+#               number_of_images  INT,
+#               post_date         TIMESTAMP,
+#               date_scraped      TIMESTAMP,
+#               trim              TEXT
+#             );
+#             """)
+#             # Dubizzle‐specific details
+#             cur.execute("""
+#             CREATE TABLE IF NOT EXISTS dubizzle_details (
+#               ad_id             TEXT PRIMARY KEY REFERENCES listings(ad_id) ON DELETE CASCADE,
+#               name              TEXT,
+#               sku               TEXT,
+#               description       TEXT,
+#               image_urls        TEXT,
+#               price_valid_until TIMESTAMP,
+#               business_function TEXT,
+#               new_used          TEXT,
+#               kilometers        INT,
+#               doors             INT,
+#               seats             INT,
+#               owners            INT,
+#               interior          TEXT,
+#               air_con           TEXT,
+#               ownership_type    TEXT,
+#               cost              NUMERIC,
+#               vat_amount        NUMERIC,
+#               price_type        TEXT,
+#               seller_verified   BOOLEAN,
+#               seller_id         TEXT,
+#               agency_id         TEXT,
+#               agency_name       TEXT,
+#               is_agent          BOOLEAN,
+#               loc_id            TEXT,
+#               loc_name          TEXT,
+#               loc_breadcrumb    TEXT,
+#               loc_1_id          TEXT,
+#               loc_1_name        TEXT,
+#               loc_2_id          TEXT,
+#               loc_2_name        TEXT,
+#               category_1_id     INT,
+#               category_1_name   TEXT,
+#               category_2_id     INT,
+#               category_2_name   TEXT,
+#               page_type         TEXT,
+#               website_section   TEXT,
+#               has_video         BOOLEAN,
+#               has_panorama      BOOLEAN,
+#               deliverable       BOOLEAN,
+#               delivery_option   TEXT
+#             );
+#             """)
+#         spider.logger.info("DubizzlePostgresPipeline opened and tables ensured.")
+
+#     def close_spider(self, spider):
+#         if self.conn:
+#             self.conn.close()
+#             spider.logger.info("Postgres connection closed.")
+
+#     def process_item(self, item, spider):
+#         adapter = ItemAdapter(item)
+
+#         # 1) Build core dict
+#         core_fields = [
+#             "ad_id","url","website","title","price","currency","brand","model","year",
+#             "mileage","mileage_unit","fuel_type","transmission_type","body_type",
+#             "condition","color","seller","seller_type","location_city","location_region",
+#             "image_url","number_of_images","post_date", "date_scraped", "trim"
+#         ]
+#         core = { f: adapter.get(f) or (spider.name if f=="website" else None) for f in core_fields }
+
+#         # 2) Build details dict
+#         detail_fields = [
+#             "ad_id","name","sku","description","image_urls","price_valid_until",
+#             "business_function","new_used","kilometers","doors","seats","owners",
+#             "interior","air_con","ownership_type","cost","vat_amount","price_type",
+#             "seller_verified","seller_id","agency_id","agency_name","is_agent",
+#             "loc_id","loc_name","loc_breadcrumb","loc_1_id","loc_1_name",
+#             "loc_2_id","loc_2_name","category_1_id","category_1_name",
+#             "category_2_id","category_2_name","page_type","website_section",
+#             "has_video","has_panorama","deliverable","delivery_option"
+#         ]
+#         details = { f: adapter.get(f) for f in detail_fields }
+
+#         placeholders_core   = ", ".join(f"%({f})s" for f in core_fields)
+#         columns_core        = ", ".join(core_fields)
+#         update_core_clause  = ", ".join(f"{f}=EXCLUDED.{f}" for f in core_fields if f!="ad_id")
+
+#         placeholders_det    = ", ".join(f"%({f})s" for f in detail_fields)
+#         columns_det         = ", ".join(detail_fields)
+#         update_det_clause   = ", ".join(f"{f}=EXCLUDED.{f}" for f in detail_fields if f!="ad_id")
+
+#         upsert_core_sql = f"""
+#             INSERT INTO listings ({columns_core})
+#             VALUES ({placeholders_core})
+#             ON CONFLICT (ad_id) DO UPDATE
+#               SET {update_core_clause};
+#         """
+
+#         upsert_det_sql = f"""
+#             INSERT INTO dubizzle_details ({columns_det})
+#             VALUES ({placeholders_det})
+#             ON CONFLICT (ad_id) DO UPDATE
+#               SET {update_det_clause};
+#         """
+
+#         try:
+#             with self.conn.cursor() as cur:
+#                 cur.execute(upsert_core_sql, core)
+#                 spider.logger.debug(f"[DB] Upserted listings.ad_id={core['ad_id']}")
+#                 cur.execute(upsert_det_sql, details)
+#                 spider.logger.debug(f"[DB] Upserted dubizzle_details.ad_id={core['ad_id']}")
+#         except Exception as e:
+#             spider.logger.error(f"Failed to upsert item {core.get('ad_id')}: {e}")
+
+#         return item
 
 
 logger = logging.getLogger(__name__)
@@ -261,11 +472,11 @@ class LoadSeenIDsPipeline:
 
     def close_spider(self, spider):
         spider.logger.info("🔒 LoadSeenIDsPipeline closed")
-        
-        
+
+
 class LoadAllURLsPipeline:
-    
-    
+
+
     def __init__(self, host, port, dbname, user, password, sslmode, sslrootcert):
         self.db_args = dict(
             host     = host,
@@ -293,7 +504,7 @@ class LoadAllURLsPipeline:
         #crawler.signals.connect(pipeline.close_spider, signal=signals.spider_closed)
         logger.info("🔧 LoadSeenURLsPipeline initialized")
         return pipeline
-    
+
 
     def open_spider(self, spider):
         spider.logger.info("🔄 Loading seen URLs from Postgres…")
