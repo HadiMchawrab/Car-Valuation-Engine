@@ -300,7 +300,10 @@ const ListingsPage = () => {
           </div>
           
           {loading ? (
-            <div className="loading">Loading...</div>
+            <div className="loading-spinner-container">
+              <div className="loading-spinner"></div>
+              <div className="loading-message">Loading listings...</div>
+            </div>
           ) : error ? (
             <div className="error">{error}</div>
           ) : (

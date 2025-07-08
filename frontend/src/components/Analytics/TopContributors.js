@@ -101,10 +101,12 @@ const TopContributors = ({ filters }) => {
               </div>
               
               <div className="contributor-info">
-                <h3 className="contributor-name">
+                <span className="contributor-name-small">
                   {contributor.seller_name}
-                </h3>
-                
+                </span>
+                {contributor.website && (
+                  <div className="contributor-website">{contributor.website}</div>
+                )}
                 <div className="contributor-type">
                   {contributor.contributor_type === 'agency' ? 'Agency' : 'Individual Seller'}
                 </div>
@@ -126,4 +128,4 @@ const TopContributors = ({ filters }) => {
   );
 };
 
-export default TopContributors;
+export default TopContributors; 

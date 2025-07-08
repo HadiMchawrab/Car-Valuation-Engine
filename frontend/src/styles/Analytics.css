@@ -17,6 +17,7 @@
   border-radius: 20px;
   color: white;
   box-shadow: 0 8px 32px rgba(74, 222, 128, 0.3);
+  font-family: 'Poppins', sans-serif !important;
 }
 
 .analytics-header h1 {
@@ -24,9 +25,9 @@
   font-weight: 900;
   color: #111;
   margin-bottom: 10px;
-  display: flex;
-  align-items: center;
   gap: 18px;
+  text-align: center;
+  font-family: 'Poppins', sans-serif !important;
 }
 
 .analytics-subtitle {
@@ -34,6 +35,8 @@
   font-size: 1.2rem;
   font-weight: 500;
   margin-top: 8px;
+  text-align: center;
+  font-family: 'Poppins', sans-serif !important;
 }
 
 /* Analytics Navigation Styles */
@@ -211,9 +214,64 @@
   transform: translateY(-2px);
 }
 
+.website-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0 1rem 0;
+  padding-left: 1rem;
+}
 
+.website-filter-bar label {
+  font-weight: 500;
+  margin-right: 0.5rem;
+  color: #fff;
+}
 
-/* Responsive design */
+.website-filter-bar select {
+  padding: 0.4rem 1.2rem 0.4rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #23233a;
+  color: #fff;
+  font-size: 1rem;
+  min-width: 160px;
+}
+
+.website-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-left: 1rem;
+}
+
+.website-chip {
+  display: flex;
+  align-items: center;
+  background: #2e2e4d;
+  color: #fff;
+  border-radius: 16px;
+  padding: 0.25rem 0.75rem 0.25rem 0.75rem;
+  font-size: 0.98rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  margin-right: 0.2rem;
+  margin-bottom: 0.2rem;
+}
+
+.chip-remove {
+  background: none;
+  border: none;
+  color: #ff6b81;
+  font-size: 1.1rem;
+  margin-left: 0.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.chip-remove:hover, .chip-remove:focus {
+  color: #ff2e4d;
+}
+
 @media (max-width: 1024px) {
   .analytics-container {
     flex-direction: column;
@@ -281,5 +339,17 @@
   .nav-btn {
     width: 100%;
     text-align: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .website-filter-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding-left: 0;
+  }
+  .website-chips {
+    margin-left: 0;
   }
 }

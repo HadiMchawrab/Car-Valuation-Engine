@@ -433,4 +433,7 @@
   }
 }
 
-
+/* Remove custom website filter bar/chip styles for website filter at the top */
+.improved-website-bar, .website-multiselect, .website-chips, .website-chip, .chip-remove {
+  display: none !important;
+}

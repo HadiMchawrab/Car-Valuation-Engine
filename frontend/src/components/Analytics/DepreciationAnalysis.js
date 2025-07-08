@@ -35,6 +35,9 @@ const DepreciationAnalysis = () => {
   const [depreciationData, setDepreciationData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [websiteOptions, setWebsiteOptions] = useState([]);
+  const [selectedWebsites, setSelectedWebsites] = useState([]);
+  const [dropdownValue, setDropdownValue] = useState('');
 
   // Fetch makes on component mount
   useEffect(() => {
@@ -61,14 +64,29 @@ const DepreciationAnalysis = () => {
     }
   }, [selectedMake, selectedModel]);
 
-  // Fetch depreciation data when make, model, and trim are selected
+  // Fetch website options on mount
+  useEffect(() => {
+    const fetchWebsites = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/websites`);
+        if (!response.ok) throw new Error('Failed to fetch website options');
+        const data = await response.json();
+        setWebsiteOptions(data);
+      } catch (err) {
+        setWebsiteOptions([]);
+      }
+    };
+    fetchWebsites();
+  }, []);
+
+  // Fetch depreciation data when make, model, trim, or websites change
   useEffect(() => {
     if (selectedMake && selectedModel) {
-      fetchDepreciationData(selectedMake, selectedModel, selectedTrim);
+      fetchDepreciationData(selectedMake, selectedModel, selectedTrim, selectedWebsites);
     } else {
       setDepreciationData(null);
     }
-  }, [selectedMake, selectedModel, selectedTrim]);
+  }, [selectedMake, selectedModel, selectedTrim, selectedWebsites]);
 
   const fetchMakes = async () => {
     try {
@@ -106,7 +124,7 @@ const DepreciationAnalysis = () => {
     }
   };
 
-  const fetchDepreciationData = async (make, model, trim = '') => {
+  const fetchDepreciationData = async (make, model, trim = '', websites = []) => {
     setLoading(true);
     setError(null);
     setDepreciationData(null); // Clear previous data immediately
@@ -115,6 +133,9 @@ const DepreciationAnalysis = () => {
       let url = `${API_BASE_URL}/api/analytics/depreciation?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
       if (trim && trim.trim() !== '') {
         url += `&trim=${encodeURIComponent(trim)}`;
+      }
+      if (websites && websites.length > 0) {
+        url += `&websites=${encodeURIComponent(websites.join(','))}`;
       }
       
       const response = await fetch(url);
@@ -200,6 +221,53 @@ const DepreciationAnalysis = () => {
     },
   };
 
+  const handleDropdownChange = (e) => {
+    const value = e.target.value;
+    if (value === 'ALL') {
+      setSelectedWebsites([]);
+      setDropdownValue('');
+    } else if (value) {
+      let newWebsites = selectedWebsites ? [...selectedWebsites] : [];
+      if (!newWebsites.includes(value)) {
+        newWebsites.push(value);
+      }
+      setSelectedWebsites(newWebsites);
+      setDropdownValue('');
+    }
+  };
+
+  const handleRemoveWebsite = (site) => {
+    if (site === 'ALL') {
+      setSelectedWebsites([]);
+    } else {
+      const newWebsites = (selectedWebsites || []).filter(w => w !== site);
+      setSelectedWebsites(newWebsites);
+    }
+  };
+
+  const renderWebsiteChips = () => {
+    if (!selectedWebsites || selectedWebsites.length === 0) {
+      return (
+        <div className="website-chips">
+          <span className="website-chip">
+            All Websites
+            <button className="chip-remove" onClick={() => handleRemoveWebsite('ALL')}>×</button>
+          </span>
+        </div>
+      );
+    }
+    return (
+      <div className="website-chips">
+        {selectedWebsites.map(site => (
+          <span className="website-chip" key={site}>
+            {site}
+            <button className="chip-remove" onClick={() => handleRemoveWebsite(site)}>×</button>
+          </span>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="depreciation-analysis">
       <div className="analysis-header">
@@ -262,6 +330,22 @@ const DepreciationAnalysis = () => {
               <option key={trim} value={trim}>{trim}</option>
             ))}
           </select>
+        </div>
+
+        <div className="website-filter-bar">
+          <label htmlFor="website-select">Website:</label>
+          <select
+            id="website-select"
+            value={dropdownValue}
+            onChange={handleDropdownChange}
+          >
+            <option value="" disabled>Select website...</option>
+            <option value="ALL">All Websites</option>
+            {websiteOptions.filter(site => !selectedWebsites || !selectedWebsites.includes(site)).map(site => (
+              <option key={site} value={site}>{site}</option>
+            ))}
+          </select>
+          {renderWebsiteChips()}
         </div>
       </div>
 

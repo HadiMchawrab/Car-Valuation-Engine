@@ -20,7 +20,9 @@ async def get_analytics_stats(filters: Dict[str, Any] = None):
         base_conditions = []
         params = []
         if filters:
-            filter_result = build_search_filters(filters)
+            # Convert dict to ListingSearch for attribute access
+            search_obj = ListingSearch(**filters)
+            filter_result = build_search_filters(search_obj)
             if filter_result[0]:
                 base_conditions.extend(filter_result[0])
                 params.extend(filter_result[1])
@@ -216,15 +218,19 @@ def get_contributor_details(seller_identifier: str):
         conn.close()
 
 @router.get("/depreciation")
-def get_depreciation_analysis(make: str = Query(...), model: str = Query(...), trim: str = Query(None)):
-    """Get depreciation analysis for a specific make and model with optional trim"""
+def get_depreciation_analysis(
+    make: str = Query(...),
+    model: str = Query(...),
+    trim: str = Query(None),
+    websites: str = Query(None, description="Comma-separated list of websites to filter by")
+):
+    """Get depreciation analysis for a specific make and model with optional trim and websites"""
     conn = get_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
     try:
         cur = conn.cursor()
-        
-        # Build the WHERE clause with optional trim filter
+        # Build the WHERE clause with optional trim and websites filter
         where_conditions = [
             "brand ILIKE %s",
             "model ILIKE %s",
@@ -233,16 +239,16 @@ def get_depreciation_analysis(make: str = Query(...), model: str = Query(...), t
             "year IS NOT NULL"
         ]
         params = [f"%{make}%", f"%{model}%"]
-        
         if trim and trim.strip():
             where_conditions.append("trim ILIKE %s")
             params.append(f"%{trim}%")
-        
+        if websites:
+            website_list = [w.strip() for w in websites.split(",") if w.strip()]
+            if website_list:
+                where_conditions.append("(" + " OR ".join(["website ILIKE %s"] * len(website_list)) + ")")
+                params.extend([f"%{w}%" for w in website_list])
         where_clause = " AND ".join(where_conditions)
-        
-        # Adjust minimum threshold based on whether trim filter is applied
         min_listings = 1 if trim and trim.strip() else 3
-        
         yearly_query = f"""
         SELECT 
             year,
@@ -253,7 +259,7 @@ def get_depreciation_analysis(make: str = Query(...), model: str = Query(...), t
         FROM listings 
         WHERE {where_clause}
         GROUP BY year
-        HAVING COUNT(*) >= {min_listings}  -- At least {min_listings} listings per year for meaningful average
+        HAVING COUNT(*) >= {min_listings}
         ORDER BY year
         """
         cur.execute(yearly_query, tuple(params))
@@ -268,7 +274,7 @@ def get_depreciation_analysis(make: str = Query(...), model: str = Query(...), t
         if len(prices) < 2:
             raise HTTPException(status_code=400, detail="Insufficient data for depreciation analysis")
         highest_price = max(prices)
-        current_price = prices[-1]  # Most recent year
+        current_price = prices[-1]
         oldest_year = years[0]
         newest_year = years[-1]
         total_depreciation = ((highest_price - current_price) / highest_price) * 100 if highest_price > 0 else 0
@@ -296,15 +302,19 @@ def get_depreciation_analysis(make: str = Query(...), model: str = Query(...), t
         conn.close()
 
 @router.get("/price-spread")
-def get_price_spread_analysis(make: str = Query(...), model: str = Query(...), year: int = Query(...), trim: str = Query(None)):
-    """Get price spread analysis for a specific make, model, year with optional trim"""
+def get_price_spread_analysis(
+    make: str = Query(...),
+    model: str = Query(...),
+    year: int = Query(...),
+    trim: str = Query(None),
+    websites: str = Query(None, description="Comma-separated list of websites to filter by")
+):
+    """Get price spread analysis for a specific make, model, year with optional trim and websites"""
     conn = get_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
     try:
         cur = conn.cursor()
-        
-        # Build the WHERE clause with optional trim filter
         where_conditions = [
             "brand ILIKE %s",
             "model ILIKE %s",
@@ -313,13 +323,15 @@ def get_price_spread_analysis(make: str = Query(...), model: str = Query(...), y
             "price > 0"
         ]
         params = [f"%{make}%", f"%{model}%", year]
-        
         if trim and trim.strip():
             where_conditions.append("trim ILIKE %s")
             params.append(f"%{trim}%")
-        
+        if websites:
+            website_list = [w.strip() for w in websites.split(",") if w.strip()]
+            if website_list:
+                where_conditions.append("(" + " OR ".join(["website ILIKE %s"] * len(website_list)) + ")")
+                params.extend([f"%{w}%" for w in website_list])
         where_clause = " AND ".join(where_conditions)
-        
         listings_query = f"""
         SELECT 
             ad_id,
@@ -405,4 +417,4 @@ def get_years(make: str = Query(...), model: str = Query(...)):
         raise HTTPException(status_code=500, detail=f"Failed to get years: {str(e)}")
     finally:
         cur.close()
-        conn.close() 
+        conn.close()

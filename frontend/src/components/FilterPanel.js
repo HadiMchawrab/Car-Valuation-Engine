@@ -32,6 +32,8 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
     contributorType: '' // Track if contributor is agency or individual_seller
   });
   const [initialYears, setInitialYears] = useState([]);
+  const [selectedWebsites, setSelectedWebsites] = useState([]); // [] means all
+  const [websiteDropdownValue, setWebsiteDropdownValue] = useState('');
 
   useEffect(() => {
     // Fetch initial filter options when component mounts or seller changes
@@ -298,14 +300,10 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       website: '',
       minPostDate: '',
       maxPostDate: '',
-      contributorName: '', // Clear contributor info
+      contributorName: '',
       contributorType: ''
     };
-    
-    // Update local filters first
     setLocalFilters(emptyFilters);
-    
-    // Map to backend expected filter names - reset everything to initial state
     const mappedEmptyFilters = {
       brand: '',
       model: '',
@@ -343,10 +341,24 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
     } catch (error) {
       console.error('Error refreshing filter options after clear:', error);
     }
-  };
+  };  
 
   return (
     <div className="filter-panel">
+        <div className="filter-group">
+          <label>Website</label>
+          <select 
+            name="website"
+            value={localFilters.website}
+            onChange={handleInputChange}
+            disabled={isLoadingOptions}
+          >
+            <option value="">All Websites</option>
+            {websites.map(website => (
+              <option key={website} value={website}>{website}</option>
+            ))}
+          </select>
+        </div>
       {totalCount !== undefined && (
           <div className="results-count">
             <span className="count-text">
@@ -658,21 +670,6 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
             <option value="">All Colors</option>
             {colors.map(color => (
               <option key={color} value={color}>{getColor(color)}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label>Website</label>
-          <select 
-            name="website"
-            value={localFilters.website}
-            onChange={handleInputChange}
-            disabled={isLoadingOptions}
-          >
-            <option value="">All Websites</option>
-            {websites.map(website => (
-              <option key={website} value={website}>{website}</option>
             ))}
           </select>
         </div>

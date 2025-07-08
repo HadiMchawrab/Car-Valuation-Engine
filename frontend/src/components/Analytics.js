@@ -10,56 +10,113 @@ const Analytics = () => {
   const [analyticsStats, setAnalyticsStats] = useState(null);
   const [activeSection, setActiveSection] = useState('overview'); // 'overview', 'contributors', 'depreciation', 'price-spread'
   const [filters, setFilters] = useState({
-    brand: '',
-    model: '',
-    min_year: null,
-    max_year: null,
-    min_price: null,
-    max_price: null,
-    condition: '',
-    fuel_type: '',
-    transmission_type: '',
-    body_type: '',
-    color: '',
-    seller_type: '',
-    website: '',
-    websites: [],
-    location_city: '',
-    location_region: ''
+    websites: null // null means all websites
   });
+  const [websiteOptions, setWebsiteOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // --- Website Filter UI logic ---
+  const [dropdownValue, setDropdownValue] = useState('');
+
+  // Fetch website options on mount
+  useEffect(() => {
+    const fetchWebsites = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/websites`);
+        if (!response.ok) throw new Error('Failed to fetch website options');
+        const data = await response.json();
+        setWebsiteOptions(data);
+      } catch (err) {
+        setWebsiteOptions([]);
+      }
+    };
+    fetchWebsites();
+  }, []);
+
+  // Reset website filter to all when switching between overview/contributors
+  useEffect(() => {
+    if (activeSection === 'overview' || activeSection === 'contributors') {
+      setFilters({ websites: null });
+    }
+  }, [activeSection]);
+
+  const handleDropdownChange = (e) => {
+    const value = e.target.value;
+    if (value === 'ALL') {
+      setFilters({ websites: null });
+      setDropdownValue('');
+    } else if (value) {
+      let newWebsites = filters.websites ? [...filters.websites] : [];
+      if (!newWebsites.includes(value)) {
+        newWebsites.push(value);
+      }
+      setFilters({ websites: newWebsites });
+      setDropdownValue('');
+    }
+  };
+
+  const handleRemoveWebsite = (site) => {
+    if (site === 'ALL') {
+      setFilters({ websites: null });
+    } else {
+      const newWebsites = (filters.websites || []).filter(w => w !== site);
+      setFilters({ websites: newWebsites.length === 0 ? null : newWebsites });
+    }
+  };
+
+  const renderWebsiteChips = () => {
+    if (!filters.websites || filters.websites.length === 0) {
+      return (
+        <div className="website-chips">
+          <span className="website-chip">
+            All Websites
+            <button className="chip-remove" onClick={() => handleRemoveWebsite('ALL')}>×</button>
+          </span>
+        </div>
+      );
+    }
+    return (
+      <div className="website-chips">
+        {filters.websites.map(site => (
+          <span className="website-chip" key={site}>
+            {site}
+            <button className="chip-remove" onClick={() => handleRemoveWebsite(site)}>×</button>
+          </span>
+        ))}
+      </div>
+    );
+  };
+
+  const renderWebsiteFilter = () => (
+    <div className="website-filter-bar">
+      <label htmlFor="website-select">Website:</label>
+      <select
+        id="website-select"
+        value={dropdownValue}
+        onChange={handleDropdownChange}
+      >
+        <option value="" disabled>Select website...</option>
+        <option value="ALL">All Websites</option>
+        {websiteOptions.filter(site => !filters.websites || !filters.websites.includes(site)).map(site => (
+          <option key={site} value={site}>{site}</option>
+        ))}
+      </select>
+      {renderWebsiteChips()}
+    </div>
+  );
 
   const fetchAnalyticsStats = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
     try {
-      // Prepare search filters for backend
+      // Only send websites filter
       const searchFilters = {
-        ...filters,
-        // Convert empty strings to null for backend
-        brand: filters.brand || null,
-        model: filters.model || null,
-        condition: filters.condition || null,
-        fuel_type: filters.fuel_type || null,
-        transmission_type: filters.transmission_type || null,
-        body_type: filters.body_type || null,
-        color: filters.color || null,
-        seller_type: filters.seller_type || null,
-        website: filters.website || null,
-        location_city: filters.location_city || null,
-        location_region: filters.location_region || null,
-        // Only include websites if some are selected
         websites: filters.websites && filters.websites.length > 0 ? filters.websites : null
       };
-
-      // Remove null/undefined values
       const cleanFilters = Object.fromEntries(
         Object.entries(searchFilters).filter(([_, v]) => v != null)
       );
-
-      // Use POST to send filters in request body
       const response = await fetch(`${API_BASE_URL}/api/analytics/stats`, {
         method: 'POST',
         headers: {
@@ -67,11 +124,9 @@ const Analytics = () => {
         },
         body: Object.keys(cleanFilters).length > 0 ? JSON.stringify(cleanFilters) : JSON.stringify({})
       });
-      
       if (!response.ok) {
         throw new Error('Failed to fetch analytics stats');
       }
-      
       const data = await response.json();
       setAnalyticsStats(data);
     } catch (err) {
@@ -183,6 +238,8 @@ const Analytics = () => {
       </div>
 
       <div className="analytics-container">
+        {/* Show website filter only for overview and contributors */}
+        {(activeSection === 'overview' || activeSection === 'contributors') && renderWebsiteFilter()}
         <div className="main-content">
           {renderActiveSection()}
         </div>
@@ -192,3 +249,4 @@ const Analytics = () => {
 };
 
 export default Analytics;
+

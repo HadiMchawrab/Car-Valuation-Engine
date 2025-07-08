@@ -28,6 +28,9 @@ const PriceSpreadAnalysis = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [noYearsAvailable, setNoYearsAvailable] = useState(false);
+  const [websiteOptions, setWebsiteOptions] = useState([]);
+  const [selectedWebsites, setSelectedWebsites] = useState([]);
+  const [dropdownValue, setDropdownValue] = useState('');
 
   // Fetch makes on component mount
   useEffect(() => {
@@ -54,15 +57,6 @@ const PriceSpreadAnalysis = () => {
     }
   }, [selectedMake, selectedModel]);
 
-  // Fetch price spread data when all selections are made
-  useEffect(() => {
-    if (selectedMake && selectedModel && selectedYear) {
-      fetchPriceSpreadData(selectedMake, selectedModel, selectedYear, selectedTrim);
-    } else {
-      setPriceSpreadData(null);
-    }
-  }, [selectedMake, selectedModel, selectedYear, selectedTrim]);
-
   // Fetch years when make and model are selected
   useEffect(() => {
     if (selectedMake && selectedModel) {
@@ -72,6 +66,30 @@ const PriceSpreadAnalysis = () => {
       setSelectedYear('');
     }
   }, [selectedMake, selectedModel]);
+
+  // Fetch website options on mount
+  useEffect(() => {
+    const fetchWebsites = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/websites`);
+        if (!response.ok) throw new Error('Failed to fetch website options');
+        const data = await response.json();
+        setWebsiteOptions(data);
+      } catch (err) {
+        setWebsiteOptions([]);
+      }
+    };
+    fetchWebsites();
+  }, []);
+
+  // Fetch price spread data when make, model, year, trim, or websites change
+  useEffect(() => {
+    if (selectedMake && selectedModel && selectedYear) {
+      fetchPriceSpreadData(selectedMake, selectedModel, selectedYear, selectedTrim, selectedWebsites);
+    } else {
+      setPriceSpreadData(null);
+    }
+  }, [selectedMake, selectedModel, selectedYear, selectedTrim, selectedWebsites]);
 
   const fetchMakes = async () => {
     try {
@@ -122,7 +140,7 @@ const PriceSpreadAnalysis = () => {
     }
   };
 
-  const fetchPriceSpreadData = async (make, model, year, trim = '') => {
+  const fetchPriceSpreadData = async (make, model, year, trim = '', websites = []) => {
     setLoading(true);
     setError(null);
     
@@ -130,6 +148,9 @@ const PriceSpreadAnalysis = () => {
       let url = `${API_BASE_URL}/api/analytics/price-spread?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&year=${year}`;
       if (trim && trim.trim() !== '') {
         url += `&trim=${encodeURIComponent(trim)}`;
+      }
+      if (websites && websites.length > 0) {
+        url += `&websites=${encodeURIComponent(websites.join(','))}`;
       }
       
       const response = await fetch(url);
@@ -233,6 +254,53 @@ const PriceSpreadAnalysis = () => {
     }
   };
 
+  const handleDropdownChange = (e) => {
+    const value = e.target.value;
+    if (value === 'ALL') {
+      setSelectedWebsites([]);
+      setDropdownValue('');
+    } else if (value) {
+      let newWebsites = selectedWebsites ? [...selectedWebsites] : [];
+      if (!newWebsites.includes(value)) {
+        newWebsites.push(value);
+      }
+      setSelectedWebsites(newWebsites);
+      setDropdownValue('');
+    }
+  };
+
+  const handleRemoveWebsite = (site) => {
+    if (site === 'ALL') {
+      setSelectedWebsites([]);
+    } else {
+      const newWebsites = (selectedWebsites || []).filter(w => w !== site);
+      setSelectedWebsites(newWebsites);
+    }
+  };
+
+  const renderWebsiteChips = () => {
+    if (!selectedWebsites || selectedWebsites.length === 0) {
+      return (
+        <div className="website-chips">
+          <span className="website-chip">
+            All Websites
+            <button className="chip-remove" onClick={() => handleRemoveWebsite('ALL')}>×</button>
+          </span>
+        </div>
+      );
+    }
+    return (
+      <div className="website-chips">
+        {selectedWebsites.map(site => (
+          <span className="website-chip" key={site}>
+            {site}
+            <button className="chip-remove" onClick={() => handleRemoveWebsite(site)}>×</button>
+          </span>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="price-spread-analysis">
       <div className="analysis-header">
@@ -317,6 +385,22 @@ const PriceSpreadAnalysis = () => {
               </>
             )}
           </select>
+        </div>
+
+        <div className="website-filter-bar">
+          <label htmlFor="website-select">Website:</label>
+          <select
+            id="website-select"
+            value={dropdownValue}
+            onChange={handleDropdownChange}
+          >
+            <option value="" disabled>Select website...</option>
+            <option value="ALL">All Websites</option>
+            {websiteOptions.filter(site => !selectedWebsites || !selectedWebsites.includes(site)).map(site => (
+              <option key={site} value={site}>{site}</option>
+            ))}
+          </select>
+          {renderWebsiteChips()}
         </div>
       </div>
 
