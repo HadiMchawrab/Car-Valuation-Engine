@@ -1,4 +1,3 @@
-# main.py
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from database_connection_service.db_connection import get_connection
@@ -10,6 +9,9 @@ from database_connection_service.classes_input import (
 from typing import List, Dict, Any
 from datetime import datetime
 import logging
+from routers.analytics import router as analytics_router
+from filters import build_contributor_filter, build_search_filters_for_contributor, build_search_filters, build_dynamic_filter_query
+from utils import format_db_row, fetch_list
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -30,86 +32,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Helper function to format datetime objects
-def format_db_row(row_dict):
-    for key, value in row_dict.items():
-        if isinstance(value, datetime):
-            row_dict[key] = value.isoformat()
-    return row_dict
-
-def build_search_filters(search: ListingSearch):
-    """Shared function to build filters and params for search queries"""
-    filters = []
-    params = []
+def get_order_by_clause(sort_by: str = "post_date_desc"):
+    """Convert sort_by parameter to SQL ORDER BY clause"""
+    sort_mappings = {
+        "post_date_desc": "post_date DESC",
+        "post_date_asc": "post_date ASC",
+        # For Arabic, A-Z is ي to أ (descending), Z-A is أ to ي (ascending)
+        "title_az": "title COLLATE \"ar-x-icu\" DESC NULLS LAST",  # أ to ي (A-Z in Arabic)
+        "title_za": "title COLLATE \"ar-x-icu\" ASC NULLS LAST",   # ي to أ (Z-A in Arabic)
+        "year_desc": "year DESC NULLS LAST",
+        "year_asc": "year ASC NULLS LAST",
+        "verified_seller": "COALESCE(dd.seller_verified, false) DESC, post_date DESC",
+        "price_desc": "price DESC NULLS LAST",
+        "price_asc": "price ASC NULLS LAST"
+    }
     
-    if search.brand:
-        filters.append("brand ILIKE %s"); params.append(f"%{search.brand}%")
-        logger.info(f"Adding brand filter: {search.brand}")
-    if search.model:
-        filters.append("model ILIKE %s"); params.append(f"%{search.model}%")
-        logger.info(f"Adding model filter: {search.model}")
-    if search.min_year is not None:
-        filters.append("year >= %s"); params.append(search.min_year)
-        logger.info(f"Adding min_year filter: {search.min_year}")
-    if search.max_year is not None:
-        filters.append("year <= %s"); params.append(search.max_year)
-        logger.info(f"Adding max_year filter: {search.max_year}")
-    if search.min_price is not None:
-        filters.append("price >= %s"); params.append(search.min_price)
-        logger.info(f"Adding min_price filter: {search.min_price}")
-    if search.max_price is not None:
-        filters.append("price <= %s"); params.append(search.max_price)
-        logger.info(f"Adding max_price filter: {search.max_price}")
-    if search.location_city:
-        filters.append("location_city ILIKE %s"); params.append(f"%{search.location_city}%")
-        logger.info(f"Adding location_city filter: {search.location_city}")
-    if search.location_region:
-        filters.append("location_region ILIKE %s"); params.append(f"%{search.location_region}%")
-        logger.info(f"Adding location_region filter: {search.location_region}")
-    if search.min_mileage is not None:
-        filters.append("mileage >= %s"); params.append(search.min_mileage)
-        logger.info(f"Adding min_mileage filter: {search.min_mileage}")        
-    if search.max_mileage is not None:
-        filters.append("mileage <= %s"); params.append(search.max_mileage)
-        logger.info(f"Adding max_mileage filter: {search.max_mileage}")
-    if search.is_new is not None:
-        if search.is_new:
-            filters.append("(mileage = 0 OR mileage IS NULL)")
-            logger.info("Adding filter for new vehicles (mileage = 0 or NULL)")
-        else:
-            filters.append("mileage > 0")
-            logger.info("Adding filter for used vehicles (mileage > 0)")
-    if search.fuel_type:
-        filters.append("fuel_type ILIKE %s"); params.append(f"%{search.fuel_type}%")
-        logger.info(f"Adding fuel_type filter: {search.fuel_type}")
-    if search.transmission_type:
-        filters.append("transmission_type ILIKE %s"); params.append(f"%{search.transmission_type}%")
-        logger.info(f"Adding transmission_type filter: {search.transmission_type}")
-    if search.body_type:
-        filters.append("body_type ILIKE %s"); params.append(f"%{search.body_type}%")
-        logger.info(f"Adding body_type filter: {search.body_type}")
-    if search.condition:
-        filters.append("condition ILIKE %s"); params.append(f"%{search.condition}%")
-        logger.info(f"Adding condition filter: {search.condition}")
-    if search.color:
-        filters.append("color ILIKE %s"); params.append(f"%{search.color}%")
-        logger.info(f"Adding color filter: {search.color}")
-    if search.seller_type:
-        filters.append("seller_type ILIKE %s"); params.append(f"%{search.seller_type}%")
-        logger.info(f"Adding seller_type filter: {search.seller_type}")
-    if search.min_post_date is not None:
-        filters.append("post_date >= %s"); params.append(search.min_post_date)
-        logger.info(f"Adding min_post_date filter: {search.min_post_date}")
-    if search.max_post_date is not None:
-        filters.append("post_date <= %s"); params.append(search.max_post_date)
-        logger.info(f"Adding max_post_date filter: {search.max_post_date}")
-    
-    return filters, params
+    return sort_mappings.get(sort_by, "post_date DESC")
 
+# Root endpoint
 @app.get("/", response_model=Dict[str, str])
 def root():
     return {"message": "Welcome to the Markaba API!"}
 
+# Basic listing endpoints
 @app.get("/listings", response_model=List[Listing])
 def get_all_listings(
     limit: int = Query(10, ge=1, le=100),
@@ -121,7 +66,7 @@ def get_all_listings(
     try:
         cur = conn.cursor()
         cur.execute(
-            "SELECT ad_id, url, website, title, price, currency, brand, model, year, mileage, mileage_unit, "
+            "SELECT ad_id, url, website, title, price, currency, brand, model,trim, year, mileage, mileage_unit, "
             "fuel_type, transmission_type, body_type, condition, color, seller, seller_type, "
             "location_city, location_region, image_url, number_of_images, post_date "
             "FROM listings ORDER BY ad_id LIMIT %s OFFSET %s",
@@ -142,10 +87,16 @@ def get_listing_by_id(ad_id: str):
     try:
         cur = conn.cursor()
         cur.execute(
-            "SELECT ad_id, url, website, title, price, currency, brand, model, year, mileage, mileage_unit, "
-            "fuel_type, transmission_type, body_type, condition, color, seller, seller_type, "
-            "location_city, location_region, image_url, number_of_images, post_date "
-            "FROM listings WHERE ad_id = %s", (ad_id,)
+            "SELECT l.ad_id, l.url, l.website, l.title, l.price, l.currency, l.brand, l.model,l.trim, l.year, l.mileage, l.mileage_unit, "
+            "l.fuel_type, l.transmission_type, l.body_type, l.condition, l.color, "
+            "CASE "
+            "WHEN l.seller IS NULL OR l.seller = '' OR l.seller = 'N/A' "
+            "THEN COALESCE(NULLIF(dd.agency_name, ''), 'Individual Seller') "
+            "ELSE l.seller "
+            "END as seller, "
+            "l.seller_type, "
+            "l.location_city, l.location_region, l.image_url, l.number_of_images, l.post_date, l.date_scraped "
+            "FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id WHERE l.ad_id = %s", (ad_id,)
         )
         row = cur.fetchone()
         if not row:
@@ -166,23 +117,34 @@ def search_listings(
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
     try:
-        # Log search parameters for debugging
-        logger.info(f"Search parameters: {search.dict()}")
-        
         cur = conn.cursor()
         filters, params = build_search_filters(search)
-            
+        
         where_clause = " AND ".join(filters) if filters else "1=1"
+        order_clause = get_order_by_clause(search.sort_by)
+        
+        # Always join with dubizzle_details to get agency_name and seller_verified
         query = (
-            "SELECT ad_id, url, website, title, price, currency, brand, model, year, mileage, mileage_unit, "
-            "fuel_type, transmission_type, body_type, condition, color, seller, seller_type, "
-            "location_city, location_region, image_url, number_of_images, post_date "
-            "FROM listings WHERE " + where_clause + " ORDER BY ad_id LIMIT %s OFFSET %s"
+            "SELECT l.ad_id, l.url, l.website, l.title, l.price, l.currency, l.brand, l.model, l.trim, l.year, l.mileage, l.mileage_unit, "
+            "l.fuel_type, l.transmission_type, l.body_type, l.condition, l.color, "
+            "CASE "
+            "WHEN l.seller IS NULL OR l.seller = '' OR l.seller = 'N/A' "
+            "THEN COALESCE(NULLIF(dd.agency_name, ''), 'Individual Seller') "
+            "ELSE l.seller "
+            "END as seller, "
+            "l.seller_type, "
+            "l.location_city, l.location_region, l.image_url, l.number_of_images, l.post_date, l.date_scraped, "
+            "dd.agency_name, dd.seller_verified "
+            "FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id "
+            "WHERE " + where_clause + " ORDER BY " + order_clause + " LIMIT %s OFFSET %s"
         )
+            
         params.extend([limit, offset])
+        
         cur.execute(query, tuple(params))
         rows = cur.fetchall()
         cols = [d[0] for d in cur.description]
+        
         return [Listing(**format_db_row(dict(zip(cols, row)))) for row in rows]
     finally:
         cur.close()
@@ -198,213 +160,345 @@ def count_search_listings(search: ListingSearch):
         filters, params = build_search_filters(search)
             
         where_clause = " AND ".join(filters) if filters else "1=1"
-        cur.execute(f"SELECT COUNT(*) FROM listings WHERE {where_clause}", tuple(params))
+        
+        # Use same table structure as search query to match aliases
+        query = f"SELECT COUNT(*) FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id WHERE {where_clause}"
+        cur.execute(query, tuple(params))
         total = cur.fetchone()[0]
         return {"total": total}
     finally:
         cur.close()
         conn.close()
 
-
-
-@app.get("/makes", response_model=List[str])
-def get_all_makes():
+# Enhanced Contributor Search Endpoints
+@app.post("/search/contributor")
+def search_contributor_listings(
+    seller_identifier: str = Query(..., description="Seller/Agency identifier"),
+    search: ListingSearch = None,
+    limit: int = Query(40, ge=1, le=100), 
+    offset: int = Query(0, ge=0)
+):
+    """
+    Enhanced contributor search that combines contributor filtering with additional filters.
+    This properly handles agency searches using agency_id from dubizzle_details.
+    """
     conn = get_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
+        
     try:
         cur = conn.cursor()
-        cur.execute("SELECT DISTINCT brand FROM listings WHERE brand IS NOT NULL AND brand <> '' ORDER BY brand")
-        return [row[0] for row in cur.fetchall()]
+        
+        # Build contributor-specific filter
+        contributor_filter = build_contributor_filter(seller_identifier)
+        
+        # Build additional filters if provided (excludes seller_type to avoid conflicts)
+        additional_filters, additional_params = build_search_filters_for_contributor(search) if search else ([], [])
+        
+        # Combine all filters
+        all_filters = [contributor_filter["filter"]] + additional_filters
+        all_params = contributor_filter["params"] + additional_params
+        
+        where_clause = " AND ".join(all_filters)
+        order_clause = get_order_by_clause(search.sort_by if search else None)
+        
+        query = (
+            "SELECT l.ad_id, l.url, l.website, l.title, l.price, l.currency, l.brand, l.model, l.trim, l.year, l.mileage, l.mileage_unit, "
+            "l.fuel_type, l.transmission_type, l.body_type, l.condition, l.color, l.seller, l.seller_type, "
+            "l.location_city, l.location_region, l.image_url, l.number_of_images, l.post_date, "
+            "dd.agency_name, dd.seller_verified "
+            "FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id "
+            "WHERE " + where_clause + " ORDER BY " + order_clause + " LIMIT %s OFFSET %s"
+        )
+        
+        all_params.extend([limit, offset])
+        
+        cur.execute(query, tuple(all_params))
+        rows = cur.fetchall()
+        cols = [d[0] for d in cur.description]
+        
+        return [Listing(**format_db_row(dict(zip(cols, row)))) for row in rows]
+        
+    except Exception as e:
+        logger.error(f"Error in contributor search: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to search contributor listings: {str(e)}")
     finally:
         cur.close()
         conn.close()
+
+@app.post("/search/contributor/count")
+def count_contributor_listings_with_filters(
+    seller_identifier: str = Query(..., description="Seller/Agency identifier"),
+    search: ListingSearch = None
+):
+    """Count contributor listings with additional filters"""
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+        
+    try:
+        cur = conn.cursor()
+        
+        # Build contributor-specific filter
+        contributor_filter = build_contributor_filter(seller_identifier)
+        
+        # Build additional filters if provided (excludes seller_type to avoid conflicts)
+        additional_filters, additional_params = build_search_filters_for_contributor(search) if search else ([], [])
+        
+        # Combine all filters
+        all_filters = [contributor_filter["filter"]] + additional_filters
+        all_params = contributor_filter["params"] + additional_params
+        
+        where_clause = " AND ".join(all_filters)
+        query = f"SELECT COUNT(*) FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id WHERE {where_clause}"
+        
+        cur.execute(query, tuple(all_params))
+        total = cur.fetchone()[0]
+        
+        return {"total": total}
+        
+    except Exception as e:
+        logger.error(f"Error counting contributor listings with filters: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to count contributor listings: {str(e)}")
+    finally:
+        cur.close()
+        conn.close()
+
+# Filter option endpoints
+@app.get("/makes", response_model=List[str])
+def get_all_makes(seller: str = Query(None, description="Filter makes by seller/agency")):
+    if seller:
+        contributor_filter = build_contributor_filter(seller)
+        query = f"""
+            SELECT DISTINCT l.brand 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE l.brand IS NOT NULL AND l.brand <> '' 
+            AND ({contributor_filter['filter']})
+            ORDER BY l.brand
+        """
+        return fetch_list(query, contributor_filter['params'])
+    else:
+        return fetch_list("SELECT DISTINCT brand FROM listings WHERE brand IS NOT NULL AND brand <> '' ORDER BY brand")
 
 @app.get("/models", response_model=List[str])
-def get_all_models():
-    """Get all distinct models"""
-    conn = get_connection()
-    if not conn:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-    try:
-        cur = conn.cursor()
-        cur.execute("SELECT DISTINCT model FROM listings WHERE model IS NOT NULL AND model <> '' ORDER BY model")
-        return [row[0] for row in cur.fetchall()]
-    finally:
-        cur.close()
-        conn.close()
+def get_all_models(seller: str = Query(None, description="Filter models by seller/agency")):
+    if seller:
+        contributor_filter = build_contributor_filter(seller)
+        query = f"""
+            SELECT DISTINCT l.model 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE l.model IS NOT NULL AND l.model <> '' 
+            AND ({contributor_filter['filter']})
+            ORDER BY l.model
+        """
+        return fetch_list(query, contributor_filter['params'])
+    else:
+        return fetch_list("SELECT DISTINCT model FROM listings WHERE model IS NOT NULL AND model <> '' ORDER BY model")
 
 @app.get("/models/{brand}", response_model=List[str])
-def get_models_by_brand(brand: str):
-    """Get models filtered by brand"""
-    conn = get_connection()
-    if not conn:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-    try:
-        cur = conn.cursor()
-        cur.execute(
+def get_models_by_brand(brand: str, seller: str = Query(None, description="Filter models by seller/agency")):
+    if seller:
+        contributor_filter = build_contributor_filter(seller)
+        query = f"""
+            SELECT DISTINCT l.model 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE l.brand ILIKE %s AND l.model IS NOT NULL AND l.model <> '' 
+            AND ({contributor_filter['filter']})
+            ORDER BY l.model
+        """
+        params = [f"%{brand}%"] + contributor_filter['params']
+        return fetch_list(query, params)
+    else:
+        return fetch_list(
             "SELECT DISTINCT model FROM listings WHERE brand ILIKE %s AND model IS NOT NULL AND model <> '' ORDER BY model",
             (f"%{brand}%",)
         )
-        return [row[0] for row in cur.fetchall()]
-    finally:
-        cur.close()
-        conn.close()
+
+@app.get("/trims/{brand}/{model}", response_model=List[str])
+def get_trims_by_brand_model(brand: str, model: str, seller: str = Query(None, description="Filter trims by seller/agency")):
+    if seller:
+        contributor_filter = build_contributor_filter(seller)
+        query = f"""
+            SELECT DISTINCT l.trim 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE l.brand ILIKE %s AND l.model ILIKE %s AND l.trim IS NOT NULL AND l.trim <> '' 
+            AND ({contributor_filter['filter']})
+            ORDER BY l.trim
+        """
+        params = [f"%{brand}%", f"%{model}%"] + contributor_filter['params']
+        return fetch_list(query, params)
+    else:
+        return fetch_list(
+            "SELECT DISTINCT trim FROM listings WHERE brand ILIKE %s AND model ILIKE %s AND trim IS NOT NULL AND trim <> '' ORDER BY trim",
+            (f"%{brand}%", f"%{model}%")
+        )
 
 @app.get("/years", response_model=List[int])
-def get_year_range():
-    """Get all years from min to max for the frontend filter"""
-    conn = get_connection()
-    if not conn:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-    try:
-        cur = conn.cursor()
-        cur.execute("SELECT MIN(year), MAX(year) FROM listings WHERE year IS NOT NULL")
-        min_year, max_year = cur.fetchone()
-        # Generate a list of all years from min to max to match frontend expectation
+def get_year_range(seller: str = Query(None, description="Filter years by seller/agency")):
+    if seller:
+        contributor_filter = build_contributor_filter(seller)
+        query = f"""
+            SELECT MIN(l.year), MAX(l.year) 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE l.year IS NOT NULL 
+            AND ({contributor_filter['filter']})
+        """
+        result = fetch_list(query, contributor_filter['params'])
+    else:
+        result = fetch_list("SELECT MIN(year), MAX(year) FROM listings WHERE year IS NOT NULL")
+    # Defensive unpacking
+    if result and len(result) > 0:
+        # fetch_list likely returns a list of rows, so get the first row
+        row = result[0] if isinstance(result[0], (list, tuple)) else result
+        if row and len(row) == 2:
+            min_year, max_year = row
+        else:
+            min_year, max_year = None, None
+    else:
+        min_year, max_year = None, None
+    if min_year and max_year:
         return list(range(min_year, max_year + 1))
-    finally:
-        cur.close()
-        conn.close()
+    else:
+        return []
+
+@app.get("/years/{brand}/{model}", response_model=List[int])
+def get_years_by_brand_model(brand: str, model: str):
+    # Select all distinct years for the given brand and model, case-insensitive and trimmed
+    result = fetch_list(
+        "SELECT DISTINCT year FROM listings WHERE LOWER(TRIM(brand)) = LOWER(TRIM(%s)) AND LOWER(TRIM(model)) = LOWER(TRIM(%s)) AND year IS NOT NULL ORDER BY year DESC",
+        [brand.strip(), model.strip()]
+    )
+    # Flatten the result and return as a list of years
+    years = [row[0] if isinstance(row, (list, tuple)) else row for row in result]
+    return years
 
 @app.get("/locations", response_model=List[str])
-def get_all_locations():
-    """Get all distinct locations (city + region)"""
-    conn = get_connection()
-    if not conn:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-    try:
-        cur = conn.cursor()
-        cur.execute(
+def get_all_locations(seller: str = Query(None, description="Filter locations by seller/agency")):
+    if seller:
+        contributor_filter = build_contributor_filter(seller)
+        query = f"""
+            SELECT DISTINCT l.location_city 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE l.location_city IS NOT NULL AND l.location_city <> '' 
+            AND ({contributor_filter['filter']})
+            UNION 
+            SELECT DISTINCT l.location_region 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE l.location_region IS NOT NULL AND l.location_region <> '' 
+            AND ({contributor_filter['filter']})
+            ORDER BY 1
+        """
+        params = contributor_filter['params'] + contributor_filter['params']
+        return fetch_list(query, params)
+    else:
+        return fetch_list(
             "SELECT DISTINCT location_city FROM listings WHERE location_city IS NOT NULL AND location_city <> '' "
             "UNION SELECT DISTINCT location_region FROM listings WHERE location_region IS NOT NULL AND location_region <> '' "
             "ORDER BY 1"
         )
-        return [row[0] for row in cur.fetchall()]
-    finally:
-        cur.close()
-        conn.close()
 
 @app.get("/fuel-types", response_model=List[str])
-def get_fuel_types():
-    """Get all distinct fuel types"""
-    conn = get_connection()
-    if not conn:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-    try:
-        cur = conn.cursor()
-        cur.execute("SELECT DISTINCT fuel_type FROM listings WHERE fuel_type IS NOT NULL AND fuel_type <> '' ORDER BY fuel_type")
-        return [row[0] for row in cur.fetchall()]
-    finally:
-        cur.close()
-        conn.close()
+def get_fuel_types(seller: str = Query(None, description="Filter fuel types by seller/agency")):
+    if seller:
+        contributor_filter = build_contributor_filter(seller)
+        query = f"""
+            SELECT DISTINCT l.fuel_type 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE l.fuel_type IS NOT NULL AND l.fuel_type <> '' 
+            AND ({contributor_filter['filter']})
+            ORDER BY l.fuel_type
+        """
+        return fetch_list(query, contributor_filter['params'])
+    else:
+        return fetch_list("SELECT DISTINCT fuel_type FROM listings WHERE fuel_type IS NOT NULL AND fuel_type <> '' ORDER BY fuel_type")
 
 @app.get("/body-types", response_model=List[str])
-def get_body_types():
-    """Get all distinct body types"""
-    conn = get_connection()
-    if not conn:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-    try:
-        cur = conn.cursor()
-        cur.execute("SELECT DISTINCT body_type FROM listings WHERE body_type IS NOT NULL AND body_type <> '' ORDER BY body_type")
-        return [row[0] for row in cur.fetchall()]
-    finally:
-        cur.close()
-        conn.close()
+def get_body_types(seller: str = Query(None, description="Filter body types by seller/agency")):
+    if seller:
+        contributor_filter = build_contributor_filter(seller)
+        query = f"""
+            SELECT DISTINCT l.body_type 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE l.body_type IS NOT NULL AND l.body_type <> '' 
+            AND ({contributor_filter['filter']})
+            ORDER BY l.body_type
+        """
+        return fetch_list(query, contributor_filter['params'])
+    else:
+        return fetch_list("SELECT DISTINCT body_type FROM listings WHERE body_type IS NOT NULL AND body_type <> '' ORDER BY body_type")
 
 @app.get("/transmission-types", response_model=List[str])
-def get_transmission_types():
-    """Get all distinct transmission types"""
-    conn = get_connection()
-    if not conn:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-    try:
-        cur = conn.cursor()
-        cur.execute("SELECT DISTINCT transmission_type FROM listings WHERE transmission_type IS NOT NULL AND transmission_type <> '' ORDER BY transmission_type")
-        return [row[0] for row in cur.fetchall()]
-    finally:
-        cur.close()
-        conn.close()
-
-@app.get("/conditions", response_model=List[str])
-def get_conditions():
-    """Get all distinct condition values"""
-    conn = get_connection()
-    if not conn:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-    try:
-        cur = conn.cursor()
-        cur.execute("SELECT DISTINCT condition FROM listings WHERE condition IS NOT NULL AND condition <> '' ORDER BY condition")
-        return [row[0] for row in cur.fetchall()]
-    finally:
-        cur.close()
-        conn.close()
+def get_transmission_types(seller: str = Query(None, description="Filter transmission types by seller/agency")):
+    if seller:
+        contributor_filter = build_contributor_filter(seller)
+        query = f"""
+            SELECT DISTINCT l.transmission_type 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE l.transmission_type IS NOT NULL AND l.transmission_type <> '' 
+            AND ({contributor_filter['filter']})
+            ORDER BY l.transmission_type
+        """
+        return fetch_list(query, contributor_filter['params'])
+    else:
+        return fetch_list("SELECT DISTINCT transmission_type FROM listings WHERE transmission_type IS NOT NULL AND transmission_type <> '' ORDER BY transmission_type")
 
 @app.get("/colors", response_model=List[str])
-def get_colors():
-    """Get all distinct color values"""
-    conn = get_connection()
-    if not conn:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-    try:
-        cur = conn.cursor()
-        cur.execute("SELECT DISTINCT color FROM listings WHERE color IS NOT NULL AND color <> '' ORDER BY color")
-        return [row[0] for row in cur.fetchall()]
-    finally:
-        cur.close()
-        conn.close()
+def get_colors(seller: str = Query(None, description="Filter colors by seller/agency")):
+    if seller:
+        contributor_filter = build_contributor_filter(seller)
+        query = f"""
+            SELECT DISTINCT l.color 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE l.color IS NOT NULL AND l.color <> '' 
+            AND ({contributor_filter['filter']})
+            ORDER BY l.color
+        """
+        return fetch_list(query, contributor_filter['params'])
+    else:
+        return fetch_list("SELECT DISTINCT color FROM listings WHERE color IS NOT NULL AND color <> '' ORDER BY color")
 
 @app.get("/seller-types", response_model=List[str])
-def get_seller_types():
-    """Get all distinct seller types"""
-    conn = get_connection()
-    if not conn:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-    try:
-        cur = conn.cursor()
-        cur.execute("SELECT DISTINCT seller_type FROM listings WHERE seller_type IS NOT NULL AND seller_type <> '' ORDER BY seller_type")
-        return [row[0] for row in cur.fetchall()]
-    finally:
-        cur.close()
-        conn.close()
+def get_seller_types(seller: str = Query(None, description="Filter seller types by seller/agency")):
+    if seller:
+        contributor_filter = build_contributor_filter(seller)
+        query = f"""
+            SELECT DISTINCT l.seller_type 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE l.seller_type IS NOT NULL AND l.seller_type <> '' 
+            AND ({contributor_filter['filter']})
+            ORDER BY l.seller_type
+        """
+        return fetch_list(query, contributor_filter['params'])
+    else:
+        return fetch_list("SELECT DISTINCT seller_type FROM listings WHERE seller_type IS NOT NULL AND seller_type <> '' ORDER BY seller_type")
 
-@app.get("/details/{ad_id}", response_model=DubizzleDetails)
-def get_details_by_ad_id(ad_id: str):
-    conn = get_connection()
-    if not conn:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-    try:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT loc_breadcrumb, loc_1_id, loc_1_name, loc_2_id, loc_2_name, "
-            "category_1_id, category_1_name, category_2_id, category_2_name, "
-            "page_type, website_section, has_video, has_panorama, deliverable, delivery_option "
-            "FROM dubizzle_details WHERE ad_id = %s", 
-            (ad_id,)
-        )
-        row = cur.fetchone()
-        if not row:
-            raise HTTPException(status_code=404, detail=f"Details not found for ad {ad_id}")
-        cols = [d[0] for d in cur.description]
-        return DubizzleDetails(**dict(zip(cols, row)))
-    finally:
-        cur.close()
-        conn.close()
-
-@app.get("/listings/{ad_id}/with-details", response_model=ListingWithDetails)
-def get_listing_with_details(ad_id: str):
-    base = get_listing_by_id(ad_id)
-    try:
-        details = get_details_by_ad_id(ad_id)
-        data = base.dict()
-        data['details'] = details
-        return ListingWithDetails(**data)
-    except HTTPException as he:
-        if he.status_code == 404:
-            return ListingWithDetails(**{**base.dict(), 'details': None})
-        raise he
-
+@app.get("/websites", response_model=List[str])
+def get_websites(seller: str = Query(None, description="Filter websites by seller/agency")):
+    if seller:
+        contributor_filter = build_contributor_filter(seller)
+        query = f"""
+            SELECT DISTINCT l.website 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE l.website IS NOT NULL AND l.website <> '' 
+            AND ({contributor_filter['filter']})
+            ORDER BY l.website
+        """
+        return fetch_list(query, contributor_filter['params'])
+    else:
+        return fetch_list("SELECT DISTINCT website FROM listings WHERE website IS NOT NULL AND website <> '' ORDER BY website")
 
 @app.get("/filter-options", response_model=Dict[str, Any])
 def get_all_filter_options():
@@ -457,8 +551,214 @@ def get_all_filter_options():
         cur.execute("SELECT DISTINCT seller_type FROM listings WHERE seller_type IS NOT NULL AND seller_type <> '' ORDER BY seller_type")
         filter_options["seller_types"] = [row[0] for row in cur.fetchall()]
         
+        # Get websites
+        cur.execute("SELECT DISTINCT website FROM listings WHERE website IS NOT NULL AND website <> '' ORDER BY website")
+        filter_options["websites"] = [row[0] for row in cur.fetchall()]
+        
         return filter_options
     finally:
         cur.close()
         conn.close()
 
+# Dubizzle details endpoints
+@app.get("/details/{ad_id}", response_model=DubizzleDetails)
+def get_details_by_ad_id(ad_id: str):
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT loc_breadcrumb, loc_1_id, loc_1_name, loc_2_id, loc_2_name, "
+            "category_1_id, category_1_name, category_2_id, category_2_name, "
+            "page_type, website_section, has_video, has_panorama, deliverable, delivery_option "
+            "FROM dubizzle_details WHERE ad_id = %s", 
+            (ad_id,)
+        )
+        row = cur.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail=f"Details not found for ad {ad_id}")
+        cols = [d[0] for d in cur.description]
+        return DubizzleDetails(**dict(zip(cols, row)))
+    finally:
+        cur.close()
+        conn.close()
+
+@app.post("/dynamic-filter-options")
+def get_dynamic_filter_options(current_filters: dict):
+    """
+    Get filter options that are available based on current filter selections.
+    This ensures cascading filters - e.g., if you select Body Type "Pickup", 
+    you only see makes that actually have pickup trucks available.
+    """
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    
+    try:
+        cur = conn.cursor()
+        result = {}
+        
+        # Get available makes based on current filters (excluding make filter)
+        where_clause, params = build_dynamic_filter_query(current_filters, exclude_field='brand')
+        query = f"""
+            SELECT DISTINCT l.brand 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            {where_clause}
+            AND l.brand IS NOT NULL AND l.brand <> ''
+            ORDER BY l.brand
+        """
+        cur.execute(query, params)
+        result['makes'] = [row[0] for row in cur.fetchall()]
+        
+        # Get available models based on current filters (excluding model filter)
+        where_clause, params = build_dynamic_filter_query(current_filters, exclude_field='model')
+        query = f"""
+            SELECT DISTINCT l.model 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            {where_clause}
+            AND l.model IS NOT NULL AND l.model <> ''
+            ORDER BY l.model
+        """
+        cur.execute(query, params)
+        result['models'] = [row[0] for row in cur.fetchall()]
+
+        # Get available trims based on current filters (excluding trim filter)
+        where_clause, params = build_dynamic_filter_query(current_filters, exclude_field='trim')
+        query = f"""
+            SELECT DISTINCT l.trim 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            {where_clause}
+            AND l.trim IS NOT NULL AND l.trim <> ''
+            ORDER BY l.trim
+        """
+        cur.execute(query, params)
+        result['trims'] = [row[0] for row in cur.fetchall()]
+
+        # Get available body types based on current filters
+        where_clause, params = build_dynamic_filter_query(current_filters, exclude_field='body_type')
+        query = f"""
+            SELECT DISTINCT l.body_type 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            {where_clause}
+            AND l.body_type IS NOT NULL AND l.body_type <> ''
+            ORDER BY l.body_type
+        """
+        cur.execute(query, params)
+        result['bodyTypes'] = [row[0] for row in cur.fetchall()]
+        
+        # Get available transmission types based on current filters
+        where_clause, params = build_dynamic_filter_query(current_filters, exclude_field='transmission_type')
+        query = f"""
+            SELECT DISTINCT l.transmission_type 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            {where_clause}
+            AND l.transmission_type IS NOT NULL AND l.transmission_type <> ''
+            ORDER BY l.transmission_type
+        """
+        cur.execute(query, params)
+        result['transmissionTypes'] = [row[0] for row in cur.fetchall()]
+        
+        # Get available colors based on current filters
+        where_clause, params = build_dynamic_filter_query(current_filters, exclude_field='color')
+        query = f"""
+            SELECT DISTINCT l.color 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            {where_clause}
+            AND l.color IS NOT NULL AND l.color <> ''
+            ORDER BY l.color
+        """
+        cur.execute(query, params)
+        result['colors'] = [row[0] for row in cur.fetchall()]
+        
+        # Get available fuel types based on current filters
+        where_clause, params = build_dynamic_filter_query(current_filters, exclude_field='fuel_type')
+        query = f"""
+            SELECT DISTINCT l.fuel_type 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            {where_clause}
+            AND l.fuel_type IS NOT NULL AND l.fuel_type <> ''
+            ORDER BY l.fuel_type
+        """
+        cur.execute(query, params)
+        result['fuelTypes'] = [row[0] for row in cur.fetchall()]
+        
+        # Get available seller types based on current filters
+        where_clause, params = build_dynamic_filter_query(current_filters, exclude_field='seller_type')
+        query = f"""
+            SELECT DISTINCT l.seller_type 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            {where_clause}
+            AND l.seller_type IS NOT NULL AND l.seller_type <> ''
+            ORDER BY l.seller_type
+        """
+        cur.execute(query, params)
+        result['sellerTypes'] = [row[0] for row in cur.fetchall()]
+        
+        # Get available websites based on current filters
+        where_clause, params = build_dynamic_filter_query(current_filters, exclude_field='website')
+        query = f"""
+            SELECT DISTINCT l.website 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            {where_clause}
+            AND l.website IS NOT NULL AND l.website <> ''
+            ORDER BY l.website
+        """
+        cur.execute(query, params)
+        result['websites'] = [row[0] for row in cur.fetchall()]
+        
+        # Get available years based on current filters
+        where_clause, params = build_dynamic_filter_query(current_filters, exclude_field='year')
+        query = f"""
+            SELECT MIN(l.year), MAX(l.year) 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            {where_clause}
+            AND l.year IS NOT NULL
+        """
+        cur.execute(query, params)
+        min_year, max_year = cur.fetchone()
+        if min_year and max_year:
+            result['years'] = list(range(min_year, max_year + 1))
+        else:
+            result['years'] = []
+        
+        # Get available locations based on current filters
+        where_clause, params = build_dynamic_filter_query(current_filters, exclude_field='location')
+        query = f"""
+            SELECT DISTINCT l.location_city 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            {where_clause}
+            AND l.location_city IS NOT NULL AND l.location_city <> ''
+            UNION 
+            SELECT DISTINCT l.location_region 
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            {where_clause}
+            AND l.location_region IS NOT NULL AND l.location_region <> ''
+            ORDER BY 1
+        """
+        params_doubled = params + params  # Union requires params twice
+        cur.execute(query, params_doubled)
+        result['locations'] = [row[0] for row in cur.fetchall()]
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error getting dynamic filter options: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get dynamic filter options: {str(e)}")
+    finally:
+        cur.close()
+        conn.close()
+
+app.include_router(analytics_router)

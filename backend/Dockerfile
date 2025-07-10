@@ -8,7 +8,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 EXPOSE 8000
-# Make startup script and run.py executable
-RUN chmod +x startup.sh run.py
 
-CMD ["./startup.sh"]
+CMD ["python", "run.py"]

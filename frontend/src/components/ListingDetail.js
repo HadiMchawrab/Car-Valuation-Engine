@@ -1,23 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/ListingDetail.css';
-import { getTransmissionType, getBodyType } from '../utils/mappings';
+import { getTransmissionType, getBodyType, getColor } from '../utils/mappings';
 import API_BASE_URL from '../config/api';
 
 const ListingDetail = () => {
 
   const { id } = useParams();
-  const [listing, setListing] = useState(null);
+  const location = useLocation();
+  const [listingData, setListingData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Create back URL with preserved filters
+  const createBackURL = () => {
+    const searchParams = new URLSearchParams(location.search);
+    const queryString = searchParams.toString();
+    return queryString ? `/?${queryString}` : '/';
+  };
 
   useEffect(() => {
     const fetchListingDetail = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${API_BASE_URL}/listings/${id}`);
-        setListing(response.data);
+        // Try enhanced endpoint first, fallback to regular endpoint
+        let response;
+        try {
+          response = await axios.get(`${API_BASE_URL}/api/listings/${id}/enhanced`);
+        } catch (enhancedError) {
+          // Fallback to regular endpoint if enhanced fails
+          response = await axios.get(`${API_BASE_URL}/listings/${id}`);
+          response.data = { listing: response.data, seller_stats: null };
+        }
+        
+        setListingData(response.data);
         setLoading(false);
       } catch (err) {
         setError('Error fetching listing details. Please try again later.');
@@ -26,7 +43,8 @@ const ListingDetail = () => {
       }
     };
 
-    fetchListingDetail();  }, [id]);
+    fetchListingDetail();
+  }, [id]);
 
   if (loading) {
     return <div className="loading">Loading...</div>;
@@ -36,14 +54,22 @@ const ListingDetail = () => {
     return <div className="error">{error}</div>;
   }
 
-  if (!listing) {
+  if (!listingData || !listingData.listing) {
     return <div className="not-found">Listing not found</div>;
-  }  // In new schema, we have a single image URL
+  }
+
+  const listing = listingData.listing;
+  const sellerStats = listingData.seller_stats;  // In new schema, we have a single image URL
   const hasImage = listing.image_url && listing.image_url.trim() !== '';
+
+  // Determine seller/contributor info
+  const sellerName = listing.seller && listing.seller !== 'Unknown' && listing.seller !== '' ? listing.seller : (listing.agency_name || 'Unknown');
+  const sellerId = listing.seller_id || listing.agency_id;
+  const contributorType = listing.seller && listing.seller !== 'Unknown' && listing.seller !== '' ? 'individual_seller' : 'agency';
 
   return (
     <div className="listing-detail-container">
-      <Link to="/" className="back-button">← Back to Listings</Link>
+      <Link to={createBackURL()} className="back-button">← Back to Listings</Link>
       
       <h1 className="listing-title">{listing.title}</h1>
       
@@ -54,7 +80,7 @@ const ListingDetail = () => {
               <div className="main-image-container">
                 <img 
                   src={listing.image_url}
-                  alt={`${listing.brand} ${listing.model}`}
+                  alt={`${listing.brand} ${listing.model} (${listing.year})`}
                   className="main-image"
                   onError={(e) => {
                     e.target.onerror = null;
@@ -82,7 +108,12 @@ const ListingDetail = () => {
             <div className="detail-row">
               <div className="detail-label">Model</div>
               <div className="detail-value">{listing.model}</div>
-            </div>            <div className="detail-row">
+            </div>            
+            <div className="detail-row">
+              <div className="detail-label">Trim</div>
+              <div className="detail-value">{listing.trim || 'N/A'}</div>
+            </div>
+            <div className="detail-row">
               <div className="detail-label">Year</div>
               <div className="detail-value">{listing.year}</div>
             </div>
@@ -106,6 +137,12 @@ const ListingDetail = () => {
             <div className="detail-row">
               <div className="detail-label">Post Date</div>
               <div className="detail-value">{new Date(listing.post_date).toLocaleString()}</div>
+            </div>
+            <div className="detail-row">
+              <div className="detail-label">Scraped Date</div>
+              <div className="detail-value">
+                {listing.date_scraped ? new Date(listing.date_scraped).toLocaleString() : 'N/A'}
+              </div>
             </div>
             {listing.fuel_type && (
               <div className="detail-row">
@@ -134,7 +171,7 @@ const ListingDetail = () => {
             {listing.color && (
               <div className="detail-row">
                 <div className="detail-label">Color</div>
-                <div className="detail-value">{listing.color}</div>
+                <div className="detail-value">{getColor(listing.color)}</div>
               </div>
             )}
             {listing.seller_type && (
@@ -142,6 +179,81 @@ const ListingDetail = () => {
                 <div className="detail-label">Seller Type</div>
                 <div className="detail-value">{listing.seller_type}</div>
               </div>
+            )}
+          </div>
+
+          {/* Enhanced Seller Information Section */}
+          {(listing.seller || listing.agency_name || sellerStats) && (
+            <div className="seller-info-section">
+              <h3>{listing.seller ? 'Seller Information' : 'Agency Information'}</h3>
+              <div className="seller-details">
+                {(listing.seller || listing.agency_name) && (
+                  <div className="detail-row">
+                    <div className="detail-label">{listing.seller ? 'Seller' : 'Agency'}</div>
+                    <div className="detail-value">{listing.seller || listing.agency_name}</div>
+                  </div>
+                )}
+                {listing.seller_verified && (
+                  <div className="detail-row">
+                    <div className="detail-label">Verified</div>
+                    <div className="detail-value verified">✓ Verified {listing.seller ? 'Seller' : 'Agency'}</div>
+                  </div>
+                )}
+                {listing.is_agent && (
+                  <div className="detail-row">
+                    <div className="detail-label">Type</div>
+                    <div className="detail-value">Licensed Agent</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Seller Statistics */}
+              {sellerStats && (
+                <div className="seller-stats">
+                  <h4>Seller Activity</h4>
+                  <div className="stats-grid">
+                    <div className="stat-item">
+                      <span className="stat-number">{sellerStats.total_listings}</span>
+                      <span className="stat-label">Total Listings</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-number">{sellerStats.recent_listings}</span>
+                      <span className="stat-label">Recent (30 days)</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-number">
+                        ${Math.round(sellerStats.average_price || 0).toLocaleString()}
+                      </span>
+                      <span className="stat-label">Avg. Price</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-number">
+                        {sellerStats.first_listing_date ? 
+                          new Date(sellerStats.first_listing_date).toLocaleDateString() : 'N/A'}
+                      </span>
+                      <span className="stat-label">Member Since</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          
+          <div className="seller-section">
+            <div className="seller-info">
+              <span className="seller-label">Seller:</span>
+              <span className="seller-value">{sellerName}</span>
+            </div>
+            {sellerId && (
+              <Link
+                to={{
+                  pathname: `/analytics/contributor/${encodeURIComponent(sellerId)}`,
+                  state: { listingId: listing.ad_id }
+                }}
+                className="view-contributor-btn"
+              >
+                View Contributor Details
+              </Link>
             )}
           </div>
           

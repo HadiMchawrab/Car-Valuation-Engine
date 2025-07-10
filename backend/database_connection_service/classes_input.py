@@ -11,6 +11,7 @@ class Listing(BaseModel):
     currency: str
     brand: str  # was 'make' in old schema
     model: str
+    trim: Optional[str] = None
     year: int
     mileage: Optional[int] = None  # was 'kilometers' in old schema
     mileage_unit: Optional[str] = None
@@ -26,9 +27,18 @@ class Listing(BaseModel):
     image_url: Optional[str] = None  # was 'image' in old schema
     number_of_images: Optional[int] = None
     post_date: Union[str, datetime]  # was 'scraped_at' in old schema
+    date_scraped: Optional[Union[str, datetime]] = None  # when the listing was scraped
+    agency_name: Optional[str] = None  # from dubizzle_details table
+    seller_verified: Optional[bool] = None  # from dubizzle_details table
 
     @validator('post_date', pre=True)
     def parse_post_date(cls, v):
+        if isinstance(v, datetime):
+            return v.isoformat()
+        return v
+
+    @validator('date_scraped', pre=True)
+    def parse_date_scraped(cls, v):
         if isinstance(v, datetime):
             return v.isoformat()
         return v
@@ -63,6 +73,7 @@ class DubizzleDetails(BaseModel):
 class ListingSearch(BaseModel):
     brand: Optional[str] = None
     model: Optional[str] = None
+    trim: Optional[str] = None
     min_year: Optional[int] = None
     max_year: Optional[int] = None
     min_price: Optional[float] = None
@@ -78,8 +89,12 @@ class ListingSearch(BaseModel):
     condition: Optional[str] = None
     color: Optional[str] = None
     seller_type: Optional[str] = None
+    seller: Optional[str] = None  # Filter by specific seller name
+    website: Optional[str] = None  # Single website filter
+    websites: Optional[List[str]] = None  # Multiple websites filter (for button selection)
     min_post_date: Optional[Union[str, datetime]] = None  # Filter listings posted on or after this date
     max_post_date: Optional[Union[str, datetime]] = None  # Filter listings posted on or before this date
+    sort_by: Optional[str] = "post_date_desc"  # Sorting parameter
     
     @validator('min_post_date', 'max_post_date', pre=True)
     def parse_date_filters(cls, v):
@@ -112,6 +127,7 @@ class ListingWithDetails(BaseModel):
     currency: str
     brand: str
     model: str
+    trim : Optional[str] = None
     year: int
     mileage: Optional[int] = None
     mileage_unit: Optional[str] = None
