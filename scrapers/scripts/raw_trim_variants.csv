@@ -1,0 +1,1626 @@
+make,model,year,variant,count
+Toyota,Corolla,2016,gli,1
+Chevrolet,Cruze,2015,ls,1
+Toyota,Corolla,2019,le,2
+Toyota,Corolla,2019,xli,1
+Hyundai,Sonata,2025,comfort,4
+Hyundai,Sonata,2025,gdi,4
+Hyundai,Sonata,2025,2 5,1
+Hyundai,Sonata,2025,esp,1
+Hyundai,Sonata,2025,ebd,1
+Hyundai,Sonata,2025,gls,17
+Hyundai,Sonata,2025,smart,1
+Land Rover,Range Rover Sport,2023,first,4
+GMC,Yukon,2024,denali,2
+GMC,Yukon,2024,sle,45
+GMC,Yukon,2024,sle xl,1
+Jetour,T2,2025,السنة,2
+Jetour,T2,2025,lux,2
+Jetour,T2,2025,xwd,29
+Jetour,T2,2025,dct,1
+Jetour,T2,2025,comfort,2
+Ford,F150,2023,raptor,1
+Ford,F150,2023,xlt,4
+Bentley,Mulsanne,2017,first,2
+Lucid,Air,2024,pure,2
+Lucid,Air,2024,top,1
+Land Rover,Range Rover,2024,hse,17
+Land Rover,Range Rover,2024,lwb,2
+Land Rover,Range Rover,2024,swb,3
+Cadillac,Escalade,2024,sport,1
+Cadillac,Escalade,2024,platinum,1
+Cadillac,Escalade,2024,v,1
+Bentley,Mulsanne,2016,beluga,2
+Mercedes-Benz,GLE 53 AMG,2023,gle,5
+Mercedes-Benz,GLE 53 AMG,2023,amg,5
+Mercedes-Benz,GLE 53 AMG,2023,kit,1
+BMW,X1,2024,xdrive,1
+BMW,X1,2024,model,1
+BMW,X1,2024,now,2
+Changan,Uni-K,2024,uni,2
+Changan,Uni-T,2023,uni,2
+Changan,Uni-T,2023,unl,2
+Chery,Arrizo,2024,pro,8
+Chery,Arrizo,2024,5,2
+Chery,Arrizo,2024,6,7
+Chery,Arrizo,2024,eco,1
+Haval,Jolion,2021,dct,1
+Geely,Okavango,2024,dct,1
+Haval,Jolion,2024,pro,2
+Haval,Jolion,2024,dct,1
+Haval,H6 GT,2023,dct,1
+Hyundai,Venue,2025,dct,1
+Hyundai,Venue,2025,gdi,1
+Changan,Eado Plus,2024,dct,1
+Fiat,500,2021,electric,1
+Toyota,Yaris,2024,y,5
+Toyota,Yaris,2024,yx,2
+Toyota,Yaris,2024,out,1
+Toyota,Yaris,2024,low,1
+Toyota,Yaris,2024,plus,1
+Toyota,Yaris,2024,old,1
+Toyota,Yaris,2024,mid,1
+Toyota,Yaris,2024,standard,1
+Ford,Territory,2025,titanium,3
+Ford,Territory,2025,1 8,1
+Ford,Territory,2025,dark,4
+Ford,Territory,2025,trend,5
+Ford,Territory,2025,ambiente,2
+Ford,Territory,2025,featuring,1
+Ford,Territory,2025,mid,1
+BAIC,X7,2023,owner,1
+BAIC,X7,2023,model,1
+Nissan,X-Trail,2024,sv,1
+Hyundai,Tucson,2025,smart,6
+Hyundai,Tucson,2025,mpi,1
+Hyundai,Tucson,2025,1 6,1
+Hyundai,Tucson,2025,standard,1
+Hyundai,Tucson,2025,comfort,1
+Hyundai,Tucson,2025,premium,2
+Hyundai,Tucson,2025,uph,1
+Hyundai,Tucson,2025,dct,1
+Nissan,Altima,2024,sv,2
+Nissan,Altima,2024,standard,1
+Nissan,Altima,2024,s,2
+Nissan,Patrol,2024,se2,2
+Nissan,Patrol,2024,titanium,2
+Nissan,Patrol,2024,platinum,3
+Nissan,Patrol,2024,xe,1
+Nissan,Patrol,2024,v6,1
+Honda,City,2024,dx,2
+Honda,City,2024,sport,1
+Haval,H6,2023,premium,1
+Toyota,Fortuner,2024,gx2,1
+Toyota,Fortuner,2024,vxr,1
+Toyota,Fortuner,2024,vx,1
+Toyota,Fortuner,2024,vx3,2
+Toyota,Fortuner,2024,diesel,1
+Toyota,Fortuner,2024,dsl,1
+Nissan,X-Trail,2023,sv,1
+Toyota,Camry,2025,e,14
+Toyota,Camry,2025,le,8
+Toyota,Camry,2025,drl,3
+Toyota,Camry,2025,mid,1
+Toyota,Camry,2025,cft,1
+Toyota,Camry,2025,grande,1
+Toyota,Camry,2025,hev,4
+Toyota,Camry,2025,e plus,4
+Toyota,Camry,2025,my,1
+Toyota,Camry,2025,lumiere,1
+Toyota,Camry,2025,owned,1
+Hyundai,Creta,2025,smart,4
+Hyundai,Creta,2025,comfort,4
+Hyundai,Creta,2025,two,1
+Hyundai,Creta,2025,alpha,1
+Hyundai,Creta,2025,1 5l,1
+Chery,Tiggo,2023,2,1
+Chery,Tiggo,2023,4,1
+Ford,Taurus,2024,ambiente,1
+Ford,Taurus,2024,eco,1
+Ford,Taurus,2024,trend,1
+Bentley,Continental,2023,flying,2
+Toyota,Camry,2024,le,1
+Toyota,Camry,2024,hev,2
+Toyota,Camry,2024,e,1
+Toyota,Camry,2024,gle,5
+Changan,Eado Plus,2025,gdi,2
+Changan,Eado Plus,2025,eco,1
+Changan,Uni-V,2025,uni,9
+Changan,Uni-V,2025,gdi,1
+Changan,Uni-V,2025,sport,2
+Isuzu,MU-X,2024,mux,19
+Ford,Territory,2023,trend,4
+Ford,Territory,2023,titanium,1
+Toyota,Rav 4,2024,rav,2
+Toyota,Rav 4,2024,now,1
+Toyota,Rav 4,2024,xle,8
+Ford,Ranger,2023,xlt,17
+MG,MG HS,2022,dct,1
+MG,MG HS,2022,lux,1
+BMW,X6,2023,xdrive40i,4
+BMW,X7,2023,xdrive40i,3
+BMW,X7,2023,السنة,1
+Ford,Territory,2024,ambiente,2
+Ford,Territory,2024,trend,1
+Ford,Territory,2024,titanium,1
+Chevrolet,Captiva,2024,ls,2
+Chevrolet,Captiva,2024,premium,1
+Chevrolet,Captiva,2023,premiere,1
+Hyundai,Elantra,2024,smart,2
+Chevrolet,Groove,2023,lt,1
+Kia,Carens,2024,gls,3
+Toyota,Land Cruiser,2024,gxr,127
+Toyota,Land Cruiser,2024,dlx,1
+Toyota,Land Cruiser,2024,vxr,10
+Toyota,Land Cruiser,2024,vxs,1
+Toyota,Land Cruiser,2024,ppf,1
+Toyota,Land Cruiser,2024,top,1
+Toyota,Land Cruiser,2024,dsl,1
+Toyota,Land Cruiser,2024,spe,1
+Lexus,RX 350,2023,eco,1
+Lexus,RX 350,2023,tan,1
+Dodge,Ram,2025,rebel,1
+Dodge,Ram,2025,cab,8
+Dodge,Ram,2025,sst,16
+Dodge,Ram,2025,rho,16
+Dodge,Ram,2025,big,2
+Dodge,Ram,2025,1500,3
+Dodge,Ram,2025,laramie,2
+Ford,Taurus,2025,titanium,12
+Ford,Taurus,2025,trend,15
+Ford,Taurus,2025,2 0,1
+Ford,Taurus,2025,full,1
+Ford,Taurus,2025,model,1
+Ford,Taurus,2025,own,1
+Ford,Taurus,2025,ambiente,8
+Ford,Taurus,2025,hybrid,1
+Ford,Taurus,2025,استمتع,1
+Ford,Taurus,2025,mid,2
+Ford,Taurus,2025,esp,1
+Changan,Uni-K,2025,uni,15
+Changan,Uni-K,2025,elite,8
+Land Rover,Defender 110,2022,hse,8
+Land Rover,Defender 110,2022,xs,3
+Mercedes-Benz,C 300,2022,amg,2
+Mercedes-Benz,C 300,2022,kit,1
+Mercedes-Benz,C 300,2022,pkg,1
+Mercedes-Benz,C 300 Coupe,2024,amg,3
+Mercedes-Benz,C 300 Coupe,2024,kit,1
+Toyota,Prado,2024,adventure,2
+Toyota,Prado,2024,tx2,1
+Toyota,Prado,2024,txl,8
+Toyota,Prado,2024,diesel,1
+Kia,Sportage,2025,lx,1
+Kia,Sportage,2025,4x,1
+Kia,Sportage,2025,gls,11
+Kia,Sportage,2025,dct,1
+Kia,Sportage,2025,mid,1
+Kia,Sportage,2025,top,4
+Hyundai,Tucson,2024,2 0,1
+Hyundai,Tucson,2024,smart,4
+Hyundai,Azera,2025,exclusive,1
+Hyundai,Azera,2025,caligraphy,2
+Hyundai,Azera,2025,classic,4
+Hyundai,Azera,2025,premium,1
+Hyundai,Azera,2025,calligraphy,2
+Hyundai,Azera,2025,gls,3
+Hyundai,Azera,2025,3 5,1
+BMW,X5,2024,xdrive,4
+Changan,CS95,2025,royal,1
+Dodge,Charger,2022,gt,3
+Dodge,Charger,2022,vvt,1
+BMW,X7,2021,xdrive40i,2
+Changan,UNI-S,2025,uni,4
+Chevrolet,Blazer,2024,rs,1
+Chevrolet,Tahoe,2024,lt,2
+Chevrolet,Suburban,2024,lt,1
+Chevrolet,Suburban,2024,ls,1
+GMC,Sierra,2024,elevation,1
+GMC,Sierra,2024,sle,6
+GMC,Sierra,2024,at4,2
+Mercedes-Benz,Cle,2024,amg,8
+Mercedes-Benz,Cle,2024,kit,4
+Mercedes-Benz,Cle,2024,300,2
+Mercedes-Benz,Cle,2024,cla,2
+Mercedes-Benz,Cle,2024,200,4
+Toyota,Land Cruiser,2021,gxr,15
+Toyota,Land Cruiser,2021,gps,2
+Toyota,Land Cruiser,2021,dvd,2
+Toyota,Land Cruiser,2021,vxr,2
+Mercedes-Benz,GLE 350,2021,gle,4
+Mercedes-Benz,GLE 350,2021,amg,1
+Mercedes-Benz,GLE 350,2021,kit,1
+Mercedes-Benz,GLE 350,2021,com,1
+BMW,M5,2021,competition,2
+BMW,M5,2021,pkg,2
+BMW,X7,2024,xdrive40i,2
+Mercedes-Benz,GLE 53 AMG,2021,gle,6
+Mercedes-Benz,GLE 53 AMG,2021,amg,3
+Mercedes-Benz,S 580,2022,amg,3
+Mercedes-Benz,S 580,2022,kit,2
+Mercedes-Benz,GLC 300,2023,glc,4
+Mercedes-Benz,GLC 300,2023,amg,3
+Mercedes-Benz,GLC 300,2023,kit,1
+Mercedes-Benz,E-Class,2025,e,2
+Mercedes-Benz,E-Class,2025,amg,8
+Mercedes-Benz,E-Class,2025,kit,1
+BMW,X2,2022,sdrive20i,2
+Chevrolet,Tahoe,2022,ls,2
+Chevrolet,Tahoe,2022,rst,4
+Chevrolet,Tahoe,2022,xl,2
+Chevrolet,Tahoe,2022,lt,1
+Lexus,ES 350,2022,line,2
+Lexus,IS500,2022,launch,2
+Tesla,Other,2024,cab,2
+Ford,F150,2020,reg,2
+Ford,F150,2020,cab,1
+Ford,F150,2020,xlt,1
+Ford,F150,2020,mod,1
+Ford,F150,2020,raptor,1
+Toyota,Hilux,2025,glx,11
+Toyota,Hilux,2025,gl,2
+Toyota,Hilux,2025,adventure,1
+Toyota,Hilux,2025,gl2,1
+Toyota,Hilux,2025,full,1
+Toyota,Hilux,2025,now,1
+Toyota,Hilux,2025,dsl,2
+Toyota,Hilux,2025,s,1
+Toyota,Hilux,2025,dlx,1
+Toyota,Hilux,2025,mid,1
+BMW,X3,2023,xdrive30i,1
+Nissan,GT-R,2021,مكينة,1
+Nissan,GT-R,2021,bos,1
+Nissan,GT-R,2021,premium,4
+BMW,X6,2020,xdrive40i,2
+BMW,X6,2020,pkg,2
+BMW,X6,2020,بي,1
+BMW,X6,2020,20202020,1
+Mercedes-Benz,C 300,2024,amg,1
+Mercedes-Benz,C 300,2024,hud,1
+Porsche,Macan,2024,مالك,2
+Porsche,Macan,2024,pdk,2
+Porsche,Macan,2024,داخلية,1
+Porsche,Macan,2024,t,1
+Mercedes-Benz,C 300,2025,amg,1
+Porsche,Cayenne,2022,s,1
+Porsche,Cayenne,2022,coupe,2
+Ford,Mustang,2024,ecoboost,4
+Ford,Mustang,2024,pkg,2
+Ford,Mustang,2024,dark,6
+Ford,Mustang,2024,gt,3
+Other make,Other,2022,kwh,1
+Other make,Other,2022,epa,1
+Ford,Bronco,2021,badlands,2
+Ford,Bronco,2021,raptor,1
+Honda,Accord,2023,hybrid,2
+Honda,Accord,2023,lux,2
+Honda,Accord,2023,silver,1
+Honda,Accord,2023,eco,2
+Honda,Accord,2020,hybrid,1
+Honda,Accord,2024,hybrid,3
+Honda,Accord,2024,exl,6
+Honda,Accord,2024,standrd,1
+Honda,Accord,2024,eps,1
+BMW,X6,2024,xdrive40i,4
+BMW,X6,2024,pro,1
+BMW,X6,2024,xdrive,4
+BMW,520,2025,i,2
+BMW,520,2025,kit,23
+BMW,520,2025,m,3
+BMW,520,2025,tax,1
+BMW,X4,2022,xdrive,2
+BMW,X4,2022,kit,3
+BMW,X4,2022,pkg,1
+GMC,Canyon,2024,at4x,1
+Chevrolet,Silverado,2024,trail,1
+Hyundai,Santa Fe,2022,limited,1
+Hyundai,Santa Fe,2022,off,1
+Hyundai,Santa Fe,2022,fix,1
+Toyota,Hilux,2024,2 8,2
+Toyota,Hilux,2024,mts,8
+Toyota,Hilux,2024,glx,12
+Toyota,Hilux,2024,gxl,1
+Toyota,Hilux,2024,gl2,1
+Dodge,Ram,2023,big,8
+Dodge,Ram,2023,lunar,2
+Dodge,Ram,2023,trx,4
+Dodge,Ram,2023,cab,2
+Dodge,Ram,2023,2500,1
+Peugeot,408,2025,gt,3
+Chevrolet,Traverse,2024,2lt,1
+Chevrolet,Traverse,2024,lt,2
+Mercedes-Benz,GLE 53 AMG,2022,gle,1
+Mercedes-Benz,GLE 53 AMG,2022,amg,2
+Lamborghini,Urus,2023,mansory,2
+Lamborghini,Urus,2023,performante,2
+Lamborghini,Urus,2023,s,1
+Lamborghini,Urus,2023,special,1
+Lucid,Air,2023,dream,5
+Toyota,Crown,2023,majesta,3
+Toyota,Crown,2023,premium,3
+Mercedes-Benz,GLE 63 AMG,2021,gle,5
+Mercedes-Benz,GLE 63 AMG,2021,amg,5
+Mercedes-Benz,GLE 63 AMG,2021,tct,1
+Mercedes-Benz,SLS AMG,2011,sls,2
+Mercedes-Benz,SLS AMG,2011,amg,2
+Nissan,Patrol,2025,platinum,14
+Nissan,Patrol,2025,se2,1
+Nissan,Patrol,2025,se,2
+Nissan,Patrol,2025,set,2
+Nissan,Patrol,2025,xe,2
+Nissan,Patrol,2025,titanium,1
+Mercedes-Benz,S 580,2024,amg,2
+Land Rover,Defender 110,2023,hse,6
+Land Rover,Defender 90,2024,hse,2
+Land Rover,Range Rover,2022,first,7
+Land Rover,Range Rover,2022,hse,1
+Toyota,Crown,2025,premium,1
+Lamborghini,Urus,2020,طراز,1
+Mercedes-Benz,Vito,2024,vip,3
+Lamborghini,Aventador,2016,s,1
+Lamborghini,Aventador,2016,roadster,2
+Lamborghini,Aventador,2016,sv,2
+BMW,740,2024,kit,4
+BMW,740,2024,i,1
+BMW,X3,2024,sdrive30i,2
+BMW,X3,2024,kit,6
+BMW,M3,2022,m,2
+BMW,M3,2022,pdk,1
+Land Rover,Defender 90,2023,carpathian,2
+Porsche,Cayenne,2023,موجود,1
+Porsche,Cayenne,2023,coupe,2
+Porsche,Cayenne,2023,platinum,2
+Porsche,Cayenne,2023,ppf,1
+Lexus,ES 300,2024,eco,2
+Jeep,Wrangler,2024,sport,8
+Jeep,Wrangler,2024,unlimited,11
+Jeep,Wrangler,2024,rubicon,3
+Jeep,Wrangler,2024,final,2
+BMW,520,2024,m,1
+BMW,520,2024,kit,2
+Mercedes-Benz,SLK 200,2009,slk,4
+Mercedes-Benz,SLK 200,2009,amg,2
+Rover,Other,2021,hse,1
+Porsche,Cayenne GTS,2022,gts,3
+Toyota,Hilux,2016,glx,2
+Jeep,Wrangler,2025,unlimited,13
+Jeep,Wrangler,2025,rubicon,7
+Jeep,Wrangler,2025,final,5
+Land Rover,Range Rover,2023,hse,9
+Land Rover,Range Rover,2023,first,4
+Toyota,Land Cruiser,2020,gxr,12
+Toyota,Land Cruiser,2020,vxr,1
+Land Rover,Range Rover,2021,hse,2
+Mercedes-Benz,GLA 250,2023,amg,2
+Land Rover,Range Rover,2025,hse,8
+Land Rover,Range Rover,2025,lwp,2
+Land Rover,Range Rover,2025,hud,1
+Toyota,Prado,2023,txl,5
+Toyota,Prado,2023,full,1
+Mercedes-Benz,GLC 200,2025,glc,25
+Mercedes-Benz,GLC 200,2025,cop,2
+Mercedes-Benz,GLC 200,2025,amg,5
+Mercedes-Benz,GLC 200,2025,off,2
+BMW,X6,2025,m,2
+BMW,X6,2025,kit,3
+Mercedes-Benz,E 450,2024,amg,1
+Maserati,Ghibli,2022,hybrid,1
+Porsche,911 GT3,2019,six,1
+Porsche,911 GT3,2019,pdk,1
+Toyota,Land Cruiser,2019,gxr,5
+Toyota,Land Cruiser,2019,fix,1
+Land Rover,Range Rover HSE,2023,hse,7
+Toyota,Highlander,2024,gla,3
+Toyota,Highlander,2024,gle,6
+BMW,740,2023,pro,1
+BMW,740,2023,kit,2
+BMW,740,2023,m,1
+Cadillac,CT5,2023,premium,2
+Cadillac,CT5,2023,hud,1
+Toyota,Land Cruiser,2025,gxr,46
+Toyota,Land Cruiser,2025,vxr,8
+Toyota,Land Cruiser,2025,dlx,2
+Toyota,Land Cruiser,2025,now,1
+Toyota,Land Cruiser,2025,vxs,2
+BMW,740,2022,li,1
+Dodge,Charger,2017,srt,1
+Land Rover,Defender,2020,hse,2
+Land Rover,Defender,2020,hsc,3
+Lexus,RX 350,2024,eco,1
+Lexus,NX350,2025,wma,1
+Lexus,NX350,2025,ah,1
+Lexus,NX350,2025,aa,1
+Lexus,NX350,2025,hybrid,4
+Mercedes-Benz,G-Class,2021,amg,2
+Toyota,Tundra,2024,trd,4
+Toyota,Tundra,2024,pro,2
+Mercedes-Benz,S 500,2022,amg,1
+Toyota,Veloz,2024,glx,13
+Toyota,Veloz,2024,2024white,1
+Ford,Explorer,2023,xlt,20
+Land Rover,Defender 110,2025,sedona,1
+Land Rover,Defender 110,2025,hse,5
+Land Rover,Range Rover,2016,hse,2
+Land Rover,Range Rover,2016,svr,3
+Toyota,Land Cruiser,2023,gxr,18
+Toyota,Land Cruiser,2023,vxr,4
+Toyota,Land Cruiser,2023,toy,1
+Mercedes-Benz,GLS Maybach,2022,gls,2
+Land Rover,Range Rover HSE,2024,hse,8
+Bentley,Mulsanne,2014,mulliner,1
+Bentley,Mulsanne,2013,mulliner,1
+Kia,Telluride,2024,gls,7
+Kia,Telluride,2024,mid,4
+Toyota,Land Cruiser,2016,gxr,3
+Toyota,Land Cruiser,2016,vxr,2
+Toyota,Land Cruiser,2022,gxr,10
+Toyota,Land Cruiser,2022,launch,1
+Toyota,Land Cruiser,2022,vxr,2
+Land Rover,Range Rover,2020,hse,4
+Land Rover,Range Rover,2020,lwb,1
+Land Rover,Defender,2021,first,2
+Land Rover,Defender,2021,hse,2
+Land Rover,Defender,2021,ppf,1
+Mercedes-Benz,CLA 250,2024,cla,4
+Mercedes-Benz,GLE 53 AMG,2024,amg,3
+Mercedes-Benz,GLE 53 AMG,2024,gle,2
+GMC,Yukon,2022,slt,1
+GMC,Yukon,2022,sle,3
+GMC,Yukon,2022,esp,1
+GMC,Yukon,2022,trc,1
+GMC,Yukon,2022,ebd,1
+Ford,Ranger,2024,esp,1
+Ford,Ranger,2024,xlt,2
+Mitsubishi,Outlander,2024,glx,4
+Land Rover,Defender 130,2023,hse,2
+Audi,Q8,2020,technik,2
+Audi,Q8,2020,pkg,1
+Porsche,Cayenne,2020,turpo,2
+Porsche,Cayenne,2020,coupe,2
+Mercedes-Benz,E 53 AMG,2021,amg,2
+Mercedes-Benz,GLS 450,2021,gls,5
+Nissan,GT-R,2023,premium,2
+BMW,440,2024,hud,1
+Mercedes-Benz,E 350,2024,amg,5
+Mercedes-Benz,E 350,2024,kit,2
+BMW,M5,2025,مكينة,1
+BMW,M5,2025,سعر,1
+BMW,M5,2025,model,1
+Bentley,Bentayga,2022,s,1
+Bentley,Bentayga,2022,speed,2
+Land Rover,Range Rover Sport,2024,hse,2
+Land Rover,Range Rover Sport,2016,hst,2
+BMW,735,2024,kit,3
+Nissan,Patrol,2023,vtc,4
+Nissan,Patrol,2023,gl,1
+Land Rover,Range Rover,2018,hse,8
+Land Rover,Range Rover,2018,ppf,1
+Mercedes-Benz,S 450,2018,amg,1
+GMC,Yukon,2021,slt,1
+GMC,Yukon,2021,pdf,1
+GMC,Yukon,2021,at4,1
+GMC,Yukon,2021,gray,1
+Mercedes-Benz,200SEL,2020,cla,1
+Mercedes-Benz,C 43 AMG,2020,amg,2
+Land Rover,Defender,2023,carpathian,2
+Land Rover,Defender,2023,ppf,1
+Land Rover,Defender,2023,top,1
+Land Rover,Defender,2023,bbf,1
+Mercedes-Benz,S 500,2015,amg,1
+Mercedes-Benz,S 500,2015,gps,1
+Lexus,LX 600,2023,mts,1
+Lexus,LX 600,2023,vip,4
+Lexus,LX 600,2023,lex,1
+Lexus,LX 600,2023,ppf,1
+Porsche,Cayenne GTS,2021,gts,2
+BMW,750,2020,الفءة,1
+Mercedes-Benz,A 200,2022,amg,1
+Mercedes-Benz,CLA 45 AMG,2022,cla,2
+Mercedes-Benz,CLA 45 AMG,2022,amg,2
+Land Rover,Defender,2022,vin,1
+Land Rover,Defender,2022,hse,3
+Toyota,Rav 4,2017,std,1
+GMC,Sierra,2023,at4,1
+Chevrolet,Tahoe,2019,lt2,1
+Chevrolet,Tahoe,2019,lt,1
+Chevrolet,Tahoe,2019,ls,1
+Chevrolet,Tahoe,2019,wit,1
+GMC,Sierra,2025,sle,22
+Ford,Expedition,2024,xlt,6
+Land Rover,Range Rover HSE,2025,hse,15
+Mercedes-Benz,EQS 580 4Matic SUV,2023,eqs,2
+Lexus,LS-Series,2018,eco,2
+Toyota,Land Cruiser,2014,gxr,4
+Mercedes-Benz,CLS 450,2020,cls,2
+Toyota,Rav 4,2025,rav,1
+Toyota,Rav 4,2025,xle,15
+Toyota,Rav 4,2025,drl,1
+Toyota,Rav 4,2025,ltd,1
+Toyota,Rav 4,2025,mid,1
+Lexus,UX,2020,kit,1
+Mercedes-Benz,GLA 200,2022,gla,1
+Mercedes-Benz,GLA 200,2022,amg,2
+Mercedes-Benz,GLA 200,2022,kit,1
+BMW,M8,2024,competition,3
+BMW,X5,2025,m60i,1
+Land Rover,Defender,2025,hse,5
+Land Rover,Defender,2025,oct,1
+Lexus,LX 600,2022,vip,3
+Mercedes-Benz,GLE 63 AMG,2022,gle,1
+Mercedes-Benz,GLE 63 AMG,2022,amg,2
+Mercedes-Benz,CLA 250,2022,cla,1
+Mercedes-Benz,CLA 250,2022,amg,4
+Mercedes-Benz,GLA 200,2021,200,2
+Mercedes-Benz,GLA 200,2021,gla,2
+BMW,M8,2021,competition,1
+GMC,Yukon,2023,sle,9
+GMC,Yukon,2023,xl,3
+Isuzu,D-Max,2025,standard,1
+Isuzu,D-Max,2025,max,29
+Isuzu,D-Max,2025,cab,5
+Isuzu,D-Max,2025,gt,4
+Isuzu,D-Max,2025,mid,2
+Toyota,Highlander,2022,xse,1
+Toyota,Highlander,2022,xle,1
+Bentley,Bentayga,2023,saudi,1
+Bentley,Bentayga,2023,first,2
+Bentley,Bentayga,2023,s,1
+Lamborghini,Aventador,2014,lp700,1
+Land Rover,Defender 110,2024,hse,3
+Changan,CS35,2024,plus,1
+Lamborghini,Aventador,2020,svj,4
+Bentley,Bentayga,2021,speed,1
+Mercedes-Benz,G 63 AMG,2022,amg,5
+Mercedes-Benz,GLC 200,2023,glc,8
+Mercedes-Benz,GLC 200,2023,cop,2
+Mercedes-Benz,GLC 200,2023,bra,1
+Mercedes-Benz,GLC 200,2023,amg,1
+Mercedes-Benz,GLC 200,2023,kit,1
+Audi,A8,2024,l,1
+Jeep,Renegade,2024,sport,1
+Kia,K8,2024,half,1
+Kia,K8,2024,gls,3
+Kia,K8,2024,top,2
+Kia,K8,2024,mid,2
+BMW,X7,2025,xdrive,2
+Rox,01,2025,سعة,2
+Rox,01,2025,vip,11
+Rox,01,2025,اكتشف,1
+Rox,01,2025,hybrid,1
+Rox,01,2025,model,2
+Cadillac,Escalade,2025,600,1
+Lexus,LX 600,2024,fhd,2
+Lexus,LX 600,2024,lsd,3
+Lexus,LX 600,2024,ppf,1
+Mercedes-Benz,Other,2020,amg,4
+Mercedes-Benz,Other,2020,spe,1
+Mercedes-Benz,C 200 Coupe,2025,amg,2
+Mercedes-Benz,G Class,2024,two,2
+Nissan,Patrol,2022,platinum,2
+Nissan,Patrol,2022,esp,1
+Nissan,Patrol,2022,سيارة,1
+Toyota,Camry,2016,glx,5
+Porsche,Panamera,2021,4,1
+Bentley,Bentayga,2019,v12,1
+Porsche,Carrera,2023,4s,1
+Porsche,Carrera,2023,911,1
+Porsche,Carrera,2023,gts,2
+Mercedes-Benz,GLC 200,2022,glc,5
+Mercedes-Benz,GLC 200,2022,amg,4
+BMW,X2,2025,m,1
+BMW,X2,2025,kit,2
+BMW,X2,2025,model,1
+Mercedes-Benz,GLS 450,2020,gls,1
+Porsche,911,2023,gts,2
+Mercedes-Benz,GLC 200,2020,glc,5
+BMW,730,2020,kit,1
+BMW,730,2020,li,1
+Cadillac,Escalade,2023,600,1
+Dodge,Ram,2022,trx,12
+Dodge,Ram,2022,rebel,1
+Infiniti,QX80,2023,pro,2
+Changan,Uni-T,2024,uni,1
+Honda,CR-V,2024,zrv,2
+Honda,CR-V,2024,tft,1
+Hyundai,Accent,2025,smart,2
+Hyundai,Accent,2025,ivt,4
+Hyundai,Elantra,2025,comfort,7
+Hyundai,Elantra,2025,smart,10
+Hyundai,Elantra,2025,esp,1
+Hyundai,Elantra,2025,sea,1
+Hyundai,Elantra,2025,gls,1
+Kia,Seltos,2024,gls,10
+Kia,Seltos,2024,mid,1
+Kia,Seltos,2024,kgf,1
+Nissan,Altima,2023,sv,1
+Suzuki,Baleno,2025,gl,1
+Suzuki,Baleno,2025,glx,2
+Suzuki,Baleno,2025,lcd,1
+Suzuki,Baleno,2025,full,1
+Toyota,Raize,2024,xle,15
+Toyota,Raize,2024,g,2
+Toyota,Raize,2024,limited,1
+Toyota,Raize,2024,سيارة,2
+Toyota,Raize,2024,1 2,1
+Toyota,Raize,2024,xli,1
+Isuzu,MU-X,2023,mux,1
+Honda,Odyssey,2025,lx,1
+Honda,Odyssey,2025,xl,2
+Ford,Everest,2024,xlt,6
+Ford,Everest,2024,ltd,2
+Ford,Everest,2024,limited,1
+Ford,Everest,2024,xls,2
+BMW,M3,2021,competition,1
+Jeep,Gladiator,2022,sand,1
+Land Rover,Defender 110,2020,hse,2
+Land Rover,Defender 110,2020,wit,1
+Mercedes-Benz,S 580,2021,amg,1
+Mercedes-Benz,S 580,2021,kit,1
+Audi,Q8,2024,prestige,2
+BMW,330,2024,kit,2
+Land Rover,Range Rover Velar,2024,hse,4
+Mercedes-Benz,GLC 300,2024,glc,9
+Mercedes-Benz,GLC 300,2024,amg,1
+Mercedes-Benz,GLC 300,2024,kit,1
+Mercedes-Benz,GLC 300,2024,pkg,1
+Changan,CS35 PLUS,2025,gdi,6
+Chevrolet,Traverse,2023,ls,2
+Renault,ARKANA,2025,smart,1
+Renault,ARKANA,2025,premium,1
+Maxus,T60,2023,pro,1
+GMC,Sierra,2022,at4,3
+GMC,Sierra,2022,hd,1
+Lexus,ES 350,2024,eco,1
+Mercedes-Benz,S 400,2016,eco,1
+BMW,730,2022,kit,2
+BMW,M8,2020,competition,3
+Mercedes-Benz,GTS,2016,amg,1
+Mercedes-Benz,GTS,2016,dct,1
+Toyota,Prado,2020,ppf,1
+Toyota,Prado,2020,txl,3
+BMW,X5,2022,xdrive40i,1
+Mercedes-Benz,CLA 200,2025,cla,15
+Mercedes-Benz,CLA 200,2025,bod,1
+Mercedes-Benz,CLA 200,2025,amg,10
+Lamborghini,Urus,2024,s,1
+Mercedes-Benz,GLC 200,2021,glc,3
+Mercedes-Benz,GLC 200,2021,gps,1
+Lexus,ES 250,2024,vvt,2
+BMW,X3,2021,كت,1
+Mercedes-Benz,GLA 200,2023,gla,1
+Mercedes-Benz,GLA 200,2023,gps,2
+Mercedes-Benz,GLA 200,2023,amg,1
+Mercedes-Benz,GLA 200,2023,kit,1
+Mercedes-Benz,GLB 200,2022,glb,1
+Mercedes-Benz,GLB 250,2022,glb,2
+Mercedes-Benz,GLB 250,2022,amg,1
+Mercedes-Benz,CLA Class,2023,cla,1
+Mercedes-Benz,CLA Class,2023,gps,1
+BMW,X4,2023,xdrive,3
+BMW,X4,2023,xdrive30i,2
+Mercedes-Benz,GLB 200 AMG,2022,glb,1
+Mercedes-Benz,GLB 200 AMG,2022,amg,1
+Lexus,LX 600,2025,vip,5
+Lexus,LX 600,2025,off,1
+Lamborghini,Aventador,2021,svj,3
+Hyundai,Sonata,2022,don,1
+Toyota,Land Cruiser,2015,gxr,3
+Toyota,Land Cruiser,2015,grx,1
+Land Rover,LR4,2015,hse,2
+Audi,Q8,2025,tfsi,3
+Audi,Q8,2025,aut,2
+Audi,Q8,2025,s line,1
+Audi,A3,2025,tfsi,4
+Toyota,Prado,2021,txl,4
+Toyota,Corolla,2025,xli,36
+Toyota,Corolla,2025,dis,1
+Toyota,Corolla,2025,standard,1
+Toyota,Corolla,2025,2 0,1
+Toyota,Corolla,2025,ltd,1
+Kia,Sportage,2019,gdi,1
+Kia,Sportage,2019,mid,2
+Mazda,CX-30,2022,gdi,1
+Toyota,Prado,2025,txl1,1
+Toyota,Prado,2025,txl2,1
+Toyota,Prado,2025,txl,3
+Toyota,Urban Cruiser,2024,glx,1
+Suzuki,Fronx,2025,glx,3
+Suzuki,Fronx,2025,lcd,2
+Suzuki,Fronx,2025,per,1
+Suzuki,Dzire,2025,glx,13
+Suzuki,Dzire,2025,gl,3
+Mercedes-Benz,CLA 250,2020,amg,1
+Ford,Expedition,2023,xlt,4
+Porsche,911,2020,turbo,2
+Mercedes-Benz,GLS Class,2018,gls,3
+Porsche,911 GT3,2024,six,1
+Chevrolet,Captiva,2025,ls,1
+Chevrolet,Captiva,2025,standard,1
+Chevrolet,Captiva,2025,premier,1
+Kia,Cerato,2024,gl,1
+Kia,Cerato,2024,standard,1
+Mitsubishi,Xpander,2024,full,1
+Mercedes-Benz,GLB 250,2024,glb,2
+Toyota,Urban Cruiser,2025,glx,6
+Kia,K3,2024,standard,1
+Kia,K3,2024,gl,1
+Kia,K3,2024,السيارة,1
+Toyota,Avalon,2022,xle,2
+GMC,Yukon,2016,slt,2
+GMC,Yukon,2016,xl,1
+GMC,Yukon,2016,sle,3
+Suzuki,Ciaz,2023,glx,1
+Mercedes-Benz,G-Class,2019,amg,1
+BMW,740,2017,kit,1
+Changan,Uni-T,2025,elite,1
+Changan,Uni-T,2025,uni,6
+Geely,GX3,2025,pro,12
+Geely,GX3,2025,mak,1
+Toyota,Corolla,2024,2 0,1
+Toyota,Corolla,2024,xli,22
+Toyota,Corolla,2024,gli,3
+Toyota,Corolla,2024,lxi,1
+Toyota,Corolla,2024,mid,2
+Nissan,Kicks,2024,standard,2
+Ford,Expedition,2021,xlt,3
+Kia,Sportage,2024,gls,4
+Kia,Sportage,2024,dct,1
+Changan,CS85,2023,gdi,1
+Chrysler,300,2022,srt,3
+Infiniti,QX60,2014,eco,1
+Ford,Everest,2025,xls,9
+Ford,Everest,2025,xlt,12
+Fiat,500,2024,model,1
+Fiat,500,2024,cabrio,4
+Honda,HR-V,2024,hrv,4
+Honda,HR-V,2024,mid,1
+Land Rover,Range Rover HSE,2013,hse,1
+Porsche,Macan,2021,premium,2
+Toyota,Fortuner,2021,eco,1
+Mercedes-Benz,G 63 AMG,2016,amg,1
+Mercedes-Benz,G 63 AMG,2016,ebd,1
+Mercedes-Benz,G 63 AMG,2016,esp,1
+Mercedes-Benz,G 63 AMG,2021,amg,4
+Honda,CR-V,2025,tft,2
+Honda,CR-V,2025,touring,1
+Honda,ZR-V,2024,tft,2
+Honda,ZR-V,2024,zrv,9
+Honda,ZR-V,2024,lx,1
+Toyota,Camry,2023,gle,6
+Toyota,Camry,2023,per,1
+Porsche,Cayenne GTS,2013,gts,1
+Toyota,Land Cruiser,2011,bod,1
+Nissan,Datsun,2015,bod,1
+Toyota,Hilux,2012,bod,1
+Mercedes-Benz,A 45 AMG,2016,amg,1
+Hyundai,Venue,2024,gdi,3
+Hyundai,Kona,2025,ctv,1
+Hyundai,Kona,2025,smart,5
+Hyundai,Kona,2025,hybrid,1
+Hyundai,Kona,2025,gdi,1
+Geely,STARRAY,2024,dct,8
+Geely,STARRAY,2024,ray,4
+Kia,Pegas,2024,gls,2
+Kia,Pegas,2025,gls,6
+Kia,Sonet,2024,gls,10
+Kia,Sonet,2024,mpi,1
+Kia,Sonet,2024,top,1
+Kia,Carnival,2025,gls,11
+Kia,Carnival,2025,esp,1
+BMW,Other,2024,kit,2
+Mercedes-Benz,GLC 300,2025,glc,1
+Kia,Carnival,2016,mpv,1
+Kia,Carnival,2016,ask,1
+Geely,Binray,2022,mak,1
+Isuzu,MU-X,2018,mux,1
+Cadillac,XT5,2020,v6,1
+Mercedes-Benz,GLS 580,2020,gls,2
+Mercedes-Benz,GLS 580,2020,amg,2
+Mercedes-Benz,GLS 580,2020,kit,2
+Mercedes-Benz,Other,2024,cle,1
+Mercedes-Benz,Other,2024,amg,2
+Infiniti,QX80,2025,autograph,1
+Audi,Q7,2018,ready,1
+Maserati,Levante,2022,gt,1
+Mercedes-Benz,GLA 35 AMG,2021,amg,2
+Hyundai,Sonata,2019,2 4,1
+Hyundai,Sonata,2019,sports,1
+Hyundai,Sonata,2019,acc,1
+Ford,Bronco,2023,v6,1
+Ford,Bronco,2023,wildtrak,1
+Cadillac,Escalade,2021,600,2
+Honda,Civic,2022,sun,1
+Mercedes-Benz,GLE 53 Coupe AMG,2024,gle,2
+Mercedes-Benz,GLE 53 Coupe AMG,2024,amg,2
+Hyundai,Santa Fe,2015,eco,1
+Jeep,Grand Cherokee,2015,dri,1
+Jeep,Grand Cherokee,2015,srt,2
+Ford,Escape,2019,eco,1
+Toyota,Camry,2020,ready,1
+Toyota,Camry,2020,gle,5
+Toyota,Camry,2013,glx,5
+Toyota,Camry,2013,fog,1
+Toyota,Camry,2013,gl,1
+Honda,Civic,2024,hatch,1
+Honda,Civic,2024,out,1
+Honda,Civic,2024,hatchback,1
+Honda,Civic,2024,special,2
+Mercedes-Benz,S 450,2020,eco,1
+Mercedes-Benz,C200,2025,amg,45
+BMW,7-Series,2025,735i,3
+BMW,5-Series,2025,520i,1
+Geely,Azkarra,2022,low,2
+Geely,Azkarra,2022,few,1
+Mercedes-Benz,G 63 AMG,2025,amg,5
+Lexus,LX 570,2013,low,1
+Mercedes-Benz,GLE 450 AMG,2020,gle,3
+Isuzu,D-Max,2024,max,2
+Geely,Monjaro,2023,mid,1
+Toyota,Prado,2022,txl,10
+Toyota,Prado,2022,add,1
+Changan,Eado Plus,2026,dct,1
+Changan,Eado Plus,2026,uni,1
+Dodge,Challenger,2022,srt,3
+Ford,Crown Victoria,2011,usa,1
+BMW,730,2014,full,1
+BMW,730,2014,vip,1
+Foton,Tunland,2024,cab,1
+Foton,Tunland,2024,pickup,1
+Foton,Tunland,2024,g7,1
+Lexus,UX,2023,200,1
+Dodge,Charger,2023,rt,2
+Dodge,Charger,2023,ppf,1
+Dodge,Charger,2023,srt,3
+GMC,Acadia,2023,sle,3
+Chery,Arrizo,2025,5,1
+Haval,H9,2025,mid,6
+Haval,H9,2025,high,1
+Haval,H9,2025,full,2
+Dongfeng,Shine,2025,e1,2
+Dongfeng,Shine,2025,evo,3
+Haval,H6,2025,standard,3
+Haval,H6,2025,gt,2
+Haval,H6,2025,mid,2
+Haval,H6,2025,basic,1
+Haval,H6,2025,full,1
+BMW,M3,2025,now,1
+BMW,M3,2025,بي,1
+Mercedes-Benz,GLC 200,2024,now,1
+Mercedes-Benz,GLC 200,2024,bra,1
+Dongfeng,Other,2025,lux,3
+MG,MG ZS,2024,lux,15
+MG,MG ZS,2024,std,1
+MG,MG ZS,2024,mid,1
+MG,MG ZS,2024,com,2
+Isuzu,D-Max,2020,max,6
+Isuzu,D-Max,2020,ver,1
+Isuzu,D-Max,2020,cab,1
+MG,MG HS,2023,lux,1
+Isuzu,MU-X,2025,mux,23
+Chery,Arrizo 6,2024,pro,12
+Chery,Arrizo 6,2024,mid,2
+Geely,Preface,2025,gl,1
+Geely,Preface,2025,dct,1
+Geely,Preface,2025,mid,2
+Mazda,CX-9,2018,full,1
+GAC,EM POW,2025,jac,5
+GAC,EM POW,2025,pow,3
+GAC,EM POW,2025,mid,3
+Tank,300,2025,full,9
+Tank,300,2025,model,1
+Tank,300,2025,conqueror,1
+Chevrolet,Tahoe,2007,xl,1
+GAC,GS 3,2025,jac,3
+Lexus,LS 500,2024,avs,1
+GMC,Yukon,2020,sle,3
+Toyota,Innova,2024,vip,7
+Toyota,Innova,2024,std,1
+Toyota,Innova,2024,hybrid,1
+Cadillac,CTS,2009,dts,1
+Toyota,Rav 4,2021,xle,1
+Toyota,Rav 4,2021,rav,1
+Kia,Optima,2015,aps,1
+Kia,Sonet,2023,ex,2
+Kia,Sonet,2023,eid,1
+Kia,Sonet,2023,mid,2
+MG,MG GT,2024,lux,9
+MG,MG GT,2024,com,5
+MG,MG GT,2024,stn,1
+MG,MG RX8,2023,std,2
+Nissan,Sunny,2024,comfort,3
+Nissan,Sunny,2024,s,1
+Honda,Accord,2022,low,1
+Honda,Accord,2022,2 0l,2
+Honda,Accord,2022,nos,1
+BMW,320,2022,eco,3
+Chery,Tiggo 2,2025,pro,1
+Chery,Tiggo 4,2025,pro,5
+BMW,M4,2023,csl,5
+Toyota,Corolla,2011,xli,2
+Toyota,Corolla,2011,a,1
+Mercedes-Benz,GL 63 AMG,2020,amg,3
+Mazda,6,2025,mid,1
+Mazda,6,2025,s,2
+Mazda,6,2025,sky,2
+Mazda,6,2025,standard,1
+Mazda,6,2025,سيارة,1
+Forthing,U-Tour,2024,esp,1
+Mercedes-Benz,GLC 43 AMG,2018,glc,3
+Maserati,Quattroporte,2017,gts,3
+Bentley,Bentayga,2024,ewb,4
+Porsche,Macan,2025,now,1
+Nissan,Altima,2025,mid,4
+Nissan,Altima,2025,sv,3
+Nissan,Altima,2025,s,1
+Nissan,Altima,2025,ebd,1
+Mercedes-Benz,S500,2021,amg,3
+Mercedes-Benz,ML 400,2015,amg,1
+Toyota,Veloz,2025,glx,32
+Toyota,Veloz,2025,سيارة,1
+Toyota,Veloz,2025,vvt,2
+Kia,K5,2025,gls,11
+Kia,K5,2025,lx,3
+Kia,K5,2025,standard,2
+Kia,K5,2025,gt,2
+Rover,Other,2013,hse,2
+Mercedes-Benz,Other,2010,amg,2
+Nissan,Datsun,2012,gle,2
+Toyota,Fortuner,2014,via,1
+Toyota,Highlander,2025,gle,3
+Toyota,Highlander,2025,hybrid,1
+BMW,M5,2022,cs,2
+Nissan,Pathfinder,2013,top,1
+Audi,Q7,2021,s,1
+Audi,Q7,2021,end,1
+Hyundai,Accent,2020,good,1
+Hyundai,Accent,2020,tow,1
+Hyundai,Accent,2026,ivt,2
+Hyundai,Accent,2026,smart,1
+Jeep,Wagoneer,2023,day,1
+Honda,Accord,2025,mid,3
+Honda,Accord,2025,ex,3
+Honda,Accord,2025,هوندا,1
+Honda,Accord,2025,lx,1
+Honda,Accord,2025,exl,1
+Jeep,Cherokee,2014,srt,6
+Nissan,Kicks,2025,s,2
+Nissan,Kicks,2025,aud,1
+Nissan,Kicks,2025,ستاندر,1
+Nissan,Kicks,2025,السيارة,1
+Nissan,Kicks,2025,mid,2
+Chery,Tiggo 7,2025,pro,3
+Chery,Tiggo 7,2025,max,3
+Ford,Explorer,2025,english,1
+Ford,Explorer,2025,active,1
+Ford,Explorer,2025,yet,1
+MG,MG 7,2025,sun,1
+Jetour,T1 Luxury,2025,cwd,1
+Jetour,T1 Luxury,2025,xwd,3
+Ford,F150,2025,fx4,2
+Ford,F150,2025,xlt,1
+Mitsubishi,L200,2024,diesel,2
+Mitsubishi,L200,2024,single,1
+Mitsubishi,L200,2024,cab,3
+Mitsubishi,L200,2024,double,1
+Geely,Coolray,2025,dct,1
+Chevrolet,Suburban,2021,esp,1
+GMC,Sierra,1981,ain,1
+GMC,Yukon,2017,sle,2
+GMC,Yukon,2017,slt,2
+Hyundai,Accent,2024,trc,1
+BMW,M8,2023,competition,1
+Isuzu,D-Max,2019,max,3
+Isuzu,D-Max,2019,cab,1
+Toyota,Land Cruiser,2010,vxr,6
+BMW,730,2021,li,1
+Chevrolet,Tahoe,2018,ltz,1
+Ford,Expedition,2016,xl,1
+BMW,730,2010,low,1
+Changan,Hunter,2025,delta,1
+Changan,Hunter,2025,omega,1
+Changan,Hunter,2023,delta,1
+Geely,Monjaro,2025,2 0,1
+Tank,500,2025,elite,1
+Changan,CS35 PLUS,2022,lcd,2
+Changan,CS35 PLUS,2022,rim,2
+Changan,CS35 PLUS,2022,low,1
+Dodge,Ram,2019,big,2
+Isuzu,D-Max,2022,max,7
+Isuzu,D-Max,2022,cab,1
+Isuzu,D-Max,2022,run,1
+Isuzu,D-Max,2023,max,4
+Isuzu,D-Max,2023,vgs,1
+Jetour,Dasheng,2025,xwd,1
+Jetour,Dasheng,2025,mid,1
+Cadillac,XT5,2013,full,1
+Chevrolet,Suburban,2010,ltz,2
+Chevrolet,Suburban,2010,dvd,2
+Chevrolet,Tahoe,2012,ltz,3
+Chevrolet,Tahoe,2012,dvd,1
+Dodge,Charger,2015,sxt,7
+Dodge,Charger,2015,srt,2
+MINI,Cooper,2025,سيارة,1
+MINI,Cooper,2025,countryman,2
+GMC,Yukon,2011,slt,1
+GMC,Yukon,2011,dvd,1
+GMC,Yukon,2011,denali,1
+Jeep,Cherokee,2013,srt8,1
+MINI,Cooper,2016,gps,1
+Nissan,Datsun,1993,exc,1
+Jaguar,JAGUAR XE,2018,kil,1
+Mercedes-Benz,CLS 450,2021,amg,3
+Mitsubishi,Pajero Sport,2022,gls,1
+BMW,735,2026,kit,12
+Dodge,Charger,2016,srt,1
+Dodge,Charger,2016,rt,1
+Kia,Cerato,2026,gls,1
+Hyundai,Tuscani,2025,gdi,1
+Suzuki,Dzire,2023,glx,1
+Mercedes-Benz,CLS 350,2020,cls,2
+Nissan,X-Trail,2025,s,1
+Nissan,X-Trail,2025,sl,1
+Jeep,Wrangler,2022,rubicon,2
+Jeep,Wrangler,2022,srt,1
+Honda,HR-V,2021,eco,1
+Mazda,6,2023,sedan,1
+Mazda,6,2023,model,2
+Mazda,6,2023,low,1
+Mazda,6,2023,sky,3
+Ford,Edge,2022,trend,1
+Dongfeng,A30 E2,2025,lux,3
+Chevrolet,Traverse,2016,ls,1
+Mercedes-Benz,GLE Class,2022,gle,3
+Mercedes-Benz,GLE Class,2022,amg,1
+Geely,Coolray,2023,two,1
+Geely,Coolray,2023,mid,1
+GMC,Acadia,2012,sle,2
+Tank,300,2023,challenger,2
+Kia,K5,2022,gls top,1
+Kia,K5,2022,gls,3
+Kia,K5,2022,top,3
+MG,MG RX5,2024,std,2
+MG,MG RX5,2024,del,1
+Chevrolet,Traverse,2014,gray,1
+Nissan,Patrol,2003,pat,1
+Chery,Tiggo8,2024,pro,1
+Chery,Tiggo8,2024,dct,1
+Audi,A8,2014,full,1
+Toyota,Land Cruiser,2013,gxr,6
+Ferrari,GTB 296,2023,gtb,6
+Changan,CS35,2025,gdi,2
+Changan,CS35,2025,lcd,1
+Changan,CS35,2025,limited,2
+Toyota,Corolla,2021,xli,6
+Toyota,Corolla,2021,eco,1
+Toyota,Prado,2013,txl,2
+Hyundai,Santa Fe,2019,eco,1
+Ssang Yong,Torres,2025,kgm,2
+Ssang Yong,Tivoli,2024,mid,1
+Ssang Yong,Tivoli,2024,kgm,2
+Dodge,Challenger,2021,sxt,4
+Ssang Yong,XLV,2024,kgm,12
+Jetour,X50,2025,ebd,1
+Jetour,X50,2025,esp,1
+Jetour,X50,2025,dct,1
+Nissan,Armada,2011,se,1
+Nissan,Armada,2011,top,1
+Nissan,Armada,2011,way,1
+Ford,Explorer,2011,xlt,2
+Ford,Explorer,2011,top,1
+Ford,Explorer,2011,air,1
+Mahindra,XUV300,2019,xuv,2
+Toyota,Fortuner,2020,low,1
+Chery,Arrizo 5,2025,pro,2
+BMW,735,2025,dea,1
+BMW,735,2025,m,2
+BMW,735,2025,kit,2
+BMW,735,2025,full,1
+Mitsubishi,Eclipse,2025,cross,1
+Dodge,Ram,2021,trx,10
+Dodge,Ram,2021,big,2
+Nissan,Patrol,2012,gold,1
+Toyota,Avalon,2017,ava,1
+Toyota,Land Cruiser,2012,mid,1
+Chery,Tiggo,2018,5,1
+Chery,Tiggo,2018,but,1
+Renault,Duster,2015,model,1
+Nissan,Patrol,1998,نيسان,1
+BMW,X6M,2025,kit,1
+Chevrolet,Blazer,2005,low,1
+Chevrolet,Blazer,2005,mid,1
+MG,MG 5,2024,com,6
+MG,MG 5,2024,lux,5
+MG,MG 5,2024,esp,1
+MG,MG 5,2024,tcs,1
+MG,MG 5,2024,del,1
+Toyota,Fortuner,2025,gx,2
+Suzuki,Jimny,2025,glx,1
+Suzuki,Jimny,2025,aut,1
+Toyota,Hilux,2020,glx,3
+Porsche,Cayenne,2019,s,1
+Nissan,Patrol,2021,platinum,2
+Nissan,Patrol,2021,dvd,1
+Honda,Accord,2021,sport,1
+Ineos,Grenadier,2023,fieldmaster,1
+Suzuki,Jimny,2020,my,1
+Lamborghini,Aventador,2015,lp,2
+Porsche,Panamera GTS,2020,gts,2
+Mercedes-Benz,SLR McLaren,2007,slr,2
+BMW,X3,2025,m,1
+BMW,X3,2025,kit,1
+Ford,Flex,2016,sel,2
+Jeep,Grand Cherokee,2019,lit,2
+Toyota,Rav 4,2022,xle,2
+Toyota,Rav 4,2022,mid,1
+Land Rover,Range Rover HSE,2018,hse,1
+Mercedes-Benz,C-Class,2025,amg,4
+Isuzu,D-Max,2005,max,1
+Ford,Edge,2016,sel,2
+Ford,Edge,2016,titanium,1
+Nissan,Juke,2016,sun,1
+Nissan,Juke,2016,gps,1
+Nissan,Juke,2016,lcd,1
+Toyota,Yaris,2023,air,1
+Toyota,Yaris,2023,y,1
+Hyundai,Accent,2023,usp,1
+Hyundai,Accent,2023,gl,1
+Hyundai,Accent,2023,esp,1
+Maserati,Ghibli,2015,ssd,1
+Maserati,Ghibli,2015,way,1
+BMW,X4,2019,ssd,1
+BMW,X4,2019,kit,2
+Toyota,Camry,2015,glx,3
+Mitsubishi,Pajero,2017,gls,1
+Mitsubishi,Pajero,2017,low,2
+Mercedes-Benz,E-Class,2020,e,1
+Mercedes-Benz,E-Class,2020,way,1
+Ford,Edge,2018,kit,1
+BMW,530,2017,eco,1
+BMW,530,2017,pro,1
+Changan,ALSVIN,2024,model,1
+Volkswagen,Tiguan,2023,tsi,1
+Volkswagen,Tiguan,2023,dsg,1
+Kia,Sonet,2021,had,1
+Mercedes-Benz,GLC 250,2017,glc,2
+Mercedes-Benz,GLC 250,2017,now,1
+Mercedes-Benz,GLC 250,2017,don,1
+Toyota,Prado,2016,txl,2
+Mitsubishi,Attrage,2018,glx,1
+Mitsubishi,Attrage,2018,out,1
+Toyota,Highlander,2021,gle,1
+Toyota,Highlander,2021,xle,1
+Toyota,Highlander,2021,v6,1
+Ford,EcoSport,2014,eco,1
+Ford,Figo,2019,sun,1
+Toyota,Corolla,2012,two,1
+Toyota,Camry,2022,silver,1
+Toyota,Camry,2022,gle,3
+Toyota,Camry,2022,jbl,1
+Toyota,Camry,2022,le,1
+BMW,X5,2020,202,1
+BMW,X5,2020,ppf,1
+BMW,X6,2021,عداد,1
+BMW,X6,2021,kit,3
+BMW,X6,2021,m,1
+Fiat,500C,2022,wit,1
+Toyota,Camry,2019,white,1
+Toyota,Camry,2019,يسر,1
+Land Rover,Defender 90,2021,hse,1
+Mercedes-Benz,A 200,2023,ppf,1
+Chevrolet,Silverado,2025,zr2,1
+Chrysler,C300,2023,limited,1
+Foton,Tunland,2025,v7,1
+Ford,F150,2022,tremor,1
+Ford,F150,2022,sport,1
+Ford,F150,2022,lariat,1
+Haval,Jolion,2025,pro,2
+Toyota,Rav 4,2023,xle,1
+Jeep,Wrangler,2023,sport,1
+Jeep,Wrangler,2023,sah,2
+Jeep,Wrangler,2023,sahare,1
+Jeep,Wrangler,2023,sahara,1
+Mitsubishi,ASX,2024,glx,1
+Mercedes-Benz,GLE 450,2022,gle,3
+Hyundai,Accent,2009,fas,1
+Ssang Yong,Korando,2024,kgm,1
+Chevrolet,Caprice,2009,ltz,1
+Nissan,Pickup,2004,2004model,1
+Chery,Exeed,2023,txl,3
+Jac,GS4,2022,eco,1
+Changan,CS75,2022,plus,1
+Hyundai,Kona,2023,mid,1
+Ford,Flex,2015,limited,1
+Tank,500,2024,gwm,1
+Forthing,T5 EVO,2023,evo,3
+Toyota,Corolla,2020,xli,1
+BMW,4-Series,2022,kit,1
+Toyota,Avalon,2021,touring,1
+Toyota,Avalon,2021,xle,2
+Toyota,Avalon,2021,everthing,1
+Toyota,Avalon,2021,glx,3
+Nissan,Patrol Platinum,2017,run,1
+Volkswagen,Tiguan,2022,top,1
+Changan,Uni-V,2026,uni,2
+Changan,Uni-V,2026,lcd,2
+Mazda,CX60,2025,mid,1
+MINI,Cooper,2024,s,2
+BMW,735,2023,m,1
+BMW,735,2023,kit,2
+GMC,Terrain,2018,sle,1
+Mercedes-Benz,Other,2018,cla,2
+Mercedes-Benz,Other,2018,amg,2
+Mercedes-Benz,Other,2018,gls,4
+Toyota,Hilux,2019,glx,1
+Toyota,Land Cruiser,2001,gxr,1
+Toyota,Highlander,2020,gle,1
+Toyota,Hilux,2023,gxl,1
+Toyota,Hilux,2023,gls,1
+Mitsubishi,Other,2012,cmc,1
+Ford,Expedition,2012,xlt,1
+Ford,Expedition,2012,only,1
+Pontiac,Grand Prix,1977,top,2
+Kia,Seltos,2025,mid,3
+Kia,Seltos,2025,gls,4
+Kia,Seltos,2025,top,2
+BMW,X4,2020,mod,2
+Ford,Expedition,2019,xlt,2
+Mitsubishi,ASX,2021,w,1
+Bentley,Bentayga,2017,whi,1
+Hyundai,Veloster,2016,gdi,1
+Toyota,Land Cruiser Pickup,2015,now,1
+Suzuki,Dzire,2024,glx,1
+FAW,Other,2021,mid,1
+GMC,Yukon,2025,elevation,1
+Infiniti,QX80,2016,top,1
+Lexus,LX 570,2016,sho,1
+Mercedes-Benz,GLS 500,2018,gls,8
+BMW,X5,2018,m,1
+BMW,X5,2018,kit,1
+BMW,X5,2019,m,1
+BMW,X5,2019,kit,1
+Toyota,Tundra,2023,limited,1
+Toyota,Tundra,2023,trd,3
+Mitsubishi,L200,2023,model,2
+Chevrolet,Tahoe,2021,xl,1
+Chevrolet,Tahoe,2021,sty,1
+Chevrolet,Tahoe,2021,premier,1
+Chevrolet,Tahoe,2021,ls,1
+Toyota,Innova,2011,201,1
+Honda,HR-V,2020,hrv,3
+Honda,HR-V,2020,mid,1
+Mercedes-Benz,S550,2015,f,1
+Mitsubishi,Pajero Mini,2018,gls,1
+Kia,Quoris,2014,lot,1
+Kia,Quoris,2014,but,1
+Mercedes-Benz,Other,2023,icn,1
+Mercedes-Benz,Other,2023,ico,1
+Mazda,CX-9,2020,model,1
+Mercedes-Benz,GT63,2020,gtc,1
+Audi,A8,2013,l,2
+Hyundai,Kona,2024,hybrid,6
+Hyundai,Kona,2024,dct,4
+Hyundai,Kona,2024,smart,1
+Dodge,Ram,2020,big,1
+Dodge,Charger,2021,gt,1
+Dodge,Charger,2021,srt,2
+Dodge,Charger,2021,rt,2
+Dodge,Charger,2021,sxt,1
+Toyota,Innova,2017,السيارة,1
+Toyota,Innova,2017,goo,1
+Jetour,T2 Luxury,2025,xwd,4
+Jetour,T2 Luxury,2025,dct,1
+Saic,Maxus,2022,d9,1
+Changan,Uni-K,2023,uni,3
+Mercedes-Benz,CLA 200,2021,cla,3
+Mazda,CX-9,2024,full,2
+Mazda,CX-9,2024,mid,1
+Mercedes-Benz,S500,2015,amg,3
+Chery,Arrizo 6,2023,pro,3
+Ford,F150,2024,xlt,4
+Kia,Carens,2025,mid,1
+Kia,Carens,2025,gls,1
+Chery,Tiggo,2024,8,2
+Chery,Tiggo,2024,pro,3
+Chery,Tiggo,2024,2,1
+GMC,Yukon,2014,out,1
+Jetour,X90,2025,lcd,1
+Chery,Arrizo 8,2025,dct,1
+Toyota,Rav 4,2012,rav,3
+Toyota,Rav 4,2012,mid,1
+Toyota,Rav 4,2012,two,1
+Hyundai,Sonata,2023,premium,1
+Hyundai,Sonata,2023,con,1
+Hyundai,Sonata,2018,std,3
+Kia,Pegas,2023,lx,1
+Kia,Telluride,2021,ex,1
+Mazda,CX-9,2022,skyactive,1
+MG,MG ZS,2025,lux,2
+Hummer,H3,2024,gmc,2
+Hummer,H3,2024,hev,1
+Porsche,Panamera,2023,4,2
+BMW,530,2024,hud,1
+Jaecoo,J7,2025,jac,4
+Omoda,C5,2025,comfort,1
+Ssang Yong,Actyon,2025,kgm,3
+Kia,Cadenza,2021,mid,1
+Dongfeng,T5 EVO,2023,evo,1
+Ford,Raptor,2022,ppf,1
+MINI,Cooper,2019,سيارة,1
+Mercedes-Benz,GLS 450,2022,amg,3
+Chevrolet,Suburban,2016,clean,1
+Volkswagen,Golf,2016,gti,4
+Mercedes-Benz,CLE 53,2025,amg,3
+Toyota,Fortuner,2011,isn,1
+Mercedes-Benz,GT63,2024,amg,3
+MINI,Cooper,2018,s,2
+Mercedes-Benz,S 500,2014,اصدار,2
+Hyundai,Tucson,2009,low,1
+Hyundai,Tucson,2009,fhd,1
+Volkswagen,Beetle,2015,low,1
+Audi,A6,2013,air,1
+Hyundai,Sonata,2020,gl,1
+MG,MG RX5,2023,lux,2
+Toyota,FJ Cruiser,2010,top,1
+Jetour,JETOUR X70,2024,out,1
+Jetour,JETOUR X70,2024,fin,1
+Hyundai,Kona,2022,comfort,1
+Mazda,CX-5,2024,standard,1
+Mazda,CX-5,2024,full,1
+Lexus,GS 460,2009,ele,1
+BMW,X2,2026,xdrive20i,1
+BMW,X2,2026,standard,1
+Toyota,Camry,2009,glx,1
+Toyota,Cross,2025,xle,1
+Chevrolet,Tahoe,2014,ltz,1
+Mazda,CX-9,2019,slt,1
+Mercedes-Benz,GLE 63 AMG,2016,gle,2
+Mercedes-Benz,GLE 63 AMG,2016,amg,3
+Mercedes-Benz,CLS 350,2023,cls,5
+Ferrari,Ferrari 812 GTS,2020,gts,2
+Mercedes-Benz,SLS AMG,2007,slr,2
+Porsche,Cayenne,2024,s,2
+Porsche,Carrera GT,2025,gts,2
+Honda,Odyssey,2020,two,1
+Mazda,3,2018,مازدا,1
+Nissan,Maxima,2013,mid,1
+GMC,Sierra,2018,model,1
+Chevrolet,Spark,2021,ls,1
+Mercedes-Benz,E 350,2021,amg,1
+BMW,5-Series,2026,kit,1
+Chevrolet,Tahoe,2023,premier,1
+Chevrolet,Tahoe,2023,sle,1
+MINI,John Cooper Works,2020,jcw,1
+GMC,Yukon,2006,xl,1
+Bentley,Mulsanne,2015,now,1
+BMW,740,2018,model,1
+Toyota,Prado,2012,i,1
+Dodge,Charger,2013,sxt,2
+BMW,X7,2022,kit,2
+Toyota,Rav 4,2007,rav,1
+Audi,A6,2016,full,1
+Aston Martin,DBS Superleggera,2010,dbs,3
+Ford,Expedition,2018,row,1
+Ford,Expedition,2018,xlt,2
+Mitsubishi,Attrage,2024,hl,1
+Geely,STARRAY,2025,ray,2
+Geely,STARRAY,2025,dct,1
+Toyota,Camry,2026,now,1
+Mitsubishi,Pajero,2018,gls,2
+Mitsubishi,Pajero,2018,srs,1
+Hyundai,Creta,2024,comfort,1
+Hyundai,Palisade,2025,caligraphy,1
+Hyundai,Santa Fe,2024,mid,1
+Renault,CLIO RS,2012,ksa,1
+BMW,X4,2025,xdrive,3
+Kia,Seltos,2023,gls,1
+Toyota,Hilux,2021,glx,1
+MG,Whale,2024,comfort,7
+MG,Whale,2024,com,1
+Hyundai,Stargazer,2025,mpv,1
+Chery,Tiggo 2,2023,pro,1
+Honda,CR-V,2021,crv,1
+Lexus,IS 250,2017,eco,1
+GMC,Yukon,2019,sle,1
+BMW,745,2003,li,1
+Honda,Civic,2012,pra,1
+Kia,Carnival,2017,row,1
+Mazda,3,2024,full,1
+Dodge,Charger,2018,sxt,1
+Toyota,Land Cruiser,2018,gxr,2
+Land Rover,Range Rover,2015,svr,4
+Geely,Emgrand,2024,this,1
+Geely,Emgrand,2024,mid,1
+Geely,Emgrand,2024,full,1
+GMC,Yukon,2007,dvd,1
+GMC,Yukon,2007,slt,2
+Hyundai,Elantra,2018,mid,1
+Lexus,RX 500h,2023,rxh,3
+Foton,Tunland,2026,pickup,1
+Mercedes-Benz,GLE 450,2025,gle,3
+Mercedes-Benz,GLS 63 AMG,2024,gls,3
+Mercedes-Benz,GLS 63 AMG,2024,amg,3
+Audi,A6,2024,s line,1
+Jeep,Gladiator,2021,sand,1
+Mercedes-Benz,CLA 200,2023,amg,1
+Dodge,Durango,2020,sxt,1
+Toyota,Hilux,2017,t,1
+Toyota,Hilux,2017,glx2,1
+Chrysler,C300,2014,srt,1
+Toyota,Sequoia,2016,mid,1
+Suzuki,Ciaz,2025,esp,1
+Suzuki,Ciaz,2025,ebd,1
+Suzuki,Ciaz,2025,trc,1
+MG,MG ONE,2024,com,3
+MG,MG ONE,2024,std,2
+BMW,730,2019,vii,1
+BMW,730,2019,li,2
+Ford,Bronco,2024,lot,2
+GMC,Sierra,2019,1500,1
+GMC,Sierra,2019,off,1
+GMC,Sierra,2019,wit,1
+Haval,H2,2019,model,1
+Hyundai,Santa Fe,2018,mid,1
+Kia,Optima,2013,mid,1
+Fiat,500,2022,almost,1
+Fiat,500,2022,model,1
+Chery,Arrizo 6,2025,pro,1
+Fiat,500,2023,convertible,1
+Ford,Expedition,2015,xlt,3
+Hyundai,Grandeur,2023,gdi,1
+Mercedes-Benz,GTS,2020,gtc,4
+Mercedes-Benz,GLE 43 AMG,2019,gle,4
+Mercedes-Benz,GLE 63 AMG,2018,gle,2
+Ssang Yong,Torres,2024,kgm,3
+Chevrolet,Silverado,2020,rst,1
+Suzuki,Ciaz,2024,end,2
+Suzuki,Ciaz,2024,glx,2
+Porsche,Cayenne,2015,twin,1
+BAIC,BJ60,2025,flagship,1
+BAIC,BJ60,2025,lcd,4
+Changan,CS75 Plus,2023,gdi,2
+Chery,Long,2023,txl,3
+Changan,UNI-S,2026,elite,1
+Changan,UNI-S,2026,uni,3
+BMW,520,2026,m,1
+Dongfeng,A60 Max,2024,max,2
+Dongfeng,Shine,2024,e1,1
+Dongfeng,Shine,2024,max,3
+Dongfeng,Shine,2024,eps,1
+Jetour,Dasheng,2023,mid,6
+Toyota,Highlander,2023,hybrid,1
+Toyota,Highlander,2023,gle,1
+Toyota,Highlander,2023,xse,3
+Ford,Taurus,2014,tau,1
+Nissan,Kicks,2023,sl,1
+Citroen,Jumpy,2025,van,2
+Citroen,Jumpy,2025,hdi,2
+Chevrolet,Captiva,2012,lt,1
+Toyota,Corolla,2018,xli,2
+Jaguar,F-TYPE,2014,day,1
+Suzuki,Ertiga,2025,glx,8
+BMW,730,2016,li,1
+GAC,GS3 Emzoom,2025,jac,2
+BMW,X6M,2020,kit,2
+BMW,X6,2011,full,1
+Dodge,Durango,2021,gt,1
+Jaguar,XJ,2017,xil,3
+Chrysler,C300,2021,full,1
+Chrysler,C300,2021,model,1
+Chrysler,C300,2021,spe,1
+Audi,A8,2016,l,1
+Mercedes-Benz,CLA 250,2018,cla,3
+BMW,760,2023,exp,1
+Genesis,G80,2025,prestige,2
+Toyota,Camry,2021,gle,6
+Mercedes-Benz,C200,2022,exc,1
+Mercedes-Benz,E200,2024,amg,1
+Mazda,CX-9,2017,mid,1
+Mazda,6,2022,mid,1
+Dodge,Charger,2020,srt,2
+Ford,Taurus,2017,sel,1
+Jac,T8,2025,4x2,1
+Mercedes-Benz,S 580,2023,app,1
+Mitsubishi,Pajero,2014,eco,1
+BAIC,BJ 40,2025,lcd,1
+Ford,Mustang,2019,gt,1
+Jeep,Wrangler,2020,sahara,1
+Ford,F150,2018,xlt,4
+Ssang Yong,Other,2025,zna,3
+Geely,Monjaro,2024,mid,1
+Land Rover,Range Rover,2017,hse,2
+BMW,X6,2022,kit,1
+Mercedes-Benz,CLA 250,2021,wit,1
+BAIC,X55,2024,lcd,4
+Changan,CS95,2021,classic,1
+Chevrolet,Captiva,2021,premier,1
+Chevrolet,Tahoe,2020,lt,1
+Honda,Accord,2019,lx,1
+Honda,HR-V,2025,ex,2
+Hyundai,Tucson,2023,smart,1
+Nissan,Patrol,2020,platinum,1
+Renault,Koleos,2025,le,2
+Toyota,Camry,2012,yes,1
+Toyota,Raize,2025,limited,1
+Kia,K5,2021,eco,1
+Ford,Explorer,2010,xlt,2
+BMW,X4,2021,kit,1
+BMW,X4,2021,ppf,1
+Honda,Accord,2008,air,1
+Toyota,Land Cruiser Pickup,2024,dlx,1
+Mitsubishi,Montero,2022,sport,1
+Toyota,Prado,2017,txl,1
+Toyota,Prado,2017,pre,1
+Land Rover,Range Rover Sport,2025,pow,1
+Mercedes-Benz,SL 55 AMG,2022,amg,4
+Mercedes-Benz,SL 55 AMG,2022,wit,1
+Geely,Coolray,2024,dct,1
+Geely,Tugella,2023,mid,1
+Cadillac,Escalade,2019,my,1
+Mitsubishi,Outlander,2025,double,1
+Mitsubishi,Outlander,2025,cab,1
+Hyundai,Kona,2019,comfort,1
+Nissan,Altima,2022,s,1
+Lexus,Other,2020,gsf,2
+Mercedes-Benz,GLC 300 Coupe,2024,glc,2
+Toyota,Yaris,2020,y,1
+Toyota,Yaris,2020,but,1
+Toyota,Yaris,2020,now,1
+Mercedes-Benz,200,2025,cle,1
+Mercedes-Benz,200,2025,gle,1
+Mitsubishi,Montero,2018,don,1
+Honda,Accord,2007,model,1
+Honda,Accord,2007,rim,1
+Ford,Mustang,2014,hsi,1
+Changan,CS35,2023,full,1
+Isuzu,D-Max,2017,max,1
+Mazda,CX-9,2011,full,1
+Kia,Pegas,2020,model,1
+Jeep,Gladiator,2023,mojave,1
+Jeep,Wrangler,2018,sport,1
+Toyota,Rav 4,2018,eco,1
+Isuzu,MU-X,2022,mux,1
+Jac,J7,2025,1 5,1
+Toyota,Fortuner,2022,gx,1
+Chevrolet,Optra,2005,but,1
+Dodge,Challenger,2016,sxt,3
+Nissan,Datsun,2013,cab,1
+Infiniti,QX50,2023,mak,1
+BMW,X4 M,2022,kit,1
+BMW,X2,2023,بي,1
+BMW,X2,2023,20233,1
+BMW,520,2020,eco,1
+Toyota,Camry,2014,10 10,1
+Toyota,Corolla Cross,2025,ltd,1
+Chevrolet,Impala,2015,ltz,2
+Ford,Explorer,2015,low,1
+Mazda,CX-9,2023,signature,1
+Lexus,ES 250,2023,low,2
+Honda,Pilot,2016,had,1
+Lamborghini,Revuelto,2024,ner,1
+Toyota,Yaris,2016,hai,2
+Toyota,Yaris,2016,koi,1
+Toyota,Yaris,2016,nae,1
+Chery,Tiggo8,2022,pro,1
+Geely,Other,2025,ray,2
+Geely,Other,2025,dct,2
+Geely,Other,2025,mid,1
+Infiniti,QX55,2023,full,1
+Jetour,T2 Luxury,2024,xwd,1
+BMW,218 M Kit,2020,kit,3
+BMW,218 M Kit,2024,kit,3
+Nissan,Patrol,2016,نيسان,1
+Nissan,Patrol,2016,se,1
+GMC,Yukon,2012,xl,1
+BMW,430i,2025,m,1
+BMW,430i,2025,kit,3
+BMW,X6M,2021,kit,3
+Land Rover,Range Rover Velar,2022,hse,3
+Mercedes-Benz,GLA 200,2024,gla,3
+Mercedes-Benz,GLA 200,2024,amg,3
+Mercedes-Benz,GLA 200,2024,kit,1
+Toyota,Vellfire,2025,glx,1
+Bentley,Bentayga,2018,featuring,1
+Jeep,Grand Cherokee,2012,srt,3
+MG,MG RX8,2022,top,1
+Volkswagen,Tiguan,2018,pro,1
+Volkswagen,Tiguan,2018,app,1

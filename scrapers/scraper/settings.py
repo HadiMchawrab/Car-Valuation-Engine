@@ -156,7 +156,7 @@ POSTGRES_PASSWORD   = os.getenv('AIVEN_PG_PASSWORD') # put password
 POSTGRES_SSLMODE    = 'verify-full'
 POSTGRES_SSLROOTCERT= os.getenv('AIVEN_PG_SSLROOTCERT') # put the full path of ca.pem 
 
-
+TRIM_CLUSTERED_CSV = 'scripts/clustered_trim_variants.csv'
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 # ITEM_PIPELINES = {
