@@ -11,7 +11,7 @@ properties:
       identity: system
   template:
     containers:
-    - image: markabanewregistry.azurecr.io/markaba-frontend-new:v9
+    - image: markabanewregistry.azurecr.io/markaba-frontend-new:v15
       name: car-listings-markaba
       resources:
         cpu: 0.5

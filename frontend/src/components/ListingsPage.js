@@ -208,17 +208,26 @@ const ListingsPage = () => {
     setLoading(true);
     try {
       const searchParams = buildSearchParams();
-      
       // Calculate offset based on current page
       const offset = (currentPage - 1) * listingsPerPage;
-      
-      // Make the API call with sorting in the POST body
-      const response = await axios.post(
-        `${API_BASE_URL}/search?limit=${listingsPerPage}&offset=${offset}`, 
-        searchParams
+      // Build query string from searchParams
+      const params = new URLSearchParams();
+      Object.entries(searchParams).forEach(([key, value]) => {
+        if (value !== null && value !== '' && value !== undefined) {
+          params.append(key, value);
+        }
+      });
+      params.append('limit', listingsPerPage);
+      params.append('offset', offset);
+      params.append('meta', 'true');
+      // Make the API call with GET and query params
+      const response = await axios.get(
+        `${API_BASE_URL}/search?${params.toString()}`
       );
-      
-      setListings(response.data);
+      // Response is now an object with items, total_count, etc.
+      setListings(response.data.items || []);
+      setTotalPages(Math.ceil((response.data.total_count || 0) / listingsPerPage));
+      setTotalCount(response.data.total_count || 0);
       setLoading(false);
     } catch (err) {
       setError('Error fetching listings. Please try again later.');
@@ -229,8 +238,14 @@ const ListingsPage = () => {
   const fetchTotalCount = async () => {
     try {
       const searchParams = buildSearchParams();
-      
-      const countResponse = await axios.post(`${API_BASE_URL}/search/count`, searchParams);
+      const params = new URLSearchParams();
+      Object.entries(searchParams).forEach(([key, value]) => {
+        if (value !== null && value !== '' && value !== undefined) {
+          params.append(key, value);
+        }
+      });
+      // Use GET for count endpoint
+      const countResponse = await axios.get(`${API_BASE_URL}/search/count?${params.toString()}`);
       const totalListings = countResponse.data.total;
       setTotalPages(Math.ceil(totalListings / listingsPerPage));
       setTotalCount(totalListings);
