@@ -40,7 +40,7 @@ class DubizzleDailySpider(DubizzleTemplateSpider):
             'li[aria-label="Listing"] a[href*="/en/ad/"]::attr(href)'
         ).getall()
         total_links = len(links)
-        unique = list(dict.fromkeys(links))
+        unique = list(dict.fromkeys(links)) # removes duplicates while preserving order
         self.logger.info(f"🔍 Found {total_links} links, {len(unique)} unique")
 
         new = []
