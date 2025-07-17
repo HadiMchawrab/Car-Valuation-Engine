@@ -8,42 +8,6 @@ from datetime import datetime, timezone
 
 
 class DubizzleTemplateSpider(scrapy.Spider):
-   custom_settings = {
-        "COOKIES_ENABLED": True,
-        "CONCURRENT_REQUESTS": 34,
-        "CONCURRENT_REQUESTS_PER_IP": 10,
-        "DOWNLOAD_DELAY": 1,
-        "RANDOMIZE_DOWNLOAD_DELAY": True,
-        "AUTOTHROTTLE_ENABLED": True,
-        "AUTOTHROTTLE_START_DELAY": 0.5,
-        "AUTOTHROTTLE_MAX_DELAY": 10,
-        "AUTOTHROTTLE_TARGET_CONCURRENCY": 2.0,
-        "RETRY_ENABLED": True,
-        "RETRY_TIMES": 36,
-        "RETRY_HTTP_CODES": [429, 500, 502, 503, 504, 408, 401, 403],
-        "DOWNLOAD_HANDLERS": {
-            "http":  "scrapy_impersonate.ImpersonateDownloadHandler",
-            "https": "scrapy_impersonate.ImpersonateDownloadHandler",
-        },
-        "DOWNLOADER_MIDDLEWARES": {
-            "scrapy_impersonate.ImpersonateDownloadHandler":          250,
-            "scraper.middlewares.MixedHeadersRetryMiddleware":        300,
-            "scraper.middlewares.FreeProxyMiddleware":                200,
-            "scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware": 210,
-            "scraper.middlewares.PageChangeLoggingMiddleware":        400,
-            "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware":   None,
-            "scrapy_user_agents.middlewares.RandomUserAgentMiddleware":     500,
-        },
-        "USER_AGENT": None,
-        "TWISTED_REACTOR": "twisted.internet.asyncioreactor.AsyncioSelectorReactor",
-        "IMPERSONATE_BROWSER": "firefox133",
-        "BACKOFF_BASE_DELAY":   1.0,
-        "BACKOFF_MAX_DELAY":    60.0,
-        "BACKOFF_JITTER":       0.5,
-        "HUMAN_THINK_CHANCE":   0.05,
-        "HUMAN_THINK_MIN":      0.1,
-        "HUMAN_THINK_MAX":      0.5,
-    }
 
    def parse_ad(self, response):
         raw_id = response.url.split("-ID")[-1].split(".")[0]

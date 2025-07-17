@@ -256,6 +256,103 @@ class OpenSooqPostgresPipeline(BasePostgresPipeline):
         'post_map': 'JSONB'
     }
 
+
+class CarSwitchPostgresPipeline(BasePostgresPipeline):
+    detail_table = 'carswitch_details'
+    detail_schema = {
+        # link back to listings
+        'ad_id':                         'TEXT PRIMARY KEY REFERENCES listings(ad_id) ON DELETE CASCADE',
+
+        # extra CarSwitchItem fields
+        'secondary_id':                  'TEXT',
+        'regional_specs':                'TEXT',
+        'uuid':                          'TEXT',
+        'cylinders':                     'TEXT',
+        'engine_size':                   'TEXT',
+        'asking_price':                  'NUMERIC',
+        'is_paid':                       'BOOLEAN',
+        'is_featured':                   'BOOLEAN',
+        'drive_type':                    'TEXT',
+        'variant':                       'TEXT',
+        'seats':                         'INT',
+        'listing_rank':                  'INT',
+        'status':                        'TEXT',
+        'zoho_car_id':                   'TEXT',
+        'overall_condition':             'TEXT',
+        'is_accidented':                 'TEXT',
+        'accident_detail':               'TEXT',
+        'air_bags_condition':            'TEXT',
+        'chassis_condition':             'TEXT',
+        'engine_condition':              'TEXT',
+        'gear_box_condition':            'TEXT',
+        'service_history':               'TEXT',
+        'service_history_verified':      'BOOLEAN',
+        'crossed_price':                 'NUMERIC',
+        'last_price':                    'NUMERIC',
+
+        'original_success_fee':          'NUMERIC',
+        'final_success_fee':             'NUMERIC',
+        'success_fee_type':              'TEXT',
+        'success_fee_promo_code':        'TEXT',
+        'price_dropped_badge':           'BOOLEAN',
+        'price_dropped_badge_expiration':'TIMESTAMP',
+        'alloy_rims':                    'BOOLEAN',
+        'rim_size':                      'TEXT',
+        'roof_type':                     'TEXT',
+        'no_of_keys':                    'INT',
+        'currently_financed':            'BOOLEAN',
+        'bank_name':                     'TEXT',
+        'cash_buyer_only':               'BOOLEAN',
+        'warranty':                      'TEXT',
+        'warranty_expiration_date':      'TIMESTAMP',
+        'warranty_mileage_limit':        'INT',
+        'service_contract':              'TEXT',
+        'service_contract_verified':     'BOOLEAN',
+        'classified_web_link':           'TEXT',
+        'special_about_car':             'TEXT',
+        'registration_city_name':        'TEXT',
+        'cappasity_link':                'TEXT',
+        'first_owner':                   'TEXT',
+        'fair_value_override':           'NUMERIC',
+        'inspection_started_by':         'TEXT',
+        'seller_nationality':            'TEXT',
+        'created_at':                    'TIMESTAMP',
+        'updated_at':                    'TIMESTAMP',
+
+
+
+        # additional simple flags & metrics
+        'show_all_details':              'BOOLEAN',
+        'fair_value':                    'NUMERIC',
+        'confidence':                    'NUMERIC',
+        'explanation_en':                'TEXT',
+        'explanation_ar':                'TEXT',
+        'min_fair_value':                'NUMERIC',
+        'max_fair_value':                'NUMERIC',
+    }
+
+
+
+class SyarahPostgresPipeline(BasePostgresPipeline):
+    detail_table = 'syarah_details'
+    detail_schema = {
+        # link back to listings
+        'ad_id':           'TEXT PRIMARY KEY REFERENCES listings(ad_id) ON DELETE CASCADE',
+
+        # Syarah‐specific detail fields
+        'is_sold':         'BOOLEAN',
+        'is_deleted':      'BOOLEAN',
+        'is_preowned':     'BOOLEAN',
+
+        'interior_color':  'TEXT',
+        'source':          'TEXT',
+        'cylinders':       'INT',
+        'engine_size':     'TEXT',
+        'drive_type':      'TEXT',
+        'number_of_keys':  'INT',
+        'seats':           'INT',
+        'engine_type':     'TEXT',
+    }
 # class DubizzlePostgresPipeline:
 #     """Reliable upsert pipeline: listings + dubizzle_details."""
 
