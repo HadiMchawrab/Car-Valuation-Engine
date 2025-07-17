@@ -61,7 +61,11 @@
   color: white !important;
 }
 
-.listing-card .listing-title,
+/* Change only the car title color to accent green */
+.listing-card .listing-title {
+  color: var(--accent-green) !important;
+}
+
 .listing-card .listing-price,
 .listing-card .detail-label,
 .listing-card .detail-value,

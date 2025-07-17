@@ -55,11 +55,15 @@ def root():
     return {"message": "Welcome to the Markaba API!"}
 
 # Basic listing endpoints
-@app.get("/listings", response_model=List[Listing])
+@app.get("/listings")
 def get_all_listings(
     limit: int = Query(10, ge=1, le=100),
-    offset: int = Query(0, ge=0)
+    offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
+    page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
+    meta: bool = Query(False, description="Include pagination metadata in response")
 ):
+    if page is not None:
+        offset = (page - 1) * limit
     conn = get_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -74,7 +78,19 @@ def get_all_listings(
         )
         rows = cur.fetchall()
         cols = [d[0] for d in cur.description]
-        return [Listing(**format_db_row(dict(zip(cols, row)))) for row in rows]
+        items = [Listing(**format_db_row(dict(zip(cols, row)))) for row in rows]
+        # Get total count
+        cur.execute("SELECT COUNT(*) FROM listings")
+        total_count = cur.fetchone()[0]
+        if meta:
+            page_num = (offset // limit) + 1 if limit else 1
+            return {
+                "items": items,
+                "total_count": total_count,
+                "page": page_num,
+                "items_per_page": limit
+            }
+        return items
     finally:
         cur.close()
         conn.close()
@@ -107,23 +123,56 @@ def get_listing_by_id(ad_id: str):
         cur.close()
         conn.close()
 
-@app.post("/search", response_model=List[Listing])
+# Change /search from POST to GET and convert ListingSearch to query parameters
+@app.get("/search")
 def search_listings(
-    search: ListingSearch,
+    # ListingSearch fields as query params
+    brand: str = Query(None),
+    model: str = Query(None),
+    trim: str = Query(None),
+    year: int = Query(None),
+    min_price: int = Query(None),
+    max_price: int = Query(None),
+    min_year: int = Query(None),
+    max_year: int = Query(None),
+    min_mileage: int = Query(None),
+    max_mileage: int = Query(None),
+    fuel_type: str = Query(None),
+    transmission_type: str = Query(None),
+    body_type: str = Query(None),
+    condition: str = Query(None),
+    color: str = Query(None),
+    seller_type: str = Query(None),
+    location_city: str = Query(None),
+    location_region: str = Query(None),
+    website: str = Query(None),
+    sort_by: str = Query("post_date_desc"),
     limit: int = Query(40, ge=1, le=100),
-    offset: int = Query(0, ge=0)
+    offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
+    page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
+    meta: bool = Query(False, description="Include pagination metadata in response")
 ):
+    if page is not None:
+        offset = (page - 1) * limit
     conn = get_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
     try:
         cur = conn.cursor()
+        # Build ListingSearch object from query params
+        search = ListingSearch(
+            brand=brand, model=model, trim=trim, year=year,
+            min_price=min_price, max_price=max_price,
+            min_year=min_year, max_year=max_year,
+            min_mileage=min_mileage, max_mileage=max_mileage,
+            fuel_type=fuel_type, transmission_type=transmission_type,
+            body_type=body_type, condition=condition, color=color,
+            seller_type=seller_type, location_city=location_city,
+            location_region=location_region, website=website, sort_by=sort_by
+        )
         filters, params = build_search_filters(search)
-        
         where_clause = " AND ".join(filters) if filters else "1=1"
         order_clause = get_order_by_clause(search.sort_by)
-        
-        # Always join with dubizzle_details to get agency_name and seller_verified
         query = (
             "SELECT l.ad_id, l.url, l.website, l.title, l.price, l.currency, l.brand, l.model, l.trim, l.year, l.mileage, l.mileage_unit, "
             "l.fuel_type, l.transmission_type, l.body_type, l.condition, l.color, "
@@ -138,30 +187,68 @@ def search_listings(
             "FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id "
             "WHERE " + where_clause + " ORDER BY " + order_clause + " LIMIT %s OFFSET %s"
         )
-            
         params.extend([limit, offset])
-        
         cur.execute(query, tuple(params))
         rows = cur.fetchall()
         cols = [d[0] for d in cur.description]
-        
-        return [Listing(**format_db_row(dict(zip(cols, row)))) for row in rows]
+        items = [Listing(**format_db_row(dict(zip(cols, row)))) for row in rows]
+        # Get total count
+        cur.execute(f"SELECT COUNT(*) FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id WHERE {where_clause}", tuple(params[:-2]))
+        total_count = cur.fetchone()[0]
+        if meta:
+            page_num = (offset // limit) + 1 if limit else 1
+            return {
+                "items": items,
+                "total_count": total_count,
+                "page": page_num,
+                "items_per_page": limit
+            }
+        return items
     finally:
         cur.close()
         conn.close()
 
-@app.post("/search/count", response_model=Dict[str, int])
-def count_search_listings(search: ListingSearch):
+# Change /search/count from POST to GET and convert ListingSearch to query parameters
+@app.get("/search/count")
+def count_search_listings(
+    brand: str = Query(None),
+    model: str = Query(None),
+    trim: str = Query(None),
+    year: int = Query(None),
+    min_price: int = Query(None),
+    max_price: int = Query(None),
+    min_year: int = Query(None),
+    max_year: int = Query(None),
+    min_mileage: int = Query(None),
+    max_mileage: int = Query(None),
+    fuel_type: str = Query(None),
+    transmission_type: str = Query(None),
+    body_type: str = Query(None),
+    condition: str = Query(None),
+    color: str = Query(None),
+    seller_type: str = Query(None),
+    location_city: str = Query(None),
+    location_region: str = Query(None),
+    website: str = Query(None),
+    sort_by: str = Query("post_date_desc")
+):
     conn = get_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
     try:
         cur = conn.cursor()
+        search = ListingSearch(
+            brand=brand, model=model, trim=trim, year=year,
+            min_price=min_price, max_price=max_price,
+            min_year=min_year, max_year=max_year,
+            min_mileage=min_mileage, max_mileage=max_mileage,
+            fuel_type=fuel_type, transmission_type=transmission_type,
+            body_type=body_type, condition=condition, color=color,
+            seller_type=seller_type, location_city=location_city,
+            location_region=location_region, website=website, sort_by=sort_by
+        )
         filters, params = build_search_filters(search)
-            
         where_clause = " AND ".join(filters) if filters else "1=1"
-        
-        # Use same table structure as search query to match aliases
         query = f"SELECT COUNT(*) FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id WHERE {where_clause}"
         cur.execute(query, tuple(params))
         total = cur.fetchone()[0]
@@ -171,37 +258,58 @@ def count_search_listings(search: ListingSearch):
         conn.close()
 
 # Enhanced Contributor Search Endpoints
-@app.post("/search/contributor")
+# Change /search/contributor from POST to GET and convert ListingSearch to query parameters
+@app.get("/search/contributor")
 def search_contributor_listings(
     seller_identifier: str = Query(..., description="Seller/Agency identifier"),
-    search: ListingSearch = None,
-    limit: int = Query(40, ge=1, le=100), 
-    offset: int = Query(0, ge=0)
+    brand: str = Query(None),
+    model: str = Query(None),
+    trim: str = Query(None),
+    year: int = Query(None),
+    min_price: int = Query(None),
+    max_price: int = Query(None),
+    min_year: int = Query(None),
+    max_year: int = Query(None),
+    min_mileage: int = Query(None),
+    max_mileage: int = Query(None),
+    fuel_type: str = Query(None),
+    transmission_type: str = Query(None),
+    body_type: str = Query(None),
+    condition: str = Query(None),
+    color: str = Query(None),
+    seller_type: str = Query(None),
+    location_city: str = Query(None),
+    location_region: str = Query(None),
+    website: str = Query(None),
+    sort_by: str = Query("post_date_desc"),
+    limit: int = Query(40, ge=1, le=100),
+    offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
+    page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
+    meta: bool = Query(False, description="Include pagination metadata in response")
 ):
-    """
-    Enhanced contributor search that combines contributor filtering with additional filters.
-    This properly handles agency searches using agency_id from dubizzle_details.
-    """
+    if page is not None:
+        offset = (page - 1) * limit
     conn = get_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
-        
     try:
         cur = conn.cursor()
-        
-        # Build contributor-specific filter
+        search = ListingSearch(
+            brand=brand, model=model, trim=trim, year=year,
+            min_price=min_price, max_price=max_price,
+            min_year=min_year, max_year=max_year,
+            min_mileage=min_mileage, max_mileage=max_mileage,
+            fuel_type=fuel_type, transmission_type=transmission_type,
+            body_type=body_type, condition=condition, color=color,
+            seller_type=seller_type, location_city=location_city,
+            location_region=location_region, website=website, sort_by=sort_by
+        ) if any([brand, model, trim, year, min_price, max_price, min_year, max_year, min_mileage, max_mileage, fuel_type, transmission_type, body_type, condition, color, seller_type, location_city, location_region, website, sort_by]) else None
         contributor_filter = build_contributor_filter(seller_identifier)
-        
-        # Build additional filters if provided (excludes seller_type to avoid conflicts)
         additional_filters, additional_params = build_search_filters_for_contributor(search) if search else ([], [])
-        
-        # Combine all filters
         all_filters = [contributor_filter["filter"]] + additional_filters
         all_params = contributor_filter["params"] + additional_params
-        
         where_clause = " AND ".join(all_filters)
-        order_clause = get_order_by_clause(search.sort_by if search else None)
-        
+        order_clause = get_order_by_clause(sort_by)
         query = (
             "SELECT l.ad_id, l.url, l.website, l.title, l.price, l.currency, l.brand, l.model, l.trim, l.year, l.mileage, l.mileage_unit, "
             "l.fuel_type, l.transmission_type, l.body_type, l.condition, l.color, l.seller, l.seller_type, "
@@ -210,15 +318,23 @@ def search_contributor_listings(
             "FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id "
             "WHERE " + where_clause + " ORDER BY " + order_clause + " LIMIT %s OFFSET %s"
         )
-        
         all_params.extend([limit, offset])
-        
         cur.execute(query, tuple(all_params))
         rows = cur.fetchall()
         cols = [d[0] for d in cur.description]
-        
-        return [Listing(**format_db_row(dict(zip(cols, row)))) for row in rows]
-        
+        items = [Listing(**format_db_row(dict(zip(cols, row)))) for row in rows]
+        # Get total count
+        cur.execute(f"SELECT COUNT(*) FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id WHERE {where_clause}", tuple(all_params[:-2]))
+        total_count = cur.fetchone()[0]
+        if meta:
+            page_num = (offset // limit) + 1 if limit else 1
+            return {
+                "items": items,
+                "total_count": total_count,
+                "page": page_num,
+                "items_per_page": limit
+            }
+        return items
     except Exception as e:
         logger.error(f"Error in contributor search: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to search contributor listings: {str(e)}")
@@ -226,37 +342,56 @@ def search_contributor_listings(
         cur.close()
         conn.close()
 
-@app.post("/search/contributor/count")
+# Change /search/contributor/count from POST to GET and convert ListingSearch to query parameters
+@app.get("/search/contributor/count")
 def count_contributor_listings_with_filters(
     seller_identifier: str = Query(..., description="Seller/Agency identifier"),
-    search: ListingSearch = None
+    brand: str = Query(None),
+    model: str = Query(None),
+    trim: str = Query(None),
+    year: int = Query(None),
+    min_price: int = Query(None),
+    max_price: int = Query(None),
+    min_year: int = Query(None),
+    max_year: int = Query(None),
+    min_mileage: int = Query(None),
+    max_mileage: int = Query(None),
+    fuel_type: str = Query(None),
+    transmission_type: str = Query(None),
+    body_type: str = Query(None),
+    condition: str = Query(None),
+    color: str = Query(None),
+    seller_type: str = Query(None),
+    location_city: str = Query(None),
+    location_region: str = Query(None),
+    website: str = Query(None),
+    sort_by: str = Query("post_date_desc")
 ):
-    """Count contributor listings with additional filters"""
     conn = get_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
-        
     try:
-        cur = conn.cursor()
-        
-        # Build contributor-specific filter
+        search = ListingSearch(
+            brand=brand, model=model, trim=trim, year=year,
+            min_price=min_price, max_price=max_price,
+            min_year=min_year, max_year=max_year,
+            min_mileage=min_mileage, max_mileage=max_mileage,
+            fuel_type=fuel_type, transmission_type=transmission_type,
+            body_type=body_type, condition=condition, color=color,
+            seller_type=seller_type, location_city=location_city,
+            location_region=location_region, website=website, sort_by=sort_by
+        ) if any([brand, model, trim, year, min_price, max_price, min_year, max_year, min_mileage, max_mileage, fuel_type, transmission_type, body_type, condition, color, seller_type, location_city, location_region, website, sort_by]) else None
         contributor_filter = build_contributor_filter(seller_identifier)
-        
-        # Build additional filters if provided (excludes seller_type to avoid conflicts)
         additional_filters, additional_params = build_search_filters_for_contributor(search) if search else ([], [])
-        
-        # Combine all filters
         all_filters = [contributor_filter["filter"]] + additional_filters
         all_params = contributor_filter["params"] + additional_params
-        
         where_clause = " AND ".join(all_filters)
         query = f"SELECT COUNT(*) FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id WHERE {where_clause}"
-        
+        conn = get_connection()
+        cur = conn.cursor()
         cur.execute(query, tuple(all_params))
         total = cur.fetchone()[0]
-        
         return {"total": total}
-        
     except Exception as e:
         logger.error(f"Error counting contributor listings with filters: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to count contributor listings: {str(e)}")
@@ -265,60 +400,122 @@ def count_contributor_listings_with_filters(
         conn.close()
 
 # Filter option endpoints
-@app.get("/makes", response_model=List[str])
-def get_all_makes(seller: str = Query(None, description="Filter makes by seller/agency")):
-    if seller:
-        contributor_filter = build_contributor_filter(seller)
-        query = f"""
-            SELECT DISTINCT l.brand 
-            FROM listings l
-            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
-            WHERE l.brand IS NOT NULL AND l.brand <> '' 
-            AND ({contributor_filter['filter']})
-            ORDER BY l.brand
-        """
-        return fetch_list(query, contributor_filter['params'])
-    else:
-        return fetch_list("SELECT DISTINCT brand FROM listings WHERE brand IS NOT NULL AND brand <> '' ORDER BY brand")
+# Helper for paginated meta response
 
-@app.get("/models", response_model=List[str])
-def get_all_models(seller: str = Query(None, description="Filter models by seller/agency")):
-    if seller:
-        contributor_filter = build_contributor_filter(seller)
-        query = f"""
-            SELECT DISTINCT l.model 
-            FROM listings l
-            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
-            WHERE l.model IS NOT NULL AND l.model <> '' 
-            AND ({contributor_filter['filter']})
-            ORDER BY l.model
-        """
-        return fetch_list(query, contributor_filter['params'])
-    else:
-        return fetch_list("SELECT DISTINCT model FROM listings WHERE model IS NOT NULL AND model <> '' ORDER BY model")
+def paginated_meta_response(items, total_count, limit, offset):
+    page = (offset // limit) + 1 if limit else 1
+    return {
+        "items": items,
+        "total_count": total_count,
+        "page": page,
+        "items_per_page": limit
+    }
 
-@app.get("/models/{brand}", response_model=List[str])
-def get_models_by_brand(brand: str, seller: str = Query(None, description="Filter models by seller/agency")):
-    if seller:
-        contributor_filter = build_contributor_filter(seller)
-        query = f"""
-            SELECT DISTINCT l.model 
-            FROM listings l
-            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
-            WHERE l.brand ILIKE %s AND l.model IS NOT NULL AND l.model <> '' 
-            AND ({contributor_filter['filter']})
-            ORDER BY l.model
-        """
-        params = [f"%{brand}%"] + contributor_filter['params']
-        return fetch_list(query, params)
-    else:
-        return fetch_list(
+@app.get("/makes")
+def get_all_makes(
+    limit: int = Query(100, ge=1),
+    offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
+    page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
+    meta: bool = Query(False, description="Include pagination metadata in response")
+):
+    if page is not None:
+        offset = (page - 1) * limit
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT DISTINCT brand FROM listings WHERE brand IS NOT NULL AND brand <> '' ORDER BY brand")
+        results = [row[0] for row in cur.fetchall()]
+        total_count = len(results)
+        items = results[offset:offset+limit]
+        if meta:
+            page_num = (offset // limit) + 1 if limit else 1
+            return {
+                "items": items,
+                "total_count": total_count,
+                "page": page_num,
+                "items_per_page": limit
+            }
+        return items
+    finally:
+        cur.close()
+        conn.close()
+
+@app.get("/models")
+def get_all_models(
+    limit: int = Query(100, ge=1),
+    offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
+    page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
+    meta: bool = Query(False, description="Include pagination metadata in response")
+):
+    if page is not None:
+        offset = (page - 1) * limit
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT DISTINCT model FROM listings WHERE model IS NOT NULL AND model <> '' ORDER BY model")
+        results = [row[0] for row in cur.fetchall()]
+        total_count = len(results)
+        items = results[offset:offset+limit]
+        if meta:
+            page_num = (offset // limit) + 1 if limit else 1
+            return {
+                "items": items,
+                "total_count": total_count,
+                "page": page_num,
+                "items_per_page": limit
+            }
+        return items
+    finally:
+        cur.close()
+        conn.close()
+
+@app.get("/models/{brand}")
+def get_models_by_brand(brand: str,
+    limit: int = Query(100, ge=1),
+    offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
+    page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
+    meta: bool = Query(False, description="Include pagination metadata in response")
+):
+    if page is not None:
+        offset = (page - 1) * limit
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        cur = conn.cursor()
+        cur.execute(
             "SELECT DISTINCT model FROM listings WHERE brand ILIKE %s AND model IS NOT NULL AND model <> '' ORDER BY model",
             (f"%{brand}%",)
         )
+        results = [row[0] for row in cur.fetchall()]
+        total_count = len(results)
+        items = results[offset:offset+limit]
+        if meta:
+            page_num = (offset // limit) + 1 if limit else 1
+            return {
+                "items": items,
+                "total_count": total_count,
+                "page": page_num,
+                "items_per_page": limit
+            }
+        return items
+    finally:
+        cur.close()
+        conn.close()
 
-@app.get("/trims/{brand}/{model}", response_model=List[str])
-def get_trims_by_brand_model(brand: str, model: str, seller: str = Query(None, description="Filter trims by seller/agency")):
+@app.get("/trims/{brand}/{model}")
+def get_trims_by_brand_model(brand: str, model: str, seller: str = Query(None, description="Filter trims by seller/agency"),
+    limit: int = Query(100, ge=1),
+    offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
+    page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
+    meta: bool = Query(False, description="Include pagination metadata in response")
+):
+    if page is not None:
+        offset = (page - 1) * limit
     if seller:
         contributor_filter = build_contributor_filter(seller)
         query = f"""
@@ -330,41 +527,55 @@ def get_trims_by_brand_model(brand: str, model: str, seller: str = Query(None, d
             ORDER BY l.trim
         """
         params = [f"%{brand}%", f"%{model}%"] + contributor_filter['params']
-        return fetch_list(query, params)
+        results = fetch_list(query, params)
     else:
-        return fetch_list(
+        results = fetch_list(
             "SELECT DISTINCT trim FROM listings WHERE brand ILIKE %s AND model ILIKE %s AND trim IS NOT NULL AND trim <> '' ORDER BY trim",
             (f"%{brand}%", f"%{model}%")
         )
+    total_count = len(results)
+    items = results[offset:offset+limit]
+    if meta:
+        page_num = (offset // limit) + 1 if limit else 1
+        return {
+            "items": items,
+            "total_count": total_count,
+            "page": page_num,
+            "items_per_page": limit
+        }
+    return items
 
-@app.get("/years", response_model=List[int])
-def get_year_range(seller: str = Query(None, description="Filter years by seller/agency")):
-    if seller:
-        contributor_filter = build_contributor_filter(seller)
-        query = f"""
-            SELECT MIN(l.year), MAX(l.year) 
-            FROM listings l
-            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
-            WHERE l.year IS NOT NULL 
-            AND ({contributor_filter['filter']})
-        """
-        result = fetch_list(query, contributor_filter['params'])
-    else:
-        result = fetch_list("SELECT MIN(year), MAX(year) FROM listings WHERE year IS NOT NULL")
-    # Defensive unpacking
-    if result and len(result) > 0:
-        # fetch_list likely returns a list of rows, so get the first row
-        row = result[0] if isinstance(result[0], (list, tuple)) else result
-        if row and len(row) == 2:
-            min_year, max_year = row
-        else:
-            min_year, max_year = None, None
-    else:
-        min_year, max_year = None, None
-    if min_year and max_year:
-        return list(range(min_year, max_year + 1))
-    else:
-        return []
+@app.get("/years")
+def get_year_range(
+    limit: int = Query(100, ge=1),
+    offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
+    page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
+    meta: bool = Query(False, description="Include pagination metadata in response")
+):
+    if page is not None:
+        offset = (page - 1) * limit
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT MIN(year), MAX(year) FROM listings WHERE year IS NOT NULL")
+        min_year, max_year = cur.fetchone()
+        all_years = list(range(min_year, max_year + 1))
+        total_count = len(all_years)
+        items = all_years[offset:offset+limit]
+        if meta:
+            page_num = (offset // limit) + 1 if limit else 1
+            return {
+                "items": items,
+                "total_count": total_count,
+                "page": page_num,
+                "items_per_page": limit
+            }
+        return items
+    finally:
+        cur.close()
+        conn.close()
 
 @app.get("/years/{brand}/{model}", response_model=List[int])
 def get_years_by_brand_model(brand: str, model: str):
@@ -377,115 +588,236 @@ def get_years_by_brand_model(brand: str, model: str):
     years = [row[0] if isinstance(row, (list, tuple)) else row for row in result]
     return years
 
-@app.get("/locations", response_model=List[str])
-def get_all_locations(seller: str = Query(None, description="Filter locations by seller/agency")):
-    if seller:
-        contributor_filter = build_contributor_filter(seller)
-        query = f"""
-            SELECT DISTINCT l.location_city 
-            FROM listings l
-            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
-            WHERE l.location_city IS NOT NULL AND l.location_city <> '' 
-            AND ({contributor_filter['filter']})
-            UNION 
-            SELECT DISTINCT l.location_region 
-            FROM listings l
-            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
-            WHERE l.location_region IS NOT NULL AND l.location_region <> '' 
-            AND ({contributor_filter['filter']})
-            ORDER BY 1
-        """
-        params = contributor_filter['params'] + contributor_filter['params']
-        return fetch_list(query, params)
-    else:
-        return fetch_list(
+@app.get("/locations")
+def get_all_locations(
+    limit: int = Query(100, ge=1),
+    offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
+    page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
+    meta: bool = Query(False, description="Include pagination metadata in response")
+):
+    if page is not None:
+        offset = (page - 1) * limit
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        cur = conn.cursor()
+        cur.execute(
             "SELECT DISTINCT location_city FROM listings WHERE location_city IS NOT NULL AND location_city <> '' "
             "UNION SELECT DISTINCT location_region FROM listings WHERE location_region IS NOT NULL AND location_region <> '' "
             "ORDER BY 1"
         )
+        results = [row[0] for row in cur.fetchall()]
+        total_count = len(results)
+        items = results[offset:offset+limit]
+        if meta:
+            page_num = (offset // limit) + 1 if limit else 1
+            return {
+                "items": items,
+                "total_count": total_count,
+                "page": page_num,
+                "items_per_page": limit
+            }
+        return items
+    finally:
+        cur.close()
+        conn.close()
 
-@app.get("/fuel-types", response_model=List[str])
-def get_fuel_types(seller: str = Query(None, description="Filter fuel types by seller/agency")):
-    if seller:
-        contributor_filter = build_contributor_filter(seller)
-        query = f"""
-            SELECT DISTINCT l.fuel_type 
-            FROM listings l
-            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
-            WHERE l.fuel_type IS NOT NULL AND l.fuel_type <> '' 
-            AND ({contributor_filter['filter']})
-            ORDER BY l.fuel_type
-        """
-        return fetch_list(query, contributor_filter['params'])
-    else:
-        return fetch_list("SELECT DISTINCT fuel_type FROM listings WHERE fuel_type IS NOT NULL AND fuel_type <> '' ORDER BY fuel_type")
+@app.get("/fuel-types")
+def get_fuel_types(
+    limit: int = Query(100, ge=1),
+    offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
+    page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
+    meta: bool = Query(False, description="Include pagination metadata in response")
+):
+    if page is not None:
+        offset = (page - 1) * limit
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT DISTINCT fuel_type FROM listings WHERE fuel_type IS NOT NULL AND fuel_type <> '' ORDER BY fuel_type")
+        results = [row[0] for row in cur.fetchall()]
+        total_count = len(results)
+        items = results[offset:offset+limit]
+        if meta:
+            page_num = (offset // limit) + 1 if limit else 1
+            return {
+                "items": items,
+                "total_count": total_count,
+                "page": page_num,
+                "items_per_page": limit
+            }
+        return items
+    finally:
+        cur.close()
+        conn.close()
 
-@app.get("/body-types", response_model=List[str])
-def get_body_types(seller: str = Query(None, description="Filter body types by seller/agency")):
-    if seller:
-        contributor_filter = build_contributor_filter(seller)
-        query = f"""
-            SELECT DISTINCT l.body_type 
-            FROM listings l
-            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
-            WHERE l.body_type IS NOT NULL AND l.body_type <> '' 
-            AND ({contributor_filter['filter']})
-            ORDER BY l.body_type
-        """
-        return fetch_list(query, contributor_filter['params'])
-    else:
-        return fetch_list("SELECT DISTINCT body_type FROM listings WHERE body_type IS NOT NULL AND body_type <> '' ORDER BY body_type")
+@app.get("/body-types")
+def get_body_types(
+    limit: int = Query(100, ge=1),
+    offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
+    page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
+    meta: bool = Query(False, description="Include pagination metadata in response")
+):
+    if page is not None:
+        offset = (page - 1) * limit
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT DISTINCT body_type FROM listings WHERE body_type IS NOT NULL AND body_type <> '' ORDER BY body_type")
+        results = [row[0] for row in cur.fetchall()]
+        total_count = len(results)
+        items = results[offset:offset+limit]
+        if meta:
+            page_num = (offset // limit) + 1 if limit else 1
+            return {
+                "items": items,
+                "total_count": total_count,
+                "page": page_num,
+                "items_per_page": limit
+            }
+        return items
+    finally:
+        cur.close()
+        conn.close()
 
-@app.get("/transmission-types", response_model=List[str])
-def get_transmission_types(seller: str = Query(None, description="Filter transmission types by seller/agency")):
-    if seller:
-        contributor_filter = build_contributor_filter(seller)
-        query = f"""
-            SELECT DISTINCT l.transmission_type 
-            FROM listings l
-            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
-            WHERE l.transmission_type IS NOT NULL AND l.transmission_type <> '' 
-            AND ({contributor_filter['filter']})
-            ORDER BY l.transmission_type
-        """
-        return fetch_list(query, contributor_filter['params'])
-    else:
-        return fetch_list("SELECT DISTINCT transmission_type FROM listings WHERE transmission_type IS NOT NULL AND transmission_type <> '' ORDER BY transmission_type")
+@app.get("/transmission-types")
+def get_transmission_types(
+    limit: int = Query(100, ge=1),
+    offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
+    page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
+    meta: bool = Query(False, description="Include pagination metadata in response")
+):
+    if page is not None:
+        offset = (page - 1) * limit
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT DISTINCT transmission_type FROM listings WHERE transmission_type IS NOT NULL AND transmission_type <> '' ORDER BY transmission_type")
+        results = [row[0] for row in cur.fetchall()]
+        total_count = len(results)
+        items = results[offset:offset+limit]
+        if meta:
+            page_num = (offset // limit) + 1 if limit else 1
+            return {
+                "items": items,
+                "total_count": total_count,
+                "page": page_num,
+                "items_per_page": limit
+            }
+        return items
+    finally:
+        cur.close()
+        conn.close()
 
-@app.get("/colors", response_model=List[str])
-def get_colors(seller: str = Query(None, description="Filter colors by seller/agency")):
-    if seller:
-        contributor_filter = build_contributor_filter(seller)
-        query = f"""
-            SELECT DISTINCT l.color 
-            FROM listings l
-            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
-            WHERE l.color IS NOT NULL AND l.color <> '' 
-            AND ({contributor_filter['filter']})
-            ORDER BY l.color
-        """
-        return fetch_list(query, contributor_filter['params'])
-    else:
-        return fetch_list("SELECT DISTINCT color FROM listings WHERE color IS NOT NULL AND color <> '' ORDER BY color")
+@app.get("/conditions")
+def get_conditions(
+    limit: int = Query(100, ge=1),
+    offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
+    page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
+    meta: bool = Query(False, description="Include pagination metadata in response")
+):
+    if page is not None:
+        offset = (page - 1) * limit
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT DISTINCT condition FROM listings WHERE condition IS NOT NULL AND condition <> '' ORDER BY condition")
+        results = [row[0] for row in cur.fetchall()]
+        total_count = len(results)
+        items = results[offset:offset+limit]
+        if meta:
+            page_num = (offset // limit) + 1 if limit else 1
+            return {
+                "items": items,
+                "total_count": total_count,
+                "page": page_num,
+                "items_per_page": limit
+            }
+        return items
+    finally:
+        cur.close()
+        conn.close()
 
-@app.get("/seller-types", response_model=List[str])
-def get_seller_types(seller: str = Query(None, description="Filter seller types by seller/agency")):
-    if seller:
-        contributor_filter = build_contributor_filter(seller)
-        query = f"""
-            SELECT DISTINCT l.seller_type 
-            FROM listings l
-            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
-            WHERE l.seller_type IS NOT NULL AND l.seller_type <> '' 
-            AND ({contributor_filter['filter']})
-            ORDER BY l.seller_type
-        """
-        return fetch_list(query, contributor_filter['params'])
-    else:
-        return fetch_list("SELECT DISTINCT seller_type FROM listings WHERE seller_type IS NOT NULL AND seller_type <> '' ORDER BY seller_type")
+@app.get("/colors")
+def get_colors(
+    limit: int = Query(100, ge=1),
+    offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
+    page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
+    meta: bool = Query(False, description="Include pagination metadata in response")
+):
+    if page is not None:
+        offset = (page - 1) * limit
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT DISTINCT color FROM listings WHERE color IS NOT NULL AND color <> '' ORDER BY color")
+        results = [row[0] for row in cur.fetchall()]
+        total_count = len(results)
+        items = results[offset:offset+limit]
+        if meta:
+            page_num = (offset // limit) + 1 if limit else 1
+            return {
+                "items": items,
+                "total_count": total_count,
+                "page": page_num,
+                "items_per_page": limit
+            }
+        return items
+    finally:
+        cur.close()
+        conn.close()
 
-@app.get("/websites", response_model=List[str])
-def get_websites(seller: str = Query(None, description="Filter websites by seller/agency")):
+@app.get("/seller-types")
+def get_seller_types(
+    limit: int = Query(100, ge=1),
+    offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
+    page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
+    meta: bool = Query(False, description="Include pagination metadata in response")
+):
+    if page is not None:
+        offset = (page - 1) * limit
+    conn = get_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT DISTINCT seller_type FROM listings WHERE seller_type IS NOT NULL AND seller_type <> '' ORDER BY seller_type")
+        results = [row[0] for row in cur.fetchall()]
+        total_count = len(results)
+        items = results[offset:offset+limit]
+        if meta:
+            page_num = (offset // limit) + 1 if limit else 1
+            return {
+                "items": items,
+                "total_count": total_count,
+                "page": page_num,
+                "items_per_page": limit
+            }
+        return items
+    finally:
+        cur.close()
+        conn.close()
+
+@app.get("/websites")
+def get_websites(seller: str = Query(None, description="Filter websites by seller/agency"),
+    limit: int = Query(100, ge=1),
+    offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
+    page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
+    meta: bool = Query(False, description="Include pagination metadata in response")
+):
+    if page is not None:
+        offset = (page - 1) * limit
     if seller:
         contributor_filter = build_contributor_filter(seller)
         query = f"""
@@ -496,9 +828,20 @@ def get_websites(seller: str = Query(None, description="Filter websites by selle
             AND ({contributor_filter['filter']})
             ORDER BY l.website
         """
-        return fetch_list(query, contributor_filter['params'])
+        results = fetch_list(query, contributor_filter['params'])
     else:
-        return fetch_list("SELECT DISTINCT website FROM listings WHERE website IS NOT NULL AND website <> '' ORDER BY website")
+        results = fetch_list("SELECT DISTINCT website FROM listings WHERE website IS NOT NULL AND website <> '' ORDER BY website")
+    total_count = len(results)
+    items = results[offset:offset+limit]
+    if meta:
+        page_num = (offset // limit) + 1 if limit else 1
+        return {
+            "items": items,
+            "total_count": total_count,
+            "page": page_num,
+            "items_per_page": limit
+        }
+    return items
 
 @app.get("/filter-options", response_model=Dict[str, Any])
 def get_all_filter_options():

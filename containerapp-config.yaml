@@ -26,7 +26,7 @@ properties:
       identity: "system"
   template:
     containers:
-    - image: markabaregistry2025.azurecr.io/markaba-backend:v11
+    - image: markabaregistry2025.azurecr.io/markaba-backend:v14
       name: markaba-backend-app
       env:
       - name: "aiven-pg-host"

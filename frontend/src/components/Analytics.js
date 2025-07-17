@@ -34,12 +34,11 @@ const Analytics = () => {
     fetchWebsites();
   }, []);
 
-  // Reset website filter to all when switching between overview/contributors
+  // Initialize website filter to null on mount
   useEffect(() => {
-    if (activeSection === 'overview' || activeSection === 'contributors') {
-      setFilters({ websites: null });
-    }
-  }, [activeSection]);
+    setFilters({ websites: null });
+    setDropdownValue('');
+  }, []); // Only run on mount
 
   const handleDropdownChange = (e) => {
     const value = e.target.value;
@@ -69,7 +68,7 @@ const Analytics = () => {
     if (!filters.websites || filters.websites.length === 0) {
       return (
         <div className="website-chips">
-          <span className="website-chip">
+          <span className="website-chip all-websites">
             All Websites
             <button className="chip-remove" onClick={() => handleRemoveWebsite('ALL')}>×</button>
           </span>
@@ -79,7 +78,7 @@ const Analytics = () => {
     return (
       <div className="website-chips">
         {filters.websites.map(site => (
-          <span className="website-chip" key={site}>
+          <span className="website-chip selected-website" key={site}>
             {site}
             <button className="chip-remove" onClick={() => handleRemoveWebsite(site)}>×</button>
           </span>
@@ -117,6 +116,9 @@ const Analytics = () => {
       const cleanFilters = Object.fromEntries(
         Object.entries(searchFilters).filter(([_, v]) => v != null)
       );
+      
+      console.log('Analytics - Sending filters:', cleanFilters); // Debug log
+      
       const response = await fetch(`${API_BASE_URL}/api/analytics/stats`, {
         method: 'POST',
         headers: {
@@ -152,24 +154,33 @@ const Analytics = () => {
         return <PriceSpreadAnalysis />;
       default:
         return (
-          <div className="analytics-stats">
-            <div className="stat-card">
-              <FaCar className="stat-icon" />
-              <div className="stat-content">
-                <h3>Total Listings</h3>
-                <p className="stat-number">
-                  {analyticsStats ? analyticsStats.total_listings.toLocaleString() : '0'}
-                </p>
+          <div className="analytics-overview">
+            {/* Filter Status Display */}
+            {filters.websites && filters.websites.length > 0 && (
+              <div className="filter-status">
+                <h3>Showing data for: {filters.websites.join(', ')}</h3>
               </div>
-            </div>
+            )}
+            
+            <div className="analytics-stats">
+              <div className="stat-card">
+                <FaCar className="stat-icon" />
+                <div className="stat-content">
+                  <h3>Total Listings</h3>
+                  <p className="stat-number">
+                    {analyticsStats ? analyticsStats.total_listings.toLocaleString() : '0'}
+                  </p>
+                </div>
+              </div>
 
-            <div className="stat-card">
-              <FaCalendarAlt className="stat-icon" />
-              <div className="stat-content">
-                <h3>This Month</h3>
-                <p className="stat-number">
-                  {analyticsStats ? analyticsStats.listings_this_month.toLocaleString() : '0'}
-                </p>
+              <div className="stat-card">
+                <FaCalendarAlt className="stat-icon" />
+                <div className="stat-content">
+                  <h3>This Month</h3>
+                  <p className="stat-number">
+                    {analyticsStats ? analyticsStats.listings_this_month.toLocaleString() : '0'}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

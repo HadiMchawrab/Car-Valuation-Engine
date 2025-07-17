@@ -208,17 +208,26 @@ const ListingsPage = () => {
     setLoading(true);
     try {
       const searchParams = buildSearchParams();
-      
       // Calculate offset based on current page
       const offset = (currentPage - 1) * listingsPerPage;
-      
-      // Make the API call with sorting in the POST body
-      const response = await axios.post(
-        `${API_BASE_URL}/search?limit=${listingsPerPage}&offset=${offset}`, 
-        searchParams
+      // Build query string from searchParams
+      const params = new URLSearchParams();
+      Object.entries(searchParams).forEach(([key, value]) => {
+        if (value !== null && value !== '' && value !== undefined) {
+          params.append(key, value);
+        }
+      });
+      params.append('limit', listingsPerPage);
+      params.append('offset', offset);
+      params.append('meta', 'true');
+      // Make the API call with GET and query params
+      const response = await axios.get(
+        `${API_BASE_URL}/search?${params.toString()}`
       );
-      
-      setListings(response.data);
+      // Response is now an object with items, total_count, etc.
+      setListings(response.data.items || []);
+      setTotalPages(Math.ceil((response.data.total_count || 0) / listingsPerPage));
+      setTotalCount(response.data.total_count || 0);
       setLoading(false);
     } catch (err) {
       setError('Error fetching listings. Please try again later.');
@@ -229,8 +238,14 @@ const ListingsPage = () => {
   const fetchTotalCount = async () => {
     try {
       const searchParams = buildSearchParams();
-      
-      const countResponse = await axios.post(`${API_BASE_URL}/search/count`, searchParams);
+      const params = new URLSearchParams();
+      Object.entries(searchParams).forEach(([key, value]) => {
+        if (value !== null && value !== '' && value !== undefined) {
+          params.append(key, value);
+        }
+      });
+      // Use GET for count endpoint
+      const countResponse = await axios.get(`${API_BASE_URL}/search/count?${params.toString()}`);
       const totalListings = countResponse.data.total;
       setTotalPages(Math.ceil(totalListings / listingsPerPage));
       setTotalCount(totalListings);
@@ -379,15 +394,13 @@ const ListingsPage = () => {
                           <span className="detail-label">Color</span>
                           <span className="detail-value">{getColor(listing.color)}</span>
                         </div>
-                      </div>
-                      
-                      <div className="seller-info">
-                        <div className="seller-name">
-                          <span className="seller-label">Seller:</span>
-                          <span className="seller-value">
-                            {listing.seller || listing.agency_name || 'N/A'}
-                          </span>
+                        <div className="detail-item">
+                          <span className="detail-label">website</span>
+                          <span className="detail-value">{listing.website || 'N/A'}</span>
                         </div>
+                      </div>
+
+                      <div className="seller-info">
                         <div className="post-date">
                           <span className="post-label">Posted:</span>
                           <span className="post-value">
@@ -409,12 +422,18 @@ const ListingsPage = () => {
                             `${listing.location_city || ''} ${listing.location_region || ''}`.trim() : 
                             'Location N/A'}
                         </div>
-                        <div className="listing-date">
-                          {listing.post_date ? new Date(listing.post_date).toLocaleDateString() : ''}
+                        <div className="listing-seller">
+                          <span className="seller-label">Seller:</span>
+                          <span className="seller-value">
+                            {listing.seller_name || listing.agency_name || 'N/A'}
+                          </span>
                         </div>
                       </div>
                     </div>
+
+                    
                   </Link>
+
                 </div>
               ))
             ) : (

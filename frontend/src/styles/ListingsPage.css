@@ -425,22 +425,73 @@
   .listing-card {
     flex-direction: column;
     height: auto;
+    min-height: auto;
   }
   
   .listing-image {
     flex: none;
-    height: 200px;
+    height: 150px;
+    width: 100%;
+  }
+  
+  .listing-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .listing-info {
+    padding: 20px;
+  }
+  
+  .listing-header {
+    margin-bottom: 15px;
+  }
+  
+  .listing-title {
+    font-size: 1.1rem;
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+  
+  .listing-price {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
   }
   
   .listing-details {
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  
+  .detail-item {
+    gap: 3px;
+  }
+  
+  .detail-label {
+    font-size: 0.7rem;
+  }
+  
+  .detail-value {
+    font-size: 0.85rem;
+  }
+  
+  .seller-info {
+    padding: 10px 0;
+    margin-top: 10px;
+    gap: 6px;
   }
   
   .listing-meta {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+    padding-top: 10px;
+  }
+  
+  .listing-location {
+    font-size: 0.8rem;
   }
   
   .filter-panel {
@@ -457,20 +508,124 @@
   }
 }
 
+/* Medium mobile devices */
+@media (max-width: 600px) {
+  .listing-image {
+    height: 130px;
+  }
+  
+  .listing-info {
+    padding: 18px;
+  }
+  
+  .listing-details {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  
+  .detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .verified-badge {
+    font-size: 0.65rem;
+    padding: 2px 5px;
+  }
+}
+
 @media (max-width: 480px) {
   .listings-page {
     padding: 0 10px;
     margin: 10px auto;
   }
   
-  .listings-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
+  .listings-page h1 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+  }
+  
+  .listing-card {
+    margin-bottom: 15px;
+  }
+  
+  .listing-image {
+    height: 120px;
+  }
+  
+  .listing-info {
+    padding: 15px;
+  }
+  
+  .listing-header {
+    margin-bottom: 12px;
+  }
+  
+  .listing-title {
+    font-size: 1rem;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  
+  .listing-price {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
   }
   
   .listing-details {
     grid-template-columns: 1fr;
-    gap: 6px;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  
+  .detail-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .detail-item:last-child {
+    border-bottom: none;
+  }
+  
+  .detail-label {
+    font-size: 0.7rem;
+    flex: 0 0 auto;
+    margin-right: 10px;
+  }
+  
+  .detail-value {
+    font-size: 0.8rem;
+    text-align: right;
+    flex: 1;
+  }
+  
+  .seller-info {
+    padding: 8px 0;
+    margin-top: 8px;
+    gap: 4px;
+  }
+  
+  .post-date,
+  .scraped-date {
+    font-size: 0.75rem;
+  }
+  
+  .post-label,
+  .scraped-label {
+    min-width: 45px;
+  }
+  
+  .listing-meta {
+    padding-top: 8px;
+  }
+  
+  .listing-location {
+    font-size: 0.75rem;
   }
   
   .pagination {
@@ -486,21 +641,98 @@
     text-align: center;
     margin-bottom: 5px;
   }
+  
+  .sort-section {
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+  
+  .sort-dropdown {
+    min-width: 140px;
+    font-size: 13px;
+  }
 }
 
 /* iPhone SE and other small devices */
 @media (max-width: 380px) {
+  .listings-page {
+    padding: 0 8px;
+    margin: 8px auto;
+  }
+  
   .listings-page h1 {
-    font-size: 20px;
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+  }
+  
+  .listing-card {
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .listing-image {
+    height: 100px;
+    border-radius: 8px 8px 0 0;
+  }
+  
+  .listing-info {
+    padding: 12px;
+  }
+  
+  .listing-header {
+    margin-bottom: 10px;
+  }
+  
+  .listing-title {
+    font-size: 0.95rem;
+    line-height: 1.2;
+    margin-bottom: 6px;
   }
   
   .listing-price {
-    font-size: 16px;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
   }
   
-  .listing-details, 
+  .listing-details {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  
+  .detail-item {
+    padding: 4px 0;
+  }
+  
+  .detail-label {
+    font-size: 0.65rem;
+  }
+  
+  .detail-value {
+    font-size: 0.75rem;
+  }
+  
+  .seller-info {
+    padding: 6px 0;
+    margin-top: 6px;
+    gap: 3px;
+  }
+  
+  .post-date,
+  .scraped-date {
+    font-size: 0.7rem;
+  }
+  
+  .listing-meta {
+    padding-top: 6px;
+  }
+  
   .listing-location {
-    font-size: 12px;
+    font-size: 0.7rem;
+  }
+  
+  .verified-badge {
+    font-size: 0.6rem;
+    padding: 1px 4px;
   }
   
   /* Seller Banner Responsive */
@@ -508,15 +740,42 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
   }
   
   .seller-filter-banner .seller-info h2 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+  }
+  
+  .seller-filter-banner .seller-info p {
+    font-size: 0.8rem;
   }
   
   .clear-seller-filter {
     align-self: stretch;
     text-align: center;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .sort-section {
+    padding: 10px;
+    margin-bottom: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .sort-label {
+    font-size: 13px;
+  }
+  
+  .sort-dropdown {
+    width: 100%;
+    min-width: auto;
+    font-size: 12px;
+    padding: 6px 10px;
   }
 }
 
