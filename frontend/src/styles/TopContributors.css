@@ -176,6 +176,26 @@
   word-break: break-all;
 }
 
+/* Contributors Filter Info */
+.contributors-filter-info {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.contributors-filter-info p {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.contributors-filter-info strong {
+  font-weight: 700;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .contributors-grid {

@@ -14,19 +14,6 @@ const TopContributors = ({ filters }) => {
     try {
       // Prepare search filters for backend
       const searchFilters = {
-        ...filters,
-        // Convert empty strings to null for backend
-        brand: filters.brand || null,
-        model: filters.model || null,
-        condition: filters.condition || null,
-        fuel_type: filters.fuel_type || null,
-        transmission_type: filters.transmission_type || null,
-        body_type: filters.body_type || null,
-        color: filters.color || null,
-        seller_type: filters.seller_type || null,
-        website: filters.website || null,
-        location_city: filters.location_city || null,
-        location_region: filters.location_region || null,
         // Only include websites if some are selected
         websites: filters.websites && filters.websites.length > 0 ? filters.websites : null
       };
@@ -35,6 +22,8 @@ const TopContributors = ({ filters }) => {
       const cleanFilters = Object.fromEntries(
         Object.entries(searchFilters).filter(([_, v]) => v != null)
       );
+
+      console.log('TopContributors - Sending filters:', cleanFilters); // Debug log
 
       // Use POST to send filters in request body
       const response = await fetch(`${API_BASE_URL}/api/analytics/contributors?limit=20`, {
@@ -87,42 +76,52 @@ const TopContributors = ({ filters }) => {
       {contributors.length === 0 ? (
         <div className="no-contributors">
           <p>No contributor data available for the selected filters.</p>
+          {filters.websites && filters.websites.length > 0 && (
+            <p>Filtered by: {filters.websites.join(', ')}</p>
+          )}
         </div>
       ) : (
-        <div className="contributors-grid">
-          {contributors.map((contributor, index) => (
-            <Link
-              key={contributor.seller_id || contributor.seller_name}
-              to={`/analytics/contributor/${encodeURIComponent(contributor.seller_name)}?type=${contributor.contributor_type || (contributor.agency_name ? 'agency' : 'seller')}`}
-              className="contributor-card"
-            >
-              <div className="contributor-rank">
-                #{index + 1}
-              </div>
-              
-              <div className="contributor-info">
-                <span className="contributor-name-small">
-                  {contributor.seller_name}
-                </span>
-                {contributor.website && (
-                  <div className="contributor-website">{contributor.website}</div>
-                )}
-                <div className="contributor-type">
-                  {contributor.contributor_type === 'agency' ? 'Agency' : 'Individual Seller'}
+        <>
+          {filters.websites && filters.websites.length > 0 && (
+            <div className="contributors-filter-info">
+              <p>Showing contributors from: <strong>{filters.websites.join(', ')}</strong></p>
+            </div>
+          )}
+          <div className="contributors-grid">
+            {contributors.map((contributor, index) => (
+              <Link
+                key={contributor.seller_id || contributor.seller_name}
+                to={`/analytics/contributor/${encodeURIComponent(contributor.seller_name)}?type=${contributor.contributor_type || (contributor.agency_name ? 'agency' : 'seller')}`}
+                className="contributor-card"
+              >
+                <div className="contributor-rank">
+                  #{index + 1}
                 </div>
                 
-                <div className="contributor-listings">
-                  <span className="listings-label">Total Listings:</span>
-                  <span className="listings-value">{contributor.total_listings}</span>
+                <div className="contributor-info">
+                  <span className="contributor-name-small">
+                    {contributor.seller_name}
+                  </span>
+                  {contributor.website && (
+                    <div className="contributor-website">{contributor.website}</div>
+                  )}
+                  <div className="contributor-type">
+                    {contributor.contributor_type === 'agency' ? 'Agency' : 'Individual Seller'}
+                  </div>
+                  
+                  <div className="contributor-listings">
+                    <span className="listings-label">Total Listings:</span>
+                    <span className="listings-value">{contributor.total_listings}</span>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="contributor-arrow">
-                →
-              </div>
-            </Link>
-          ))}
-        </div>
+                
+                <div className="contributor-arrow">
+                  →
+                </div>
+              </Link>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

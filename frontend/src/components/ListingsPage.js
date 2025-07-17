@@ -394,15 +394,13 @@ const ListingsPage = () => {
                           <span className="detail-label">Color</span>
                           <span className="detail-value">{getColor(listing.color)}</span>
                         </div>
-                      </div>
-                      
-                      <div className="seller-info">
-                        <div className="seller-name">
-                          <span className="seller-label">Seller:</span>
-                          <span className="seller-value">
-                            {listing.seller || listing.agency_name || 'N/A'}
-                          </span>
+                        <div className="detail-item">
+                          <span className="detail-label">website</span>
+                          <span className="detail-value">{listing.website || 'N/A'}</span>
                         </div>
+                      </div>
+
+                      <div className="seller-info">
                         <div className="post-date">
                           <span className="post-label">Posted:</span>
                           <span className="post-value">
@@ -424,12 +422,18 @@ const ListingsPage = () => {
                             `${listing.location_city || ''} ${listing.location_region || ''}`.trim() : 
                             'Location N/A'}
                         </div>
-                        <div className="listing-date">
-                          {listing.post_date ? new Date(listing.post_date).toLocaleDateString() : ''}
+                        <div className="listing-seller">
+                          <span className="seller-label">Seller:</span>
+                          <span className="seller-value">
+                            {listing.seller_name || listing.agency_name || 'N/A'}
+                          </span>
                         </div>
                       </div>
                     </div>
+
+                    
                   </Link>
+
                 </div>
               ))
             ) : (
