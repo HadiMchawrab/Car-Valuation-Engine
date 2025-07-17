@@ -77,6 +77,7 @@ def get_top_contributors(
         params = []
         
         # Handle website filtering from query parameter
+        website_list = []
         if websites:
             website_list = [w.strip() for w in websites.split(',') if w.strip()]
             if website_list:
@@ -85,31 +86,79 @@ def get_top_contributors(
                 params.extend(website_list)
                 logger.info(f"Contributors endpoint - filtering by websites: {website_list}")
         
-        # Base filters for valid sellers
-        base_filters = ["(l.seller IS NOT NULL AND l.seller != '')"]
+        # Check if we need to join dubizzle_details (for Dubizzle website or when showing all websites)
+        need_dubizzle_join = not website_list or any('dubizzle' in w.lower() for w in website_list)
+        
+        # Base filters for valid sellers - this is the key fix
+        if need_dubizzle_join:
+            # For Dubizzle, we want agency contributors OR individual sellers
+            base_filters = []  # No additional base filters, website filter is already applied above
+        else:
+            # For other websites, just filter by seller existence
+            base_filters = ["(l.seller IS NOT NULL AND l.seller != '')"]
+        
         if filters:
             base_filters.extend(filters)
         
-        where_clause = " AND ".join(base_filters)
+        # Ensure we always have a valid WHERE clause
+        where_clause = " AND ".join(base_filters) if base_filters else "1=1"
         logger.info(f"Contributors endpoint - WHERE clause: {where_clause}")
         logger.info(f"Contributors endpoint - Parameters: {params}")
-        query = f"""
-        SELECT 
-            l.seller as seller_name,
-            l.seller as seller_id,
-            l.website,
-            COUNT(*) as total_listings,
-            l.seller_type as contributor_type
-        FROM listings l
-        WHERE {where_clause}
-        GROUP BY 
-            l.seller,
-            l.website,
-            l.seller_type
-        HAVING COUNT(*) > 0
-        ORDER BY total_listings DESC
-        LIMIT %s
-        """
+        
+        # Build query with conditional JOIN
+        if need_dubizzle_join:
+            query = f"""
+            SELECT 
+                CASE 
+                    WHEN l.seller IS NULL OR l.seller = '' OR l.seller = 'N/A'
+                    THEN COALESCE(dd.agency_name, 'Unknown Agency')
+                    ELSE l.seller
+                END as seller_name,
+                CASE 
+                    WHEN l.seller IS NULL OR l.seller = '' OR l.seller = 'N/A'
+                    THEN COALESCE(dd.agency_id, 'unknown')
+                    ELSE l.seller
+                END as seller_id,
+                dd.agency_name,
+                l.website,
+                COUNT(*) as total_listings,
+                CASE 
+                    WHEN l.seller IS NULL OR l.seller = '' OR l.seller = 'N/A'
+                    THEN 'agency'
+                    ELSE 'individual_seller'
+                END as contributor_type
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE {where_clause}
+            GROUP BY 
+                l.seller,
+                dd.agency_id,
+                dd.agency_name,
+                l.website
+            HAVING COUNT(*) > 0 
+                AND NOT (l.seller IS NULL OR l.seller = '' OR l.seller = 'N/A') OR dd.agency_name IS NOT NULL
+            ORDER BY total_listings DESC
+            LIMIT %s
+            """
+        else:
+            query = f"""
+            SELECT 
+                l.seller as seller_name,
+                l.seller as seller_id,
+                NULL as agency_name,
+                l.website,
+                COUNT(*) as total_listings,
+                l.seller_type as contributor_type
+            FROM listings l
+            WHERE {where_clause}
+            GROUP BY 
+                l.seller,
+                l.website,
+                l.seller_type
+            HAVING COUNT(*) > 0
+            ORDER BY total_listings DESC
+            LIMIT %s
+            """
         params.append(limit)
         cur.execute(query, tuple(params))
         rows = cur.fetchall()
@@ -132,16 +181,19 @@ def get_top_contributors(
 
 @router.get("/contributor/{seller_identifier}")
 def get_contributor_details(seller_identifier: str):
-    """Get detailed analytics for a specific contributor using seller name or seller_id"""
+    """Get detailed analytics for a specific contributor using seller name or agency name"""
     conn = get_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
     try:
         cur = conn.cursor()
+        
+        # First try to find as individual seller
         query = """
         SELECT 
             l.seller as seller_name,
             l.seller as seller_id,
+            'individual_seller' as contributor_type,
             COUNT(*) as total_listings,
             AVG(l.price) as average_price,
             SUM(l.price) as total_value,
@@ -150,43 +202,107 @@ def get_contributor_details(seller_identifier: str):
             array_agg(l.post_date ORDER BY l.post_date) as all_post_dates,
             array_agg(l.price ORDER BY l.post_date) as all_prices,
             array_agg(l.brand ORDER BY l.post_date) as all_brands,
-            array_agg(l.model ORDER BY l.post_date) as all_models,
-            l.seller_type as contributor_type
+            array_agg(l.model ORDER BY l.post_date) as all_models
         FROM listings l
         WHERE l.seller = %s
-        GROUP BY l.seller, l.seller_type
+        GROUP BY l.seller
         """
         cur.execute(query, (seller_identifier,))
         row = cur.fetchone()
+        
+        # If not found as individual seller, try as agency (Dubizzle)
+        if not row:
+            query = """
+            SELECT 
+                dd.agency_name as seller_name,
+                dd.agency_id as seller_id,
+                'agency' as contributor_type,
+                COUNT(*) as total_listings,
+                AVG(l.price) as average_price,
+                SUM(l.price) as total_value,
+                MIN(l.post_date) as first_listing_date,
+                MAX(l.post_date) as last_listing_date,
+                array_agg(l.post_date ORDER BY l.post_date) as all_post_dates,
+                array_agg(l.price ORDER BY l.post_date) as all_prices,
+                array_agg(l.brand ORDER BY l.post_date) as all_brands,
+                array_agg(l.model ORDER BY l.post_date) as all_models
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE dd.agency_name = %s AND (l.seller IS NULL OR l.seller = '' OR l.seller = 'N/A')
+            GROUP BY dd.agency_name, dd.agency_id
+            """
+            cur.execute(query, (seller_identifier,))
+            row = cur.fetchone()
+        
         if not row:
             raise HTTPException(status_code=404, detail=f"Contributor '{seller_identifier}' not found")
+        
         cols = [d[0] for d in cur.description]
         contributor_data = format_db_row(dict(zip(cols, row)))
-        daily_query = """
-        SELECT 
-            DATE_TRUNC('day', l.post_date) as day,
-            COUNT(*) as listings_count,
-            AVG(l.price) as avg_price
-        FROM listings l
-        WHERE l.seller = %s
-        GROUP BY DATE_TRUNC('day', l.post_date)
-        ORDER BY day
-        """
-        cur.execute(daily_query, (seller_identifier,))
-        daily_rows = cur.fetchall()
-        daily_cols = [d[0] for d in cur.description]
-        daily_data = [format_db_row(dict(zip(daily_cols, row))) for row in daily_rows]
-        brand_query = """
-        SELECT 
-            l.brand,
-            COUNT(*) as count
-        FROM listings l
-        WHERE l.seller = %s
-        GROUP BY l.brand
-        ORDER BY count DESC
-        """
-        cur.execute(brand_query, (seller_identifier,))
-        brand_rows = cur.fetchall()
+        
+        # For daily and brand queries, we need to use the same logic
+        if contributor_data['contributor_type'] == 'individual_seller':
+            # Individual seller daily query
+            daily_query = """
+            SELECT 
+                DATE_TRUNC('day', l.post_date) as day,
+                COUNT(*) as listings_count,
+                AVG(l.price) as avg_price
+            FROM listings l
+            WHERE l.seller = %s
+            GROUP BY DATE_TRUNC('day', l.post_date)
+            ORDER BY day
+            """
+            cur.execute(daily_query, (seller_identifier,))
+            daily_rows = cur.fetchall()
+            daily_cols = [d[0] for d in cur.description]
+            daily_data = [format_db_row(dict(zip(daily_cols, row))) for row in daily_rows]
+            
+            # Individual seller brand query
+            brand_query = """
+            SELECT 
+                l.brand,
+                COUNT(*) as count
+            FROM listings l
+            WHERE l.seller = %s
+            GROUP BY l.brand
+            ORDER BY count DESC
+            """
+            cur.execute(brand_query, (seller_identifier,))
+            brand_rows = cur.fetchall()
+        else:
+            # Agency daily query
+            daily_query = """
+            SELECT 
+                DATE_TRUNC('day', l.post_date) as day,
+                COUNT(*) as listings_count,
+                AVG(l.price) as avg_price
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE dd.agency_name = %s AND (l.seller IS NULL OR l.seller = '' OR l.seller = 'N/A')
+            GROUP BY DATE_TRUNC('day', l.post_date)
+            ORDER BY day
+            """
+            cur.execute(daily_query, (seller_identifier,))
+            daily_rows = cur.fetchall()
+            daily_cols = [d[0] for d in cur.description]
+            daily_data = [format_db_row(dict(zip(daily_cols, row))) for row in daily_rows]
+            
+            # Agency brand query
+            brand_query = """
+            SELECT 
+                l.brand,
+                COUNT(*) as count
+            FROM listings l
+            LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id
+            WHERE dd.agency_name = %s AND (l.seller IS NULL OR l.seller = '' OR l.seller = 'N/A')
+            GROUP BY l.brand
+            ORDER BY count DESC
+            """
+            cur.execute(brand_query, (seller_identifier,))
+            brand_rows = cur.fetchall()
+        
+        # Process brand data  
         brand_data = [{"brand": row[0], "count": row[1]} for row in brand_rows]
         return {
             "contributor": contributor_data,
