@@ -12,26 +12,23 @@ const TopContributors = ({ filters }) => {
     setLoading(true);
     
     try {
-      // Prepare search filters for backend
-      const searchFilters = {
-        // Only include websites if some are selected
-        websites: filters.websites && filters.websites.length > 0 ? filters.websites : null
-      };
+      // Build URL with query parameters
+      const url = new URL(`${API_BASE_URL}/api/analytics/contributors`);
+      url.searchParams.set('limit', '20');
+      
+      // Add websites parameter if there are selected websites
+      if (filters.websites && filters.websites.length > 0) {
+        url.searchParams.set('websites', filters.websites.join(','));
+      }
 
-      // Remove null/undefined values
-      const cleanFilters = Object.fromEntries(
-        Object.entries(searchFilters).filter(([_, v]) => v != null)
-      );
+      console.log('TopContributors - Requesting URL:', url.toString()); // Debug log
 
-      console.log('TopContributors - Sending filters:', cleanFilters); // Debug log
-
-      // Use POST to send filters in request body
-      const response = await fetch(`${API_BASE_URL}/api/analytics/contributors?limit=20`, {
-        method: 'POST',
+      // Use GET with query parameters
+      const response = await fetch(url.toString(), {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: Object.keys(cleanFilters).length > 0 ? JSON.stringify(cleanFilters) : JSON.stringify({})
+        }
       });
       
       if (!response.ok) {
@@ -102,16 +99,14 @@ const TopContributors = ({ filters }) => {
                   <span className="contributor-name-small">
                     {contributor.seller_name}
                   </span>
-                  {contributor.website && (
-                    <div className="contributor-website">{contributor.website}</div>
-                  )}
-                  <div className="contributor-type">
-                    {contributor.contributor_type === 'agency' ? 'Agency' : 'Individual Seller'}
-                  </div>
-                  
-                  <div className="contributor-listings">
-                    <span className="listings-label">Total Listings:</span>
-                    <span className="listings-value">{contributor.total_listings}</span>
+                  <div className="contributor-details-row">
+                    <span className="contributor-website">
+                      {contributor.website}
+                    </span>
+                    <div className="contributor-listings">
+                      <span className="listings-label">Total Listings:</span>
+                      <span className="listings-value">{contributor.total_listings}</span>
+                    </div>
                   </div>
                 </div>
                 

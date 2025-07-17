@@ -283,6 +283,23 @@
   color: #ff2e4d;
 }
 
+.clear-all-button {
+  background: #ff6b81;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.clear-all-button:hover {
+  background: #ff2e4d;
+  transform: translateY(-1px);
+}
+
 /* Filter Status Display */
 .filter-status {
   background: linear-gradient(135deg, #3b82f6, #1d4ed8);

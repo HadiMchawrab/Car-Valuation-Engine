@@ -1,0 +1,219 @@
+/* Documentation.css */
+.documentation-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #1a1a2e;
+  color: #ffffff;
+  min-height: 100vh;
+}
+
+.documentation-container h1 {
+  color: #ffffff;
+  margin-bottom: 10px;
+  font-size: 32px;
+}
+
+.api-description {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #b8b8b8;
+  margin-bottom: 30px;
+}
+
+.documentation-content {
+  display: flex;
+  gap: 30px;
+  min-height: 80vh;
+}
+
+.endpoint-sidebar {
+  flex: 0 0 280px;
+  background-color: #2d2d44;
+  border-radius: 6px;
+  padding: 20px;
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+.endpoint-sidebar h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 18px;
+  color: #ffffff;
+}
+
+.endpoint-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.endpoint-sidebar li {
+  padding: 12px;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  color: #b8b8b8;
+}
+
+.endpoint-sidebar li:hover {
+  background-color: #3d3d5a;
+  color: #ffffff;
+}
+
+.endpoint-sidebar li.active {
+  background-color: #4a9eff;
+  color: #ffffff;
+}
+
+.method-badge {
+  display: inline-block;
+  padding: 3px 6px;
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 4px;
+  margin-right: 8px;
+  text-transform: uppercase;
+  color: white;
+}
+
+.method-badge.get {
+  background-color: #61affe;
+}
+
+.method-badge.post {
+  background-color: #49cc90;
+}
+
+.method-badge.put {
+  background-color: #fca130;
+}
+
+.method-badge.delete {
+  background-color: #f93e3e;
+}
+
+.method-badge.large {
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+.endpoint-details {
+  flex: 1;
+}
+
+.endpoint {
+  background-color: #2d2d44;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  padding: 25px;
+  margin-bottom: 30px;
+  border: 1px solid #3d3d5a;
+}
+
+.endpoint-header {
+  margin-bottom: 20px;
+}
+
+.endpoint-method-path {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.endpoint-path {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  font-family: monospace;
+  color: #ffffff;
+}
+
+.endpoint-name {
+  font-size: 16px;
+  color: #b8b8b8;
+  margin: 0;
+}
+
+.parameters-section, .response-section, .example-section {
+  margin-top: 30px;
+}
+
+.parameters-section h3, .response-section h3, .example-section h3 {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #ffffff;
+}
+
+.parameters-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #1a1a2e;
+}
+
+.parameters-table th, .parameters-table td {
+  border: 1px solid #3d3d5a;
+  padding: 10px;
+  text-align: left;
+  color: #ffffff;
+}
+
+.parameters-table th {
+  background-color: #2d2d44;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.path-param {
+  font-weight: 600;
+  color: #e91e63;
+  position: relative;
+}
+
+.param-badge {
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  margin-left: 5px;
+  font-weight: normal;
+}
+
+.param-badge.path {
+  background-color: #e91e63;
+  color: white;
+}
+
+.response-example, .example-code {
+  background-color: #1a1a2e;
+  color: #e6e6e6;
+  padding: 15px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  white-space: pre-wrap;
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #3d3d5a;
+}
+
+@media screen and (max-width: 768px) {
+  .documentation-content {
+    flex-direction: column;
+  }
+  
+  .endpoint-sidebar {
+    flex: none;
+    width: 100%;
+    max-height: none;
+    position: static;
+    margin-bottom: 20px;
+  }
+}
