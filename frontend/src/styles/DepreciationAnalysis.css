@@ -23,6 +23,69 @@
   margin: 0;
 }
 
+/* Selected websites display */
+.selected-websites-display {
+  text-align: center;
+  margin: 20px 0;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #374151, #4b5563);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.websites-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.websites-list {
+  color: #10b981;
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.website-display-chip {
+  display: inline-flex;
+  align-items: center;
+  background: #10b981;
+  color: #1d1d3d;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.website-remove-btn {
+  background: none;
+  border: none;
+  color: #1d1d3d;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-left: 6px;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.website-remove-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
 .selection-controls {
   display: flex;
   gap: 20px;
@@ -329,6 +392,17 @@
   margin-bottom: 0.2rem;
 }
 
+/* Different styles for selected vs all websites */
+.website-chip.selected-website {
+  background: #10b981;
+  color: #1d1d3d;
+}
+
+.website-chip.all-websites {
+  background: #6b7280;
+  color: #ffffff;
+}
+
 .chip-remove {
   background: none;
   border: none;
@@ -341,6 +415,23 @@
 
 .chip-remove:hover, .chip-remove:focus {
   color: #ff2e4d;
+}
+
+.clear-all-button {
+  background: #ff6b81;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.clear-all-button:hover {
+  background: #ff2e4d;
+  transform: translateY(-1px);
 }
 
 @media (max-width: 600px) {
