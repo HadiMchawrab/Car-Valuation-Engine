@@ -152,7 +152,7 @@ const Analytics = () => {
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'contributors':
-        return <TopContributors filters={filters} />;
+        return <TopContributors filters={filters} onRemoveWebsite={handleRemoveWebsite} />;
       case 'depreciation':
         return <DepreciationAnalysis />;
       case 'price-spread':
@@ -163,7 +163,19 @@ const Analytics = () => {
             {/* Filter Status Display */}
             {filters.websites && filters.websites.length > 0 && (
               <div className="filter-status">
-                <h3>Showing data for: {filters.websites.join(', ')}</h3>
+                <span className="filter-label">Showing data for:</span>
+                <div className="website-filter-buttons">
+                  {filters.websites.map(site => (
+                    <button 
+                      key={site}
+                      className="website-filter-button"
+                      onClick={() => handleRemoveWebsite(site)}
+                    >
+                      {site}
+                      <span className="remove-icon">×</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
             

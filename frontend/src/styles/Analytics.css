@@ -307,15 +307,53 @@
   padding: 15px 20px;
   border-radius: 12px;
   margin-bottom: 25px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-.filter-status h3 {
-  margin: 0;
-  font-size: 1.1rem;
+.filter-label {
   font-weight: 600;
+  color: white;
   font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.website-filter-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.website-filter-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.website-filter-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.remove-icon {
+  font-size: 16px;
+  font-weight: bold;
+  margin-left: 4px;
 }
 
 .analytics-overview {

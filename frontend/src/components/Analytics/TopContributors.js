@@ -4,7 +4,7 @@ import { FaTrophy } from 'react-icons/fa';
 import API_BASE_URL from '../../config/api';
 import '../../styles/TopContributors.css';
 
-const TopContributors = ({ filters }) => {
+const TopContributors = ({ filters, onRemoveWebsite }) => {
   const [contributors, setContributors] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -74,14 +74,40 @@ const TopContributors = ({ filters }) => {
         <div className="no-contributors">
           <p>No contributor data available for the selected filters.</p>
           {filters.websites && filters.websites.length > 0 && (
-            <p>Filtered by: {filters.websites.join(', ')}</p>
+            <div className="filter-status">
+              <span className="filter-label">Filtered by:</span>
+              <div className="website-filter-buttons">
+                {filters.websites.map(site => (
+                  <button 
+                    key={site}
+                    className="website-filter-button"
+                    onClick={() => onRemoveWebsite(site)}
+                  >
+                    {site}
+                    <span className="remove-icon">×</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       ) : (
         <>
           {filters.websites && filters.websites.length > 0 && (
-            <div className="contributors-filter-info">
-              <p>Showing contributors from: <strong>{filters.websites.join(', ')}</strong></p>
+            <div className="filter-status">
+              <span className="filter-label">Showing contributors from:</span>
+              <div className="website-filter-buttons">
+                {filters.websites.map(site => (
+                  <button 
+                    key={site}
+                    className="website-filter-button"
+                    onClick={() => onRemoveWebsite(site)}
+                  >
+                    {site}
+                    <span className="remove-icon">×</span>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
           <div className="contributors-grid">

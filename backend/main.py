@@ -171,7 +171,6 @@ def search_listings(
         query = (
             "SELECT l.ad_id, l.url, l.website, l.title, l.price, l.currency, l.brand, l.model, l.trim, l.year, l.mileage, l.mileage_unit, "
             "l.fuel_type, l.transmission_type, l.body_type, l.condition, l.color, "
-            "CASE "
             "l.seller, "
             "l.seller_type, "
             "l.location_city, l.location_region, l.image_url, l.number_of_images, l.post_date, l.date_scraped "
