@@ -130,8 +130,9 @@ def search_listings(
     max_price: int = Query(None),
     min_year: int = Query(None),
     max_year: int = Query(None),
-    min_mileage: int = Query(None),
     max_mileage: int = Query(None),
+    mileage: str = Query(None, description="Mileage filter: 0 for new cars, '>0' for used cars, null for all"),
+    is_new: bool = Query(None, description="Legacy parameter - use mileage instead"),
     fuel_type: str = Query(None),
     transmission_type: str = Query(None),
     body_type: str = Query(None),
@@ -145,10 +146,22 @@ def search_listings(
     limit: int = Query(40, ge=1, le=100),
     offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
     page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
-    meta: bool = Query(False, description="Include pagination metadata in response")
+    meta: bool = Query(False, description="Include pagination metadata in response"),
+    seller: str = Query(None, description="Seller filter (individual or agency)")
 ):
     if page is not None:
         offset = (page - 1) * limit
+    
+    # Convert new mileage parameter to is_new for compatibility
+    calculated_is_new = None
+    if mileage is not None:
+        if mileage == "0":
+            calculated_is_new = True
+        elif mileage == ">0":
+            calculated_is_new = False
+    elif is_new is not None:
+        calculated_is_new = is_new
+    
     conn = get_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -159,13 +172,16 @@ def search_listings(
             brand=brand, model=model, trim=trim, year=year,
             min_price=min_price, max_price=max_price,
             min_year=min_year, max_year=max_year,
-            min_mileage=min_mileage, max_mileage=max_mileage,
+            max_mileage=max_mileage, is_new=calculated_is_new,
             fuel_type=fuel_type, transmission_type=transmission_type,
             body_type=body_type, condition=condition, color=color,
             seller_type=seller_type, location_city=location_city,
-            location_region=location_region, website=website, sort_by=sort_by
+            location_region=location_region, website=website, sort_by=sort_by,
+            seller=seller
         )
+        
         filters, params = build_search_filters(search)
+        
         where_clause = " AND ".join(filters) if filters else "1=1"
         order_clause = get_order_by_clause(search.sort_by)
         query = (
@@ -209,8 +225,9 @@ def count_search_listings(
     max_price: int = Query(None),
     min_year: int = Query(None),
     max_year: int = Query(None),
-    min_mileage: int = Query(None),
     max_mileage: int = Query(None),
+    mileage: str = Query(None),
+    is_new: bool = Query(None),
     fuel_type: str = Query(None),
     transmission_type: str = Query(None),
     body_type: str = Query(None),
@@ -220,8 +237,19 @@ def count_search_listings(
     location_city: str = Query(None),
     location_region: str = Query(None),
     website: str = Query(None),
-    sort_by: str = Query("post_date_desc")
+    sort_by: str = Query("post_date_desc"),
+    seller: str = Query(None)
 ):
+    # Convert new mileage parameter to is_new for compatibility
+    calculated_is_new = None
+    if mileage is not None:
+        if mileage == "0":
+            calculated_is_new = True
+        elif mileage == ">0":
+            calculated_is_new = False
+    elif is_new is not None:
+        calculated_is_new = is_new
+    
     conn = get_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -231,11 +259,12 @@ def count_search_listings(
             brand=brand, model=model, trim=trim, year=year,
             min_price=min_price, max_price=max_price,
             min_year=min_year, max_year=max_year,
-            min_mileage=min_mileage, max_mileage=max_mileage,
+            max_mileage=max_mileage, is_new=calculated_is_new,
             fuel_type=fuel_type, transmission_type=transmission_type,
             body_type=body_type, condition=condition, color=color,
             seller_type=seller_type, location_city=location_city,
-            location_region=location_region, website=website, sort_by=sort_by
+            location_region=location_region, website=website, sort_by=sort_by,
+            seller=seller
         )
         filters, params = build_search_filters(search)
         where_clause = " AND ".join(filters) if filters else "1=1"

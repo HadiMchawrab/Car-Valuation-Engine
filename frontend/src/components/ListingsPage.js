@@ -46,9 +46,8 @@ const ListingsPage = () => {
     maxPrice: '',
     locationCity: '',
     locationRegion: '',
-    minMileage: '',
     maxMileage: '',
-    isNew: null, // null = all, true = new cars, false = used cars
+    isNew: null, // null = all, true = new cars (mileage=0), false = used cars (mileage>0)
     bodyType: '',
     fuelType: '',
     transmissionType: '',
@@ -90,6 +89,8 @@ const ListingsPage = () => {
 
   // Helper function to build search parameters from filters
   const buildSearchParams = () => {
+    const mileageParam = filters.isNew === true ? 0 : filters.isNew === false ? '>0' : null;
+    
     const params = {
       brand: filters.brand || null,
       model: filters.model || null,
@@ -100,9 +101,8 @@ const ListingsPage = () => {
       max_price: filters.maxPrice ? parseFloat(filters.maxPrice) : null,
       location_city: filters.locationCity || null,
       location_region: filters.locationRegion || null,
-      min_mileage: filters.minMileage ? parseInt(filters.minMileage) : null,
       max_mileage: filters.maxMileage ? parseInt(filters.maxMileage) : null,
-      is_new: filters.isNew, // null = any condition, true = new, false = used
+      mileage: mileageParam,
       body_type: filters.bodyType || null,
       fuel_type: filters.fuelType || null,
       transmission_type: filters.transmissionType || null,
@@ -133,7 +133,6 @@ const ListingsPage = () => {
     if (filters.maxPrice) searchParams.set('maxPrice', filters.maxPrice);
     if (filters.locationCity) searchParams.set('locationCity', filters.locationCity);
     if (filters.locationRegion) searchParams.set('locationRegion', filters.locationRegion);
-    if (filters.minMileage) searchParams.set('minMileage', filters.minMileage);
     if (filters.maxMileage) searchParams.set('maxMileage', filters.maxMileage);
     if (filters.isNew !== null) searchParams.set('isNew', filters.isNew);
     if (filters.bodyType) searchParams.set('bodyType', filters.bodyType);
@@ -157,7 +156,6 @@ const ListingsPage = () => {
 
   useEffect(() => {
     fetchListings();
-    fetchTotalCount();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, filters, sortBy]);
 
@@ -176,7 +174,6 @@ const ListingsPage = () => {
       maxPrice: searchParams.get('maxPrice') || '',
       locationCity: searchParams.get('locationCity') || '',
       locationRegion: searchParams.get('locationRegion') || '',
-      minMileage: searchParams.get('minMileage') || '',
       maxMileage: searchParams.get('maxMileage') || '',
       isNew: searchParams.get('isNew') === 'true' ? true : 
               searchParams.get('isNew') === 'false' ? false : null,
@@ -220,6 +217,7 @@ const ListingsPage = () => {
       params.append('limit', listingsPerPage);
       params.append('offset', offset);
       params.append('meta', 'true');
+      
       // Make the API call with GET and query params
       const response = await axios.get(
         `${API_BASE_URL}/search?${params.toString()}`
@@ -232,25 +230,6 @@ const ListingsPage = () => {
     } catch (err) {
       setError('Error fetching listings. Please try again later.');
       setLoading(false);
-    }
-  };
-
-  const fetchTotalCount = async () => {
-    try {
-      const searchParams = buildSearchParams();
-      const params = new URLSearchParams();
-      Object.entries(searchParams).forEach(([key, value]) => {
-        if (value !== null && value !== '' && value !== undefined) {
-          params.append(key, value);
-        }
-      });
-      // Use GET for count endpoint
-      const countResponse = await axios.get(`${API_BASE_URL}/search/count?${params.toString()}`);
-      const totalListings = countResponse.data.total;
-      setTotalPages(Math.ceil(totalListings / listingsPerPage));
-      setTotalCount(totalListings);
-    } catch (err) {
-      console.error('Error fetching total count:', err);
     }
   };
 
