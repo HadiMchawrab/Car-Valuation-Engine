@@ -6,7 +6,7 @@ import json
 class OpenSooqDailySpider(OpenSooqTemplateSpider):
     name = "opensooq_daily"
     custom_settings = {
-        **OpenSooqTemplateSpider.custom_settings,
+       
          "FEEDS": {
             "opensooq_daily.json": {"format": "json", "encoding": "utf8", "overwrite": True}
         },

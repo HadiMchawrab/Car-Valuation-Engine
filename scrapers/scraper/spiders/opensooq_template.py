@@ -34,39 +34,22 @@ class OpenSooqTemplateSpider(Spider):
 
         item = OpenSooqItem()
         blob = response.xpath('//script[@id="__NEXT_DATA__"]/text()').get()
-        raw_data = json.loads(blob)
-        data = raw_data["props"]["pageProps"]
-        postData = data["postData"]
-        listing =   postData['listing']
 
-        item['ad_id'] = listing['listing_id'] # raw_data["props"]["pageProps"]["postData"]['listing']['listing_id']
+        item['ad_id'] = listing.get('listing_id') # raw_data["props"]["pageProps"]["postData"]['listing']['listing_id']
 
         # Basic fields
         item['url']     = response.url or listing['post_url']
         item['website'] = "OpenSooq"
-        item['name'] = listing['title'] # raw_data["props"]["pageProps"]["postData"]['listing']['title']
-        item['title'] = listing['title']
-
+        item['name'] =  listing.get('title') # raw_data["props"]["pageProps"]["postData"]['listing']['title']
+        item['title'] =  listing.get('title')
 
         # Assertion here is that the raw_data basic info fields are always in the same order
 
         basic_info = listing['basic_info']
-        # Raw info box
-        raw_info = {}
-        for field in basic_info:
-            label = field.get('field_label')
-            if not label:
-                continue
 
-            dtype = field.get('data_type')
-            if dtype == 'multi_cps':
-                # multi-select: pull every option_label into a Python list
-                opts = field.get('options') or []
-                raw_info[label] = [opt.get('option_label') for opt in opts]
-            else:
-                # single-select (cp, post_id, post_date, etc)
-                # use option_label if present, otherwise reporting_value_label
-                raw_info[label] = (field.get('option_label') or field.get('reporting_value_label') or None)
+        raw_info = self._set_option_labels(basic_info)
+        # Raw info box
+
         # Normalize core fields
         item['condition'] = (raw_info.get('Condition') or '').lower()
         item['brand']     = raw_info.get('Car Make')
@@ -81,19 +64,7 @@ class OpenSooqTemplateSpider(Spider):
 
         raw = (raw_info.get('Body Type') or "").lower()
         item['body_type'] = get_body_type_code(raw)
-        raw_seats = raw_info.get('Number of Seats') or ''
-        raw_seats = raw_seats.strip()
-        match = re.search(r'(\d+)', raw_seats)
-        if match:
-            n = int(match.group(1))
-            # if it literally says “More than 9”, treat it as 10
-            if raw_seats.lower().startswith('more than'):
-                seats = n + 1
-            else:
-                seats = n
-        else:
-            seats = None
-
+        seats = self._extract_seat_numbers(raw_info)
         item['seats'] = seats
         item['fuel_type']      = raw_info.get('Fuel')
         trans = (raw_info.get('Transmission') or '').lower()
@@ -188,6 +159,39 @@ class OpenSooqTemplateSpider(Spider):
 #
 #
         yield item
+
+    def _extract_seat_numbers(self, raw_info):
+        raw_seats = raw_info.get('Number of Seats') or ''
+        raw_seats = raw_seats.strip()
+        match = re.search(r'(\d+)', raw_seats)
+        if match:
+            n = int(match.group(1))
+            # if it literally says “More than 9”, treat it as 10
+            if raw_seats.lower().startswith('more than'):
+                seats = n + 1
+            else:
+                seats = n
+        else:
+            seats = None
+        return seats
+
+
+    def _set_option_labels(self, basic_info):
+        raw_info = {}
+        for field in basic_info:
+            label = field.get('field_label')
+            if not label:
+                continue
+            dtype = field.get('data_type')
+            if dtype == 'multi_cps':
+                # multi-select: pull every option_label into a Python list
+                opts = field.get('options') or []
+                raw_info[label] = [opt.get('option_label') for opt in opts]
+            else:
+                # single-select (cp, post_id, post_date, etc)
+                # use option_label if present, otherwise reporting_value_label
+                raw_info[label] = (field.get('option_label') or field.get('reporting_value_label') or None)
+        return raw_info
 
     def errback_page(self, failure):
         self.logger.error(f"[Error❌] Failed to load page: {failure.request.url}")

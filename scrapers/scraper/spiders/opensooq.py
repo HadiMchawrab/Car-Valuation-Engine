@@ -10,7 +10,7 @@ class OpenSooqSpider(OpenSooqTemplateSpider):
     name = "opensooq"
     allowed_domains = ["opensooq.sa", "sa.opensooq.com"]
     custom_settings = {
-        **OpenSooqTemplateSpider.custom_settings,
+        
          "FEEDS": {
             "opensooq.json": {"format": "json", "encoding": "utf8", "overwrite": True}
         },

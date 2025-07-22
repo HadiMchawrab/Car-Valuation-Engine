@@ -4,7 +4,7 @@ from scrapy import Request
 class SyarahDailySpider(SyarahTemplateSpider):
   name = 'syarah_daily'
   custom_settings = {
-    **SyarahTemplateSpider.custom_settings,
+    
       "FEEDS": {"syarah_daily.json": {"format": "json", "encoding": "utf8", "overwrite": True}},
        "ITEM_PIPELINES": {
             "scraper.pipelines.LoadSeenIDsPipeline": 100,

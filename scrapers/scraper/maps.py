@@ -130,3 +130,67 @@ def get_body_type_code(name):
 
 def get_color_code(name):
     return lookup_with_alias(color_map, color_aliases, name)
+
+
+import re
+
+def clean_brand(brand: str) -> str:
+    if not brand or not brand.strip():
+        return None  # Handle NULL or empty strings gracefully
+
+    # Known mappings for messy variants
+    mapping = {
+        'abarath': 'Abarth',
+        'alfa-romeo': 'Alfa Romeo',
+        'aston-martin': 'Aston Martin',
+        'baic': 'BAIC',
+        'bmw': 'BMW',
+        'b.m.w': 'BMW',
+        'b m w': 'BMW',
+        'byd': 'BYD',
+        'dongfeng': 'Dongfeng',
+        'exeed': 'Exceed',
+        'faw-bestune': 'Bestune',
+        'faw': 'FAW',
+        'foton': 'Foton',
+        'gac': 'GAC',
+        'gmc': 'GMC',
+        'jac': 'JAC',
+        'land-rover': 'Land Rover',
+        'lynk-and-co': 'Lynk & Co',
+        'lynk and co': 'Lynk & Co',
+        'mercedes': 'Mercedes-Benz',
+        'mercedes benz': 'Mercedes-Benz',
+        'mercedes-benz': 'Mercedes-Benz',
+        'mercdes': 'Mercedes-Benz',
+        'mg': 'MG',
+        'mini': 'MINI',
+        'range-rover': 'Range Rover',
+        'ssangyong': 'SsangYong',
+        'ssang yong': 'SsangYong',
+        'zxauto': 'ZX Auto',
+        'zx auto': 'ZX Auto',
+        'hunaghai': 'Hongqi'
+    }
+
+    # Step 1: Clean up spaces and punctuation
+    cleaned = brand.strip()                         # Trim leading/trailing spaces
+    cleaned = re.sub(r'[\s]+', ' ', cleaned)        # Collapse multiple spaces into one
+    cleaned = re.sub(r'[_\-\.]', ' ', cleaned)      # Replace _ - . with spaces
+    cleaned = cleaned.lower()                       # Lowercase for mapping lookup
+
+    # Step 2: Check known mappings
+    if cleaned in mapping:
+        return mapping[cleaned]
+
+    # Step 3: Fallback - Smart title case
+    # Handles acronyms properly (BMW stays BMW)
+    words = cleaned.split()
+    normalized_words = []
+    for word in words:
+        if word.upper() in ['MG', 'BMW', 'BYD', 'GMC', 'FAW', 'BAIC', 'IM']:  # known acronyms
+            normalized_words.append(word.upper())
+        else:
+            normalized_words.append(word.capitalize())
+
+    return ' '.join(normalized_words)

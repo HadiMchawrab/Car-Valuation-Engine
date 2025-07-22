@@ -11,7 +11,7 @@ from .dubizzle_template import DubizzleTemplateSpider
 class DubizzleDailySpider(DubizzleTemplateSpider):
     name = "dubizzle_daily"
     custom_settings = {
-        **DubizzleTemplateSpider.custom_settings,
+
          "FEEDS": {
             "dubizzle_daily.json": {"format": "json", "encoding": "utf8", "overwrite": True}
         },

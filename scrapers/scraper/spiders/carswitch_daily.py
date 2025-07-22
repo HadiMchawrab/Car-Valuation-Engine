@@ -7,7 +7,7 @@ import json
 class CarSwitchDailySpider(CarSwitchTemplateSpider):
     name = "carswitch_daily"
     custom_settings = {
-        **CarSwitchTemplateSpider.custom_settings,
+
         "FEEDS": {
             "carswitch_daily.json": {"format": "json", "encoding": "utf8", "overwrite": True}
         },
@@ -16,9 +16,6 @@ class CarSwitchDailySpider(CarSwitchTemplateSpider):
             "scraper.pipelines.CarSwitchPostgresPipeline": 300,
         },
     }
-
-
-
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

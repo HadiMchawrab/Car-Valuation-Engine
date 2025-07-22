@@ -1,353 +1,208 @@
 import scrapy
+from datetime import datetime
+from decimal import Decimal
+from typing import Optional, List, Dict, Any
 
 
-
-class ScraperItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
-
-
-
-class DubizzleItem(scrapy.Item):
+class CoreItem(scrapy.Item):
     # ——— Core identifiers ———
-    ad_id                = scrapy.Field()  # Dubizzle’s ID (e.g. “110465826”)
-    url                  = scrapy.Field()
-    website              = scrapy.Field()  # “dubizzle”
+    ad_id: str = scrapy.Field()
+    url: str = scrapy.Field()
+    website: str = scrapy.Field()
 
+    # ——— Listing basics ———
+    title: str = scrapy.Field()
+    price: Decimal = scrapy.Field()
+    currency: str = scrapy.Field()
+
+    # ——— Vehicle specs ———
+    brand: str = scrapy.Field()
+    model: str = scrapy.Field()
+    year: int = scrapy.Field()
+    trim: str = scrapy.Field()
+    mileage: int = scrapy.Field()
+    mileage_unit: str = scrapy.Field()
+    fuel_type: str = scrapy.Field()
+    transmission_type: str = scrapy.Field()
+    body_type: str = scrapy.Field()
+    condition: str = scrapy.Field()
+    color: str = scrapy.Field()
+
+    # ——— Seller info ———
+    seller: str = scrapy.Field()
+    seller_type: str = scrapy.Field()
+
+    # ——— Location ———
+    location_city: str = scrapy.Field()
+    location_region: str = scrapy.Field()
+
+    # ——— Media & timing ———
+    image_url: str = scrapy.Field()
+    number_of_images: int = scrapy.Field()
+    post_date: datetime = scrapy.Field()
+    date_scraped: datetime = scrapy.Field()
+
+
+class DubizzleItem(CoreItem):
     # ——— JSON-LD fields ———
-    name                 = scrapy.Field()  # JSON-LD “name”
-    sku                  = scrapy.Field()  # JSON-LD “sku”
-    description          = scrapy.Field()
-    image_urls           = scrapy.Field()  # list of JSON-LD “image” URLs
-    price                = scrapy.Field()
-    currency             = scrapy.Field()  # “SAR”
-    price_valid_until    = scrapy.Field()  # ISO timestamp from offers.priceValidUntil
-
+    name: Optional[str] = scrapy.Field()
+    sku: Optional[str] = scrapy.Field()
+    description: Optional[str] = scrapy.Field()
+    image_urls: Optional[List[str]] = scrapy.Field()
+    price_valid_until: Optional[datetime] = scrapy.Field()
 
     # ——— Basic info & specs ———
-    title                = scrapy.Field()
-    brand                = scrapy.Field()
-    model                = scrapy.Field()
-    trim                 = scrapy.Field()
-
-    year                 = scrapy.Field()
-    mileage              = scrapy.Field()  # from mileageFromOdometer.value
-    mileage_unit         = scrapy.Field()  # from mileageFromOdometer.unitCode
-    fuel_type            = scrapy.Field()
-    transmission_type    = scrapy.Field()
-    body_type            = scrapy.Field()
-    condition            = scrapy.Field()  # e.g. “used”/“new”
-    new_used             = scrapy.Field()  # same as condition
-    color                = scrapy.Field()
-    source               = scrapy.Field()
+    new_used: Optional[str] = scrapy.Field()
+    source: Optional[str] = scrapy.Field()
 
     # ——— Usage & ownership ———
-    kilometers           = scrapy.Field()  # duplicate of mileage
-    doors                = scrapy.Field()
-    seats                = scrapy.Field()
-    owners               = scrapy.Field()
-    interior             = scrapy.Field()
-    air_con              = scrapy.Field()
-    ownership_type       = scrapy.Field()  # “freehold” / “non-freehold”
+    kilometers: Optional[int] = scrapy.Field()
+    doors: Optional[int] = scrapy.Field()
+    seats: Optional[int] = scrapy.Field()
+    owners: Optional[int] = scrapy.Field()
+    interior: Optional[str] = scrapy.Field()
+    air_con: Optional[str] = scrapy.Field()
+    ownership_type: Optional[str] = scrapy.Field()
 
     # ——— Price breakdown ———
-
-    price_type           = scrapy.Field()  # “price” / “rental”
+    price_type: Optional[str] = scrapy.Field()
 
     # ——— Seller & agency ———
-    seller               = scrapy.Field()  # e.g. “OLX user”
-    seller_type          = scrapy.Field()  # “private” / “business”
-    seller_verified      = scrapy.Field()  # yes/no
-    seller_id            = scrapy.Field()
-    agency_id            = scrapy.Field()
-    agency_name          = scrapy.Field()
-    is_agent             = scrapy.Field()  # from dataLayer
+    seller_verified: Optional[bool] = scrapy.Field()
+    seller_id: Optional[str] = scrapy.Field()
+    agency_id: Optional[str] = scrapy.Field()
+    agency_name: Optional[str] = scrapy.Field()
+    is_agent: Optional[bool] = scrapy.Field()
 
-    # ——— Location ———
-    location_city        = scrapy.Field()  # “Riyadh”
-    location_region      = scrapy.Field()  # e.g. governorate/neighborhood
-    loc_id               = scrapy.Field()  # “2-74”
-    loc_name             = scrapy.Field()  # same as city
-    loc_breadcrumb       = scrapy.Field()  # raw “;0-1;1-62;2-74;”
-    loc_1_id             = scrapy.Field()
-    loc_1_name           = scrapy.Field()
-    loc_2_id             = scrapy.Field()
-    loc_2_name           = scrapy.Field()
+    # ——— Location details ———
+    loc_id: Optional[str] = scrapy.Field()
+    loc_name: Optional[str] = scrapy.Field()
+    loc_breadcrumb: Optional[str] = scrapy.Field()
+    loc_1_id: Optional[str] = scrapy.Field()
+    loc_1_name: Optional[str] = scrapy.Field()
+    loc_2_id: Optional[str] = scrapy.Field()
+    loc_2_name: Optional[str] = scrapy.Field()
 
     # ——— Category & page meta ———
-    category_1_id        = scrapy.Field()
-    category_1_name      = scrapy.Field()
-    category_2_id        = scrapy.Field()
-    category_2_name      = scrapy.Field()
-    page_type            = scrapy.Field()  # “offerdetail”
-    website_section      = scrapy.Field()  # “main_site”
+    category_1_id: Optional[int] = scrapy.Field()
+    category_1_name: Optional[str] = scrapy.Field()
+    category_2_id: Optional[int] = scrapy.Field()
+    category_2_name: Optional[str] = scrapy.Field()
+    page_type: Optional[str] = scrapy.Field()
+    website_section: Optional[str] = scrapy.Field()
 
     # ——— Media & extras ———
-    image_url            = scrapy.Field()  # first/thumb
-    number_of_images     = scrapy.Field()  # count of photos
-    has_video            = scrapy.Field()  # yes/no
-    has_panorama         = scrapy.Field()  # yes/no
-    deliverable          = scrapy.Field()  # yes/no
-    delivery_option      = scrapy.Field()  # raw value if any
-
-    # ——— Timing ———
-    post_date            = scrapy.Field()  # from JSON-LD or dataLayer
-    date_scraped = scrapy.Field()
-
-class OpenSooqItem(scrapy.Item):
-
-    ad_id                = scrapy.Field()
-    url                  = scrapy.Field()
-    website              = scrapy.Field()
-    name                 = scrapy.Field()
-    title                = scrapy.Field()
-    price                = scrapy.Field()
-
-    currency                = scrapy.Field()
-    brand                  = scrapy.Field()
-    model              = scrapy.Field()
-    year                 = scrapy.Field()
-    trim                = scrapy.Field()
-
-    mileage                = scrapy.Field()
-    mileage_unit                  = scrapy.Field()
-    fuel_type              = scrapy.Field()
-    transmission_type                 = scrapy.Field()
+    has_video: Optional[bool] = scrapy.Field()
+    has_panorama: Optional[bool] = scrapy.Field()
+    deliverable: Optional[bool] = scrapy.Field()
+    delivery_option: Optional[str] = scrapy.Field()
 
 
-    condition                = scrapy.Field()
-    color                  = scrapy.Field()
-    location_city                = scrapy.Field()
+class OpenSooqItem(CoreItem):
+    engine_size: Optional[str] = scrapy.Field()
+    payment_method: Optional[str] = scrapy.Field()
+    seats: Optional[int] = scrapy.Field()
+    interior_color: Optional[str] = scrapy.Field()
+    name: Optional[str] = scrapy.Field()
+    source: Optional[str] = scrapy.Field()
+    paint_quality: Optional[str] = scrapy.Field()
+    body_condition: Optional[str] = scrapy.Field()
+    category: Optional[str] = scrapy.Field()
+    subcategory: Optional[str] = scrapy.Field()
+    interior_options: Optional[List[str]] = scrapy.Field()
+    exterior_options: Optional[List[str]] = scrapy.Field()
+    technology_options: Optional[List[str]] = scrapy.Field()
+    description: Optional[str] = scrapy.Field()
 
-    location_region                = scrapy.Field()
-    image_url                  = scrapy.Field()
+    seller_url: Optional[str] = scrapy.Field()
+    seller_id: Optional[str] = scrapy.Field()
+    is_shop: Optional[bool] = scrapy.Field()
+    is_pro_buyer: Optional[bool] = scrapy.Field()
+    seller_verified: Optional[bool] = scrapy.Field()
+    rating_avg: Optional[Decimal] = scrapy.Field()
+    number_of_ratings: Optional[int] = scrapy.Field()
+    seller_joined: Optional[datetime] = scrapy.Field()
+    response_time: Optional[str] = scrapy.Field()
 
-
-    date_scraped                = scrapy.Field()
-
-    engine_size                 = scrapy.Field()
-    body_type            = scrapy.Field()
-    payment_method       = scrapy.Field()
-
-    seats                = scrapy.Field()
-    interior_color       = scrapy.Field()
-
-    source               = scrapy.Field()
-    paint_quality        = scrapy.Field()
-    body_condition       = scrapy.Field()
-    category             = scrapy.Field()
-    subcategory          = scrapy.Field()
-
-    interior_options     = scrapy.Field()
-    exterior_options     = scrapy.Field()
-    technology_options   = scrapy.Field()
-
-    description         = scrapy.Field()
-
-    seller              = scrapy.Field()
-    seller_type          = scrapy.Field()
-    seller_url           = scrapy.Field()
-    seller_id            = scrapy.Field()
-    is_shop               = scrapy.Field()
-    is_pro_buyer        = scrapy.Field()
-    seller_verified      = scrapy.Field()
-    rating_avg          = scrapy.Field()
-    number_of_ratings   = scrapy.Field()
-    seller_joined          = scrapy.Field()
-    response_time         = scrapy.Field()
+    price_valid_until: Optional[datetime] = scrapy.Field()
+    listing_status: Optional[str] = scrapy.Field()
+    user_target_type: Optional[str] = scrapy.Field()
+    post_map: Optional[Dict[str, Any]] = scrapy.Field()
 
 
+class CarSwitchItem(CoreItem):
+    secondary_id: Optional[str] = scrapy.Field()
+    regional_specs: Optional[Dict[str, Any]] = scrapy.Field()
+    uuid: Optional[str] = scrapy.Field()
+    cylinders: Optional[int] = scrapy.Field()
+    engine_size: Optional[str] = scrapy.Field()
+    asking_price: Optional[Decimal] = scrapy.Field()
+    is_paid: Optional[bool] = scrapy.Field()
+    is_featured: Optional[bool] = scrapy.Field()
+    drive_type: Optional[str] = scrapy.Field()
+    variant: Optional[str] = scrapy.Field()
+    listing_rank: Optional[int] = scrapy.Field()
+    status: Optional[str] = scrapy.Field()
+    zoho_car_id: Optional[str] = scrapy.Field()
+    overall_condition: Optional[str] = scrapy.Field()
+    is_accidented: Optional[bool] = scrapy.Field()
+    accident_detail: Optional[str] = scrapy.Field()
+    air_bags_condition: Optional[str] = scrapy.Field()
+    chassis_condition: Optional[str] = scrapy.Field()
+    engine_condition: Optional[str] = scrapy.Field()
+    gear_box_condition: Optional[str] = scrapy.Field()
+    service_history: Optional[str] = scrapy.Field()
+    service_history_verified: Optional[bool] = scrapy.Field()
+    crossed_price: Optional[Decimal] = scrapy.Field()
+    last_price: Optional[Decimal] = scrapy.Field()
+    original_success_fee: Optional[Decimal] = scrapy.Field()
+    final_success_fee: Optional[Decimal] = scrapy.Field()
+    success_fee_type: Optional[str] = scrapy.Field()
+    success_fee_promo_code: Optional[str] = scrapy.Field()
+    price_dropped_badge: Optional[bool] = scrapy.Field()
+    price_dropped_badge_expiration: Optional[datetime] = scrapy.Field()
+    alloy_rims: Optional[bool] = scrapy.Field()
+    rim_size: Optional[str] = scrapy.Field()
+    roof_type: Optional[str] = scrapy.Field()
+    no_of_keys: Optional[int] = scrapy.Field()
+    currently_financed: Optional[bool] = scrapy.Field()
+    bank_name: Optional[str] = scrapy.Field()
+    cash_buyer_only: Optional[bool] = scrapy.Field()
+    warranty: Optional[str] = scrapy.Field()
+    warranty_expiration_date: Optional[datetime] = scrapy.Field()
+    warranty_mileage_limit: Optional[int] = scrapy.Field()
+    service_contract: Optional[str] = scrapy.Field()
+    service_contract_verified: Optional[bool] = scrapy.Field()
+    classified_web_link: Optional[str] = scrapy.Field()
+    special_about_car: Optional[str] = scrapy.Field()
+    registration_city_name: Optional[str] = scrapy.Field()
+    cappasity_link: Optional[str] = scrapy.Field()
+    first_owner: Optional[str] = scrapy.Field()
+    fair_value_override: Optional[Decimal] = scrapy.Field()
+    inspection_started_by: Optional[str] = scrapy.Field()
+    seller_nationality: Optional[str] = scrapy.Field()
+    created_at: Optional[datetime] = scrapy.Field()
+    updated_at: Optional[datetime] = scrapy.Field()
+    buyer_services: Optional[List[str]] = scrapy.Field()
+    show_all_details: Optional[bool] = scrapy.Field()
+    fair_value_computation_id: Optional[str] = scrapy.Field()
+    fair_value: Optional[Decimal] = scrapy.Field()
+    confidence: Optional[Decimal] = scrapy.Field()
+    explanation_en: Optional[str] = scrapy.Field()
+    explanation_ar: Optional[str] = scrapy.Field()
+    min_fair_value: Optional[Decimal] = scrapy.Field()
+    max_fair_value: Optional[Decimal] = scrapy.Field()
 
 
-     # ——— Timing ———
-    post_date            = scrapy.Field()  # from JSON-LD or dataLayer
-    date_scraped         = scrapy.Field()
-
-    image_url            = scrapy.Field()  # first/thumb
-    number_of_images     = scrapy.Field()  # count of photos
-    has_video            = scrapy.Field()  # yes/no
-    has_panorama         = scrapy.Field()  # yes/no
-    price_valid_until    = scrapy.Field()  # ISO timestamp from serp['listings']['meta'][1]
-    listing_status       = scrapy.Field()
-    user_target_type = scrapy.Field() #Free/Sponsored
-    post_map      = scrapy.Field()
-
-
-
-class CarSwitchItem(scrapy.Item):
-    # ——— Core identifiers ———
-    ad_id              = scrapy.Field()  # unique listing ID
-    url                = scrapy.Field()  # listing URL
-    website            = scrapy.Field()  # e.g. "CarSwitch"
-
-    # ——— Listing basics ———
-    title              = scrapy.Field()  # listing title
-    price              = scrapy.Field()  # numeric price
-    currency           = scrapy.Field()  # currency code, e.g. "AED"
-
-    # ——— Vehicle specs ———
-    brand              = scrapy.Field()
-    model              = scrapy.Field()
-    year               = scrapy.Field()  # int
-    trim               = scrapy.Field()
-
-    mileage            = scrapy.Field()  # int
-    mileage_unit       = scrapy.Field()  # e.g. "km", "mi"
-    fuel_type          = scrapy.Field()
-    transmission_type  = scrapy.Field()
-    body_type          = scrapy.Field()
-    condition          = scrapy.Field()  # e.g. "used"/"new"
-    color              = scrapy.Field()
-
-    # ——— Seller info ———
-    seller             = scrapy.Field()  # seller name
-    seller_type        = scrapy.Field()  # "private" vs "dealer"
-
-    # ——— Location ———
-    location_city      = scrapy.Field()
-    location_region    = scrapy.Field()
-
-    # ——— Media & timing ———
-    image_url          = scrapy.Field()  # primary image URL
-    number_of_images   = scrapy.Field()  # int count of images
-    post_date          = scrapy.Field()  # datetime of listing
-    date_scraped       = scrapy.Field()  # datetime when scraped
-
-
-    # --- Extra Features ---
-    secondary_id = scrapy.Field()
-    regional_specs = scrapy.Field()
-    uuid = scrapy.Field()
-    cylinders = scrapy.Field()
-    engine_size = scrapy.Field()
-    asking_price = scrapy.Field()
-    is_paid = scrapy.Field()
-    is_featured = scrapy.Field()
-    drive_type = scrapy.Field()
-    variant = scrapy.Field()
-    seats =scrapy.Field()
-    listing_rank = scrapy.Field()
-    status = scrapy.Field()
-    zoho_car_id = scrapy.Field()
-
-    overall_condition = scrapy.Field()
-    is_accidented = scrapy.Field()
-    accident_detail = scrapy.Field()
-    air_bags_condition = scrapy.Field()
-    chassis_condition = scrapy.Field()
-    engine_condition = scrapy.Field()
-    gear_box_condition = scrapy.Field()
-    service_history = scrapy.Field()
-    service_history_verified = scrapy.Field()
-    crossed_price = scrapy.Field()
-    last_price = scrapy.Field()
-
-    original_success_fee = scrapy.Field()
-    final_success_fee = scrapy.Field()
-    success_fee_type = scrapy.Field()
-    success_fee_promo_code = scrapy.Field()
-    price_dropped_badge = scrapy.Field()
-    price_dropped_badge_expiration = scrapy.Field()
-    alloy_rims = scrapy.Field()
-    rim_size = scrapy.Field()
-    roof_type = scrapy.Field()
-    no_of_keys = scrapy.Field()
-    currently_financed = scrapy.Field()
-    bank_name = scrapy.Field()
-    cash_buyer_only = scrapy.Field()
-    warranty = scrapy.Field()
-    warranty_expiration_date = scrapy.Field()
-    warranty_mileage_limit = scrapy.Field()
-    service_contract = scrapy.Field()
-    service_contract_verified = scrapy.Field()
-    classified_web_link = scrapy.Field()
-    special_about_car = scrapy.Field()
-    registration_city_name = scrapy.Field()
-
-    cappasity_link = scrapy.Field()
-    first_owner = scrapy.Field()
-    fair_value_override = scrapy.Field()
-    inspection_started_by = scrapy.Field()
-    seller_nationality = scrapy.Field()
-    created_at = scrapy.Field()
-    updated_at = scrapy.Field()
-    # warranty_detail = scrapy.Field() FUTURE
-    #emi_detail = scrapy.Field(). FUTURE
-    buyer_services = scrapy.Field()
-    # fair_value_object = scrapy.Field()
-    show_all_details = scrapy.Field()
-
-
-    #fair_value_car = scrapy.Field(). FUTURE
-    fair_value_computation_id = scrapy.Field()
-    fair_value = scrapy.Field()
-    confidence = scrapy.Field()
-    explanation_en = scrapy.Field()
-    explanation_ar = scrapy.Field()
-    #recent_transactions = scrapy.Field()
-    min_fair_value = scrapy.Field()
-    max_fair_value = scrapy.Field()
-
-
-
-class SyarahItem():
-
-     # ——— Core identifiers ———
-    ad_id              = scrapy.Field()  # unique listing ID
-    url                = scrapy.Field()  # listing URL
-    website            = scrapy.Field()  # e.g. "CarSwitch"
-
-    # ——— Listing basics ———
-    title              = scrapy.Field()  # listing title
-    price              = scrapy.Field()  # numeric price
-    currency           = scrapy.Field()  # currency code, e.g. "AED"
-
-    # ——— Vehicle specs ———
-    brand              = scrapy.Field()
-    model              = scrapy.Field()
-    year               = scrapy.Field()  # int
-    trim               = scrapy.Field()
-
-    mileage            = scrapy.Field()  # int
-    mileage_unit       = scrapy.Field()  # e.g. "km", "mi"
-    fuel_type          = scrapy.Field()
-    transmission_type  = scrapy.Field()
-    body_type          = scrapy.Field()
-    condition          = scrapy.Field()  # e.g. "used"/"new"
-    color              = scrapy.Field()
-
-    # ——— Seller info ———
-    seller             = scrapy.Field()  # seller name
-    seller_type        = scrapy.Field()  # "private" vs "dealer"
-
-    # ——— Location ———
-    location_city      = scrapy.Field()
-    location_region    = scrapy.Field()
-
-    # ——— Media & timing ———
-    image_url          = scrapy.Field()  # primary image URL
-    number_of_images   = scrapy.Field()  # int count of images
-    post_date          = scrapy.Field()  # datetime of listing
-    date_scraped       = scrapy.Field()  # datetime when scraped
-
-
-    is_sold            = scrapy.Field()
-    is_deleted         = scrapy.Field()
-    is_preowned        = scrapy.Field()
-
-    interior_color     = scrapy.Field()
-    source             = scrapy.Field()
-    cylinders          = scrapy.Field()
-    engine_size        = scrapy.Field()
-    drive_type         = scrapy.Field()
-    number_of_keys     = scrapy.Field()
-    seats              = scrapy.Field()
-    engine_type        = scrapy.Field()
-
-
-
-
-
-
-
+class SyarahItem(CoreItem):
+    is_sold: Optional[bool] = scrapy.Field()
+    is_deleted: Optional[bool] = scrapy.Field()
+    is_preowned: Optional[bool] = scrapy.Field()
+    interior_color: Optional[str] = scrapy.Field()
+    source: Optional[str] = scrapy.Field()
+    cylinders: Optional[int] = scrapy.Field()
+    engine_size: Optional[str] = scrapy.Field()
+    drive_type: Optional[str] = scrapy.Field()
+    number_of_keys: Optional[int] = scrapy.Field()
+    seats: Optional[int] = scrapy.Field()
+    engine_type: Optional[str] = scrapy.Field()

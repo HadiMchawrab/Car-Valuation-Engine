@@ -2,11 +2,7 @@ import json
 import re
 from datetime import datetime
 from urllib.parse import urlencode, urlparse, parse_qs
-
-import scrapy
 from scrapy import Request, Spider
-
-
 from scraper.items import CarSwitchItem
 from scraper.maps import get_body_type_code, get_transmission_code, get_color_code
 
@@ -90,26 +86,15 @@ class CarSwitchTemplateSpider(Spider):
         current_page = int(qs.get("page", ["1"])[0])
         self.logger.info(f"[Loaded📄] Page #{current_page} → {response.url}")
 
+        ad_id = response.url.split('/')[-1].split('-')[0]
+
 
         item = CarSwitchItem()
-
-
-        all_chunks = response.xpath(    '//script[contains(text(),"self.__next_f.push")]/text()').getall()
-        # Returns the entire self.data push list
-        ad_id = response.url.split('/')[-1].split('-')[0]  # need to parse this from url
-        target = f'\\"id\\":\\"{ad_id}\\"'
-        matches = [s for s in all_chunks if target in s]
-        script_text = matches[0] if matches else None
-
-        if not script_text:
-            self.logger.error("Could not find JSON blob for ad %s", ad_id)
+        try:
+            data = self._extract_car_data(response)
+        except ValueError as e:
+            self.logger.error(e)
             return
-        raw = re.search(    r'self\.__next_f\.push\(\[\d+,(.*)\]\)',    script_text,    re.S).group(1)
-        literal = json.loads(raw)
-        _, payload_str = literal.split(":", 1)
-        arr = json.loads(payload_str)
-        children = arr[1]
-        data = children[3]['children'][1][3] # hardcoded path
 
 #
 
@@ -120,66 +105,55 @@ class CarSwitchTemplateSpider(Spider):
 
         # ——— Listing basics ———
 
-        item['price'] = data['serverData']['car']['car']['listingPrice']
+        car_details = data['serverData']['car']['car']
+
+        item['price'] = car_details['listingPrice']
         item['currency'] = "SAR"
 
         # ——— Vehicle specs ———
-        item['brand'] = data['serverData']['car']['car']['makeName'][0].upper() +  data['serverData']['car']['car']['makeName'][1:]
-        item['model'] = data['serverData']['car']['car']['modelName'][0].upper() +  data['serverData']['car']['car']['modelName'][1:]
-        item['year'] = data['serverData']['car']['car']['year']
-        item['trim'] = data['serverData']['car']['car']['optionLevel'].upper()
+        item['brand'] = car_details['makeName'][0].upper() +  car_details['makeName'][1:]
+        item['model'] = car_details['modelName'][0].upper() +  car_details['modelName'][1:]
+        item['year'] = car_details['year']
+        item['trim'] = car_details['optionLevel'].upper()
 
         item['title'] = item['brand'] + " " +item['model'] + " " + item['trim']
 
-        item['mileage'] =data['serverData']['car']['car']['mileage']
+        item['mileage'] = car_details['mileage']
         item['mileage_unit'] = 'kmt'
-        item['fuel_type'] = data['serverData']['car']['car']['fuelType']
-        raw_trans = data['serverData']['car']['car']['transmission']
+        item['fuel_type'] = car_details['fuelType']
+        raw_trans = car_details['transmission']
         item['transmission_type'] = get_transmission_code(raw_trans)
-        raw_body = data['serverData']['car']['car']['bodyType']
+        raw_body = car_details['bodyType']
         item['body_type'] = get_body_type_code(raw_body)
         item['condition'] = 'Used'
-        raw_color =  data['serverData']['car']['car']['color']
+        raw_color =  car_details['color']
         item['color'] = get_color_code(raw_color)
 
         # ——— Seller info ———
-        listingType = data['serverData']['car']['car']['listingType']
+        listingType = car_details['listingType']
         if listingType == 'safe_switch':
-          item['seller'] = data['serverData']['car']['car']['zohoSellerId']
+          item['seller'] = car_details['zohoSellerId']
           item['seller_type'] = 'Private'
         elif listingType == 'self_switch':
-          item['seller'] = data['serverData']['car']['car']['zohoSellerId']
+          item['seller'] = car_details['zohoSellerId']
           item['seller_type'] = 'Private'
         else:
-            item['seller'] = data['serverData']['car']['car']['zohoSellerId']
+            item['seller'] = car_details['zohoSellerId']
             item['seller_type'] = 'Dealership'
 
 
 
         # ——— Location ———
-        item['location_city'] = data['serverData']['car']['car']['cityName'][0].upper() + data['serverData']['car']['car']['cityName'][1:]
-        item['location_region'] = data['serverData']['car']['car']['areaName'][0].upper() + data['serverData']['car']['car']['areaName'][1:]
-
-        # ——— Media & timing ———
-        original_base = 'https://images.carswitch.com/'
-        new_base = 'https://d1esl34bhh6pms.cloudfront.net/cars/used/images/611x456/'
-
+        item['location_city'] = car_details['cityName'][0].upper() + car_details['cityName'][1:]
+        item['location_region'] = car_details['areaName'][0].upper() + car_details['areaName'][1:]
         cover_photo = data['serverData']['car']['carAttachments'][0]['url']
 
-        # Build the full image URL first
-        image_url = original_base + cover_photo + '?.webp'
-
-        # Check if:
-        # - coverPhoto is a UUID
-        # - and does NOT contain .jpg, .jpeg, or .png
-        # - and does NOT contain slashes (no subfolders like 682652/...)
-        if (re.fullmatch(r'[0-9a-fA-F\-]{36}', cover_photo) and not any(ext in cover_photo.lower() for ext in ['.jpg', '.jpeg', '.png'])):
-            # Replace domain
-            image_url = new_base + cover_photo + '?.webp'
+        # ——— Media & timing ———
+        image_url = self.build_image_url(cover_photo)
 
         item['image_url'] = image_url
         item['number_of_images'] = len(data['serverData']['car']['carAttachments'])
-        dt_str =  data['serverData']['car']['car']['firstPublishedOn']
+        dt_str =  car_details['firstPublishedOn']
 
         dt = datetime.fromisoformat(dt_str.replace('Z', '+00:00'))
         item['post_date'] = dt
@@ -271,6 +245,44 @@ class CarSwitchTemplateSpider(Spider):
                 return default
             dct = dct[key]
         return dct
+
+
+    def _extract_car_data(self, response ) -> dict:
+           # Returns the entire self.data push list
+        all_chunks = response.xpath(    '//script[contains(text(),"self.__next_f.push")]/text()').getall()
+        ad_id = response.url.split('/')[-1].split('-')[0]
+        target = f'\\"id\\":\\"{ad_id}\\"'
+        matches = [s for s in all_chunks if target in s]
+        script_text = matches[0] if matches else None
+
+        if not script_text:
+            self.logger.error("Could not find JSON blob for ad %s", ad_id)
+            return
+        raw = re.search(    r'self\.__next_f\.push\(\[\d+,(.*)\]\)',    script_text,    re.S).group(1)
+        literal = json.loads(raw)
+        _, payload_str = literal.split(":", 1)
+        arr = json.loads(payload_str)
+        children = arr[1]
+        data = children[3]['children'][1][3] # hardcoded path
+        return data
+
+
+    def build_image_url(cover_photo:str) -> str:
+        original_base = 'https://images.carswitch.com/'
+        new_base = 'https://d1esl34bhh6pms.cloudfront.net/cars/used/images/611x456/'
+
+
+        # Build the full image URL first
+        image_url = original_base + cover_photo + '?.webp'
+
+        # Check if:
+        # - coverPhoto is a UUID
+        # - and does NOT contain .jpg, .jpeg, or .png
+        # - and does NOT contain slashes (no subfolders like 682652/...)
+        if (re.fullmatch(r'[0-9a-fA-F\-]{36}', cover_photo) and not any(ext in cover_photo.lower() for ext in ['.jpg', '.jpeg', '.png'])):
+            # Replace domain
+            image_url = new_base + cover_photo + '?.webp'
+        return image_url
 
 
 
