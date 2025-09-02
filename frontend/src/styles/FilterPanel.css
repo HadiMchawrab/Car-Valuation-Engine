@@ -48,9 +48,46 @@
   padding: 12px;
   border: 2px solid #e5e7eb;
   border-radius: 8px;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-  background-color: #fff;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
+  color: #2d3748;
+}
+
+/* Input-button group styling */
+.input-button-group {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.input-button-group input {
+  flex: 1;
+  border-radius: 8px 0 0 8px;
+}
+
+.input-button-group .filter-button {
+  padding: 12px 16px;
+  background-color: #4ade80;
+  color: white;
+  border: 2px solid #4ade80;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.input-button-group .filter-button:hover {
+  background-color: #22c55e;
+  border-color: #22c55e;
+}
+
+.input-button-group .filter-button:disabled {
+  background-color: #9ca3af;
+  border-color: #9ca3af;
+  cursor: not-allowed;
 }
 
 .filter-group select:focus,

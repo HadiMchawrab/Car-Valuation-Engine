@@ -31,6 +31,7 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
     contributorName: '', // Track contributor (agency/seller) name for profile link
     contributorType: '' // Track if contributor is agency or individual_seller
   });
+  const [maxMileageInput, setMaxMileageInput] = useState(''); // Separate state for max mileage input
   const [initialYears, setInitialYears] = useState([]);
   const [selectedWebsites, setSelectedWebsites] = useState([]); // [] means all
   const [websiteDropdownValue, setWebsiteDropdownValue] = useState('');
@@ -62,6 +63,8 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
       };
       return updated;
     });
+    // Update max mileage input when filters change (e.g., from URL)
+    setMaxMileageInput(filters.maxMileage || '');
   }, [filters]);
 
   useEffect(() => {
@@ -210,7 +213,19 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
     
     setLocalFilters(updatedFilters);
     
-    // Apply filters immediately
+    // Apply filters immediately for all fields (no special handling for maxMileage)
+    applyFiltersImmediately(updatedFilters);
+  };
+
+  // Handler for max mileage input (doesn't apply filter immediately)
+  const handleMaxMileageInputChange = (e) => {
+    setMaxMileageInput(e.target.value);
+  };
+
+  // Handler for apply max mileage filter button
+  const handleApplyMaxMileage = () => {
+    const updatedFilters = { ...localFilters, maxMileage: maxMileageInput };
+    setLocalFilters(updatedFilters);
     applyFiltersImmediately(updatedFilters);
   };
   
@@ -577,14 +592,24 @@ const FilterPanel = ({ filters, onFilterChange, totalCount }) => {
         {/* Max Mileage Filter */}
         <div className="filter-group">
           <label>Max Mileage</label>
-          <input 
-            type="number"
-            name="maxMileage"
-            value={localFilters.maxMileage}
-            onChange={handleInputChange}
-            placeholder="Max Mileage"
-            disabled={isLoadingOptions}
-          />
+          <div className="input-button-group">
+            <input 
+              type="number"
+              name="maxMileageInput"
+              value={maxMileageInput}
+              onChange={handleMaxMileageInputChange}
+              placeholder="Enter max mileage"
+              disabled={isLoadingOptions}
+            />
+            <button 
+              type="button"
+              onClick={handleApplyMaxMileage}
+              className="filter-button"
+              disabled={isLoadingOptions}
+            >
+              Filter
+            </button>
+          </div>
         </div>
 
         {/* Date Filter Section */}

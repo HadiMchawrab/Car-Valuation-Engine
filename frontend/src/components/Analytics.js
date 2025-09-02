@@ -70,7 +70,6 @@ const Analytics = () => {
         <div className="website-chips">
           <span className="website-chip all-websites">
             All Websites
-            <button className="chip-remove" onClick={() => handleRemoveWebsite('ALL')}>×</button>
           </span>
         </div>
       );
@@ -83,6 +82,13 @@ const Analytics = () => {
             <button className="chip-remove" onClick={() => handleRemoveWebsite(site)}>×</button>
           </span>
         ))}
+        <button 
+          className="clear-all-button" 
+          onClick={() => setFilters({ websites: null })}
+          title="Clear all website filters"
+        >
+          Clear All
+        </button>
       </div>
     );
   };
@@ -109,22 +115,21 @@ const Analytics = () => {
     setLoading(true);
     setError(null);
     try {
-      // Only send websites filter
-      const searchFilters = {
-        websites: filters.websites && filters.websites.length > 0 ? filters.websites : null
-      };
-      const cleanFilters = Object.fromEntries(
-        Object.entries(searchFilters).filter(([_, v]) => v != null)
-      );
+      // Build URL with query parameters
+      const url = new URL(`${API_BASE_URL}/api/analytics/stats`);
       
-      console.log('Analytics - Sending filters:', cleanFilters); // Debug log
+      // Add websites parameter if there are selected websites
+      if (filters.websites && filters.websites.length > 0) {
+        url.searchParams.set('websites', filters.websites.join(','));
+      }
       
-      const response = await fetch(`${API_BASE_URL}/api/analytics/stats`, {
-        method: 'POST',
+      console.log('Analytics - Requesting URL:', url.toString()); // Debug log
+      
+      const response = await fetch(url.toString(), {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: Object.keys(cleanFilters).length > 0 ? JSON.stringify(cleanFilters) : JSON.stringify({})
+        }
       });
       if (!response.ok) {
         throw new Error('Failed to fetch analytics stats');
@@ -147,7 +152,7 @@ const Analytics = () => {
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'contributors':
-        return <TopContributors filters={filters} />;
+        return <TopContributors filters={filters} onRemoveWebsite={handleRemoveWebsite} />;
       case 'depreciation':
         return <DepreciationAnalysis />;
       case 'price-spread':
@@ -158,7 +163,19 @@ const Analytics = () => {
             {/* Filter Status Display */}
             {filters.websites && filters.websites.length > 0 && (
               <div className="filter-status">
-                <h3>Showing data for: {filters.websites.join(', ')}</h3>
+                <span className="filter-label">Showing data for:</span>
+                <div className="website-filter-buttons">
+                  {filters.websites.map(site => (
+                    <button 
+                      key={site}
+                      className="website-filter-button"
+                      onClick={() => handleRemoveWebsite(site)}
+                    >
+                      {site}
+                      <span className="remove-icon">×</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
             

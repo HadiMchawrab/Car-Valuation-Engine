@@ -42,7 +42,7 @@ def get_order_by_clause(sort_by: str = "post_date_desc"):
         "title_za": "title COLLATE \"ar-x-icu\" ASC NULLS LAST",   # ي to أ (Z-A in Arabic)
         "year_desc": "year DESC NULLS LAST",
         "year_asc": "year ASC NULLS LAST",
-        "verified_seller": "COALESCE(dd.seller_verified, false) DESC, post_date DESC",
+        "verified_seller": "COALESCE(l.seller_type = 'business', false) DESC, post_date DESC",
         "price_desc": "price DESC NULLS LAST",
         "price_asc": "price ASC NULLS LAST"
     }
@@ -104,15 +104,10 @@ def get_listing_by_id(ad_id: str):
         cur = conn.cursor()
         cur.execute(
             "SELECT l.ad_id, l.url, l.website, l.title, l.price, l.currency, l.brand, l.model,l.trim, l.year, l.mileage, l.mileage_unit, "
-            "l.fuel_type, l.transmission_type, l.body_type, l.condition, l.color, "
-            "CASE "
-            "WHEN l.seller IS NULL OR l.seller = '' OR l.seller = 'N/A' "
-            "THEN COALESCE(NULLIF(dd.agency_name, ''), 'Individual Seller') "
-            "ELSE l.seller "
-            "END as seller, "
+            "l.fuel_type, l.transmission_type, l.body_type, l.condition, l.color, l.seller, "
             "l.seller_type, "
             "l.location_city, l.location_region, l.image_url, l.number_of_images, l.post_date, l.date_scraped "
-            "FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id WHERE l.ad_id = %s", (ad_id,)
+            "FROM listings l WHERE l.ad_id = %s", (ad_id,)
         )
         row = cur.fetchone()
         if not row:
@@ -135,8 +130,9 @@ def search_listings(
     max_price: int = Query(None),
     min_year: int = Query(None),
     max_year: int = Query(None),
-    min_mileage: int = Query(None),
     max_mileage: int = Query(None),
+    mileage: str = Query(None, description="Mileage filter: 0 for new cars, '>0' for used cars, null for all"),
+    is_new: bool = Query(None, description="Legacy parameter - use mileage instead"),
     fuel_type: str = Query(None),
     transmission_type: str = Query(None),
     body_type: str = Query(None),
@@ -150,10 +146,22 @@ def search_listings(
     limit: int = Query(40, ge=1, le=100),
     offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
     page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
-    meta: bool = Query(False, description="Include pagination metadata in response")
+    meta: bool = Query(False, description="Include pagination metadata in response"),
+    seller: str = Query(None, description="Seller filter (individual or agency)")
 ):
     if page is not None:
         offset = (page - 1) * limit
+    
+    # Convert new mileage parameter to is_new for compatibility
+    calculated_is_new = None
+    if mileage is not None:
+        if mileage == "0":
+            calculated_is_new = True
+        elif mileage == ">0":
+            calculated_is_new = False
+    elif is_new is not None:
+        calculated_is_new = is_new
+    
     conn = get_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -164,27 +172,25 @@ def search_listings(
             brand=brand, model=model, trim=trim, year=year,
             min_price=min_price, max_price=max_price,
             min_year=min_year, max_year=max_year,
-            min_mileage=min_mileage, max_mileage=max_mileage,
+            max_mileage=max_mileage, is_new=calculated_is_new,
             fuel_type=fuel_type, transmission_type=transmission_type,
             body_type=body_type, condition=condition, color=color,
             seller_type=seller_type, location_city=location_city,
-            location_region=location_region, website=website, sort_by=sort_by
+            location_region=location_region, website=website, sort_by=sort_by,
+            seller=seller
         )
+        
         filters, params = build_search_filters(search)
+        
         where_clause = " AND ".join(filters) if filters else "1=1"
         order_clause = get_order_by_clause(search.sort_by)
         query = (
             "SELECT l.ad_id, l.url, l.website, l.title, l.price, l.currency, l.brand, l.model, l.trim, l.year, l.mileage, l.mileage_unit, "
             "l.fuel_type, l.transmission_type, l.body_type, l.condition, l.color, "
-            "CASE "
-            "WHEN l.seller IS NULL OR l.seller = '' OR l.seller = 'N/A' "
-            "THEN COALESCE(NULLIF(dd.agency_name, ''), 'Individual Seller') "
-            "ELSE l.seller "
-            "END as seller, "
+            "l.seller, "
             "l.seller_type, "
-            "l.location_city, l.location_region, l.image_url, l.number_of_images, l.post_date, l.date_scraped, "
-            "dd.agency_name, dd.seller_verified "
-            "FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id "
+            "l.location_city, l.location_region, l.image_url, l.number_of_images, l.post_date, l.date_scraped "
+            "FROM listings l "
             "WHERE " + where_clause + " ORDER BY " + order_clause + " LIMIT %s OFFSET %s"
         )
         params.extend([limit, offset])
@@ -193,7 +199,7 @@ def search_listings(
         cols = [d[0] for d in cur.description]
         items = [Listing(**format_db_row(dict(zip(cols, row)))) for row in rows]
         # Get total count
-        cur.execute(f"SELECT COUNT(*) FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id WHERE {where_clause}", tuple(params[:-2]))
+        cur.execute(f"SELECT COUNT(*) FROM listings l WHERE {where_clause}", tuple(params[:-2]))
         total_count = cur.fetchone()[0]
         if meta:
             page_num = (offset // limit) + 1 if limit else 1
@@ -219,8 +225,9 @@ def count_search_listings(
     max_price: int = Query(None),
     min_year: int = Query(None),
     max_year: int = Query(None),
-    min_mileage: int = Query(None),
     max_mileage: int = Query(None),
+    mileage: str = Query(None),
+    is_new: bool = Query(None),
     fuel_type: str = Query(None),
     transmission_type: str = Query(None),
     body_type: str = Query(None),
@@ -230,8 +237,19 @@ def count_search_listings(
     location_city: str = Query(None),
     location_region: str = Query(None),
     website: str = Query(None),
-    sort_by: str = Query("post_date_desc")
+    sort_by: str = Query("post_date_desc"),
+    seller: str = Query(None)
 ):
+    # Convert new mileage parameter to is_new for compatibility
+    calculated_is_new = None
+    if mileage is not None:
+        if mileage == "0":
+            calculated_is_new = True
+        elif mileage == ">0":
+            calculated_is_new = False
+    elif is_new is not None:
+        calculated_is_new = is_new
+    
     conn = get_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -241,15 +259,16 @@ def count_search_listings(
             brand=brand, model=model, trim=trim, year=year,
             min_price=min_price, max_price=max_price,
             min_year=min_year, max_year=max_year,
-            min_mileage=min_mileage, max_mileage=max_mileage,
+            max_mileage=max_mileage, is_new=calculated_is_new,
             fuel_type=fuel_type, transmission_type=transmission_type,
             body_type=body_type, condition=condition, color=color,
             seller_type=seller_type, location_city=location_city,
-            location_region=location_region, website=website, sort_by=sort_by
+            location_region=location_region, website=website, sort_by=sort_by,
+            seller=seller
         )
         filters, params = build_search_filters(search)
         where_clause = " AND ".join(filters) if filters else "1=1"
-        query = f"SELECT COUNT(*) FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id WHERE {where_clause}"
+        query = f"SELECT COUNT(*) FROM listings l WHERE {where_clause}"
         cur.execute(query, tuple(params))
         total = cur.fetchone()[0]
         return {"total": total}
@@ -313,9 +332,8 @@ def search_contributor_listings(
         query = (
             "SELECT l.ad_id, l.url, l.website, l.title, l.price, l.currency, l.brand, l.model, l.trim, l.year, l.mileage, l.mileage_unit, "
             "l.fuel_type, l.transmission_type, l.body_type, l.condition, l.color, l.seller, l.seller_type, "
-            "l.location_city, l.location_region, l.image_url, l.number_of_images, l.post_date, "
-            "dd.agency_name, dd.seller_verified "
-            "FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id "
+            "l.location_city, l.location_region, l.image_url, l.number_of_images, l.post_date "
+            "FROM listings l "
             "WHERE " + where_clause + " ORDER BY " + order_clause + " LIMIT %s OFFSET %s"
         )
         all_params.extend([limit, offset])
@@ -324,7 +342,7 @@ def search_contributor_listings(
         cols = [d[0] for d in cur.description]
         items = [Listing(**format_db_row(dict(zip(cols, row)))) for row in rows]
         # Get total count
-        cur.execute(f"SELECT COUNT(*) FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id WHERE {where_clause}", tuple(all_params[:-2]))
+        cur.execute(f"SELECT COUNT(*) FROM listings l WHERE {where_clause}", tuple(all_params[:-2]))
         total_count = cur.fetchone()[0]
         if meta:
             page_num = (offset // limit) + 1 if limit else 1
@@ -386,7 +404,7 @@ def count_contributor_listings_with_filters(
         all_filters = [contributor_filter["filter"]] + additional_filters
         all_params = contributor_filter["params"] + additional_params
         where_clause = " AND ".join(all_filters)
-        query = f"SELECT COUNT(*) FROM listings l LEFT JOIN dubizzle_details dd ON l.ad_id = dd.ad_id WHERE {where_clause}"
+        query = f"SELECT COUNT(*) FROM listings l WHERE {where_clause}"
         conn = get_connection()
         cur = conn.cursor()
         cur.execute(query, tuple(all_params))
@@ -413,7 +431,7 @@ def paginated_meta_response(items, total_count, limit, offset):
 
 @app.get("/makes")
 def get_all_makes(
-    limit: int = Query(100, ge=1),
+    limit: int = Query(200, ge=1),
     offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
     page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
     meta: bool = Query(False, description="Include pagination metadata in response")
@@ -444,7 +462,7 @@ def get_all_makes(
 
 @app.get("/models")
 def get_all_models(
-    limit: int = Query(100, ge=1),
+    limit: int = Query(200, ge=1),
     offset: int = Query(0, ge=0, description="Number of items to skip (overridden by page if provided)"),
     page: int = Query(None, ge=1, description="Page number (1-based, overrides offset if provided)"),
     meta: bool = Query(False, description="Include pagination metadata in response")

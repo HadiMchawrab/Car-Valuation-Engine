@@ -249,9 +249,8 @@ const DepreciationAnalysis = () => {
     if (!selectedWebsites || selectedWebsites.length === 0) {
       return (
         <div className="website-chips">
-          <span className="website-chip">
+          <span className="website-chip all-websites">
             All Websites
-            <button className="chip-remove" onClick={() => handleRemoveWebsite('ALL')}>×</button>
           </span>
         </div>
       );
@@ -259,11 +258,18 @@ const DepreciationAnalysis = () => {
     return (
       <div className="website-chips">
         {selectedWebsites.map(site => (
-          <span className="website-chip" key={site}>
+          <span className="website-chip selected-website" key={site}>
             {site}
             <button className="chip-remove" onClick={() => handleRemoveWebsite(site)}>×</button>
           </span>
         ))}
+        <button 
+          className="clear-all-button" 
+          onClick={() => setSelectedWebsites([])}
+          title="Clear all website filters"
+        >
+          Clear All
+        </button>
       </div>
     );
   };
@@ -275,6 +281,29 @@ const DepreciationAnalysis = () => {
         <p className="analysis-subtitle">
           Analyze how vehicle values change over time
         </p>
+      </div>
+
+      {/* Display selected websites */}
+      <div className="selected-websites-display">
+        <span className="websites-label">Selected Websites: </span>
+        {selectedWebsites && selectedWebsites.length > 0 ? (
+          <div className="websites-list">
+            {selectedWebsites.map(site => (
+              <span key={site} className="website-display-chip">
+                {site}
+                <button 
+                  className="website-remove-btn" 
+                  onClick={() => handleRemoveWebsite(site)}
+                  title={`Remove ${site}`}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        ) : (
+          <span className="websites-list">All Websites</span>
+        )}
       </div>
 
       <div className="selection-controls">
